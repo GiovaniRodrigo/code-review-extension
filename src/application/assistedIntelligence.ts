@@ -1,4 +1,4 @@
-import { ReviewSession, ValidationFinding } from "../domain/reviewSession";
+import { ReviewSession, ValidationFinding, ValidationSeverity } from "../domain";
 
 export interface AssistedSuggestion {
   id: string;
@@ -14,7 +14,7 @@ export interface AssistedSuggestion {
     | "recommendation";
   title: string;
   description: string;
-  priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  priority: ValidationSeverity;
 }
 
 export interface IntelligenceHotspot {

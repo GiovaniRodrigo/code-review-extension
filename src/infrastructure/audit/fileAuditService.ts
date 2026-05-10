@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { ReviewSession } from '../../domain/reviewSession';
+import { ReviewSession } from '../../domain';
 
 export interface AuditEntry {
   id: string;

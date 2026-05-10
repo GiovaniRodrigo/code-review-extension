@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { SourceFile } from '../domain/architectureRules';
-import { SourceFileProvider } from '../application/reviewSessionService';
+import { SourceFile } from '../domain';
+import { SourceFileProvider } from '../application';
 
 const SUPPORTED_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 

@@ -6,6 +6,7 @@ import { WorkspaceSourceFileProvider } from './infrastructure/workspaceSourceFil
 import { ReviewPanel } from './presentation/reviewPanel';
 import { ReviewSidebarProvider } from './presentation/reviewSidebarProvider';
 import { FileAuditService } from './infrastructure/audit/fileAuditService';
+import { registerGitSessionWatcher } from './infrastructure/gitSessionWatcher';
 
 export function activate(context: vscode.ExtensionContext): void {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
@@ -15,6 +16,13 @@ export function activate(context: vscode.ExtensionContext): void {
   const auditService = new FileAuditService(context);
   const reviewSessionService = new ReviewSessionService(repository, gitService, sourceFileProvider, auditService);
   const reviewPanel = new ReviewPanel(context, reviewSessionService);
+
+  registerGitSessionWatcher(context, {
+    gitService,
+    onContextChanged: async () => {
+      await reviewPanel.refreshFromGitContext(false);
+    }
+  });
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(ReviewSidebarProvider.viewType, new ReviewSidebarProvider(reviewSessionService)),

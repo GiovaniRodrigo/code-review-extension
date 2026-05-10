@@ -1,3 +1,5 @@
+import { ValidationSeverity } from './types';
+
 export type ArchitectureRuleCategory = 'SOLID' | 'Clean Architecture' | 'DDD';
 
 export interface SourceFile {
@@ -8,7 +10,7 @@ export interface SourceFile {
 export interface ArchitectureRuleFinding {
   rule: string;
   category: ArchitectureRuleCategory;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  severity: ValidationSeverity;
   description: string;
   file: string;
   line: number;

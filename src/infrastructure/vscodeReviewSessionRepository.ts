@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { ReviewSession } from '../domain/reviewSession';
-import { ReviewSessionRepository } from '../application/reviewSessionService';
+import { ReviewSession } from '../domain';
+import { ReviewSessionRepository } from '../application';
 
 const CURRENT_SESSION_KEY = 'codeReview.currentSession';
 const SESSIONS_KEY = 'codeReview.sessions';
@@ -13,7 +13,12 @@ export class VscodeReviewSessionRepository implements ReviewSessionRepository {
   }
 
   async list(): Promise<ReviewSession[]> {
-    return this.context.workspaceState.get<ReviewSession[]>(SESSIONS_KEY, []);
+    const sessions = this.context.workspaceState.get<ReviewSession[]>(SESSIONS_KEY, []);
+    return [...sessions].sort((a, b) => {
+      const aTime = Date.parse(a.updatedAt || a.createdAt || '');
+      const bTime = Date.parse(b.updatedAt || b.createdAt || '');
+      return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+    });
   }
 
   async getById(id: string): Promise<ReviewSession | undefined> {

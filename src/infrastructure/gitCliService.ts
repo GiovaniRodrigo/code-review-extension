@@ -1,8 +1,8 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
-import { GitContext } from '../domain/reviewSession';
-import { GitService } from '../application/reviewSessionService';
+import { GitContext } from '../domain';
+import { GitService } from '../application';
 
 const execFileAsync = promisify(execFile);
 
