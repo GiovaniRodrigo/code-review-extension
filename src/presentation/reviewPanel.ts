@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { ReviewSessionService } from '../application/reviewSessionService';
+import { ReviewSessionUseCases } from '../application/useCases';
 import {
   isReviewSessionStatus,
   isReviewCommentStatus,
@@ -20,7 +20,7 @@ export class ReviewPanel {
 
   constructor(
     private readonly context: vscode.ExtensionContext,
-    private readonly service: ReviewSessionService
+    private readonly service: ReviewSessionUseCases
   ) {
     this.context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('code-review-before', {
       provideTextDocumentContent: (uri) => this.diffBeforeDocuments.get(uri.toString()) ?? ''
@@ -243,7 +243,7 @@ export class ReviewPanel {
 
     if (message.type === 'runArchitectureValidation' && typeof message.payload?.id === 'string') {
       const result = await this.service.runArchitectureValidation(message.payload.id);
-      this.post({ type: 'architectureValidationCompleted', payload: { count: result.findings.length } });
+      this.post({ type: 'architectureValidationCompleted', payload: { count: result.findingsCount } });
       await this.postState();
     }
 
@@ -614,7 +614,7 @@ function isNavigationKind(value: unknown): value is ReviewNavigationKind {
   return value === 'commit' || value === 'diff' || value === 'file' || value === 'comment' || value === 'validation';
 }
 
-function buildMarkdownReport(state: Awaited<ReturnType<ReviewSessionService['getDashboardState']>>): string {
+function buildMarkdownReport(state: Awaited<ReturnType<ReviewSessionUseCases['getDashboardState']>>): string {
   const session = state.currentSession;
   const lines = [
     '# Relatório de Code Review',

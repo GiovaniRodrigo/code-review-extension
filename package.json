@@ -139,9 +139,11 @@
     "watch": "npm run watch:extension",
     "watch:extension": "node esbuild.mjs --watch",
     "watch:webview": "npm --prefix webview-ui run build -- --watch",
-    "test": "node --test test/*.test.mjs",
+    "test": "npm run test:tui",
     "package": "npm run compile && npx @vscode/vsce package --no-dependencies --allow-missing-repository",
-    "clean": "rm -rf dist webview-ui/dist node_modules webview-ui/node_modules"
+    "clean": "rm -rf dist webview-ui/dist node_modules webview-ui/node_modules",
+    "test:plain": "node --test test/*.test.mjs",
+    "test:tui": "node scripts/test-tui.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

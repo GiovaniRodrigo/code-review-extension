@@ -64,7 +64,7 @@ export class ReviewFeedbackService {
     return updated;
   }
 
-  async runArchitectureValidation(id: string): Promise<{ session: ReviewSession }> {
+  async runArchitectureValidation(id: string): Promise<{ session: ReviewSession; findings: ReviewSession['findings']; findingsCount: number }> {
     const session = await this.getExistingSession(id);
     const sourceFiles = await this.sourceFileProvider?.readFiles(session.changedFiles) ?? [];
     const findings = analyzeArchitectureRules(sourceFiles);
@@ -81,7 +81,7 @@ export class ReviewFeedbackService {
     }), session);
 
     await this.saveAndAudit(updated);
-    return { session: updated };
+    return { session: updated, findings: updated.findings, findingsCount: findings.length };
   }
 
   private async getExistingSession(id: string): Promise<ReviewSession> {

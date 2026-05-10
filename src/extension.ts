@@ -1,20 +1,11 @@
 import * as vscode from 'vscode';
-import { ReviewSessionService } from './application/reviewSessionService';
-import { GitCliService } from './infrastructure/gitCliService';
-import { LocalJsonReviewSessionRepository } from './infrastructure/localJsonReviewSessionRepository';
-import { WorkspaceSourceFileProvider } from './infrastructure/workspaceSourceFileProvider';
 import { ReviewPanel } from './presentation/reviewPanel';
 import { ReviewSidebarProvider } from './presentation/reviewSidebarProvider';
-import { FileAuditService } from './infrastructure/audit/fileAuditService';
 import { registerGitSessionWatcher } from './infrastructure/gitSessionWatcher';
+import { buildExtensionComposition } from './infrastructure/vscodeCompositionRoot';
 
 export function activate(context: vscode.ExtensionContext): void {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  const repository = new LocalJsonReviewSessionRepository(context);
-  const gitService = new GitCliService(workspaceFolder);
-  const sourceFileProvider = new WorkspaceSourceFileProvider(workspaceFolder);
-  const auditService = new FileAuditService(context);
-  const reviewSessionService = new ReviewSessionService(repository, gitService, sourceFileProvider, auditService);
+  const { gitService, reviewSessionService } = buildExtensionComposition(context);
   const reviewPanel = new ReviewPanel(context, reviewSessionService);
 
   registerGitSessionWatcher(context, {

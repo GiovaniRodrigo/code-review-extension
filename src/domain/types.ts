@@ -54,3 +54,20 @@ export interface GitContext {
   changedFiles: string[];
   commits: string[];
 }
+
+
+export function isReviewSessionStatus(value: unknown): value is ReviewSessionStatus {
+  return typeof value === 'string' && REVIEW_SESSION_STATUSES.includes(value as ReviewSessionStatus);
+}
+
+export function isValidationFindingStatus(value: unknown): value is ValidationFindingStatus {
+  return typeof value === 'string' && VALIDATION_FINDING_STATUSES.includes(value as ValidationFindingStatus);
+}
+
+export function isValidationSeverity(value: unknown): value is ValidationSeverity {
+  return typeof value === 'string' && VALIDATION_SEVERITIES.includes(value as ValidationSeverity);
+}
+
+export function isReviewCommentStatus(value: unknown): value is ReviewCommentStatus {
+  return typeof value === 'string' && REVIEW_COMMENT_STATUSES.includes(value as ReviewCommentStatus);
+}

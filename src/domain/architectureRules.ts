@@ -1,3 +1,5 @@
+import { RegexSourceAstBuilder } from './ast/regexSourceAstBuilder';
+import { SourceAst, SourceAstBuilder, countAstNodes, findAstNodes, getImportSources } from './ast/sourceAst';
 import { ValidationSeverity } from './types';
 
 export type ArchitectureRuleCategory = 'SOLID' | 'Clean Architecture' | 'DDD';
@@ -16,58 +18,73 @@ export interface ArchitectureRuleFinding {
   line: number;
 }
 
-export function analyzeArchitectureRules(files: SourceFile[]): ArchitectureRuleFinding[] {
-  const findings = files.flatMap((file) => [
+export interface ArchitectureAnalyzerOptions {
+  astBuilder?: SourceAstBuilder;
+}
+
+export function analyzeArchitectureRules(files: SourceFile[], options: ArchitectureAnalyzerOptions = {}): ArchitectureRuleFinding[] {
+  const astBuilder = options.astBuilder ?? new RegexSourceAstBuilder();
+  const astFiles = files.map((file) => astBuilder.build(file));
+  const findings = astFiles.flatMap((file) => [
     ...solidRules(file),
     ...cleanArchitectureRules(file),
     ...dddRules(file)
   ]);
 
-  return [...findings, ...detectCircularDependencies(files)];
+  return [...findings, ...detectCircularDependencies(astFiles)];
 }
 
-function solidRules(file: SourceFile): ArchitectureRuleFinding[] {
+function solidRules(file: SourceAst): ArchitectureRuleFinding[] {
   const findings: ArchitectureRuleFinding[] = [];
-  const methodCount = countMatches(file.content, /\n\s*(?:public\s+|private\s+|protected\s+)?(?:async\s+)?[a-zA-Z_]\w+\s*\(/g);
-  const imports = extractImports(file.content);
+  const methodCount = countAstNodes(file, 'MethodDeclaration');
+  const imports = getImportSources(file);
 
   if (methodCount > 12) {
     findings.push(finding(file, 'SRP', 'SOLID', 'HIGH', 'Arquivo concentra muitas responsabilidades pelo volume de metodos.', 1));
   }
 
-  if (countMatches(file.content, /\b(case|if)\s*\([^)]*(type|kind|status|role)[^)]*\)/g) > 4) {
-    findings.push(finding(file, 'OCP', 'SOLID', 'MEDIUM', 'Fluxo condicional por tipo/status sugere extensao por modificacao.', lineOf(file.content, /\b(case|if)\s*\(/)));
+  const conditionalByType = findAstNodes(file, (node) =>
+    node.kind === 'ConditionalStatement' && /\b(type|kind|status|role)\b/i.test(node.value ?? '')
+  );
+  if (conditionalByType.length > 4) {
+    findings.push(finding(file, 'OCP', 'SOLID', 'MEDIUM', 'Fluxo condicional por tipo/status sugere extensao por modificacao.', conditionalByType[0].line));
   }
 
-  if (/\bextends\b/.test(file.content) && /throw new Error\(['"`](not implemented|unsupported|nao suportado)/i.test(file.content)) {
-    findings.push(finding(file, 'LSP', 'SOLID', 'HIGH', 'Subclasse parece invalidar comportamento esperado com erro de nao suporte.', lineOf(file.content, /throw new Error/i)));
+  const extendsClass = findAstNodes(file, (node) => node.kind === 'ClassDeclaration' && Boolean(node.metadata?.extends));
+  const unsupportedThrow = findAstNodes(file, (node) =>
+    node.kind === 'ThrowStatement' && /not implemented|unsupported|nao suportado/i.test(node.value ?? '')
+  );
+  if (extendsClass.length > 0 && unsupportedThrow.length > 0) {
+    findings.push(finding(file, 'LSP', 'SOLID', 'HIGH', 'Subclasse parece invalidar comportamento esperado com erro de nao suporte.', unsupportedThrow[0].line));
   }
 
-  if (/interface\s+\w+[\s\S]*?{[\s\S]*?}/.test(file.content) && methodCount > 8) {
-    findings.push(finding(file, 'ISP', 'SOLID', 'MEDIUM', 'Interface grande pode obrigar consumidores a depender de metodos desnecessarios.', lineOf(file.content, /interface\s+\w+/)));
+  const hasInterface = countAstNodes(file, 'InterfaceDeclaration') > 0;
+  if (hasInterface && methodCount > 8) {
+    const interfaceLine = findAstNodes(file, (node) => node.kind === 'InterfaceDeclaration')[0]?.line ?? 1;
+    findings.push(finding(file, 'ISP', 'SOLID', 'MEDIUM', 'Interface grande pode obrigar consumidores a depender de metodos desnecessarios.', interfaceLine));
   }
 
   if (
     /src\/(domain|application)\//.test(normalizePath(file.path))
     && imports.some((item) => /infrastructure|presentation|vscode|react/.test(item))
   ) {
-    findings.push(finding(file, 'DIP', 'SOLID', 'CRITICAL', 'Camada de dominio/aplicacao depende de detalhe externo ou framework.', lineOf(file.content, /import\s+/)));
+    findings.push(finding(file, 'DIP', 'SOLID', 'CRITICAL', 'Camada de dominio/aplicacao depende de detalhe externo ou framework.', firstImportLine(file)));
   }
 
   return findings;
 }
 
-function cleanArchitectureRules(file: SourceFile): ArchitectureRuleFinding[] {
+function cleanArchitectureRules(file: SourceAst): ArchitectureRuleFinding[] {
   const findings: ArchitectureRuleFinding[] = [];
   const path = normalizePath(file.path);
-  const imports = extractImports(file.content);
+  const imports = getImportSources(file);
 
   if (/src\/domain\//.test(path) && imports.some((item) => /application|infrastructure|presentation|telemetry|vscode|react/.test(item))) {
-    findings.push(finding(file, 'Dependência incorreta', 'Clean Architecture', 'CRITICAL', 'Dominio deve permanecer independente das demais camadas.', lineOf(file.content, /import\s+/)));
+    findings.push(finding(file, 'Dependência incorreta', 'Clean Architecture', 'CRITICAL', 'Dominio deve permanecer independente das demais camadas.', firstImportLine(file)));
   }
 
   if (/src\/application\//.test(path) && imports.some((item) => /infrastructure|presentation|vscode|react/.test(item))) {
-    findings.push(finding(file, 'Violação de camadas', 'Clean Architecture', 'HIGH', 'Aplicacao deve orquestrar contratos sem depender de infraestrutura ou UI.', lineOf(file.content, /import\s+/)));
+    findings.push(finding(file, 'Violação de camadas', 'Clean Architecture', 'HIGH', 'Aplicacao deve orquestrar contratos sem depender de infraestrutura ou UI.', firstImportLine(file)));
   }
 
   if (imports.length > 12) {
@@ -77,44 +94,49 @@ function cleanArchitectureRules(file: SourceFile): ArchitectureRuleFinding[] {
   return findings;
 }
 
-function dddRules(file: SourceFile): ArchitectureRuleFinding[] {
+function dddRules(file: SourceAst): ArchitectureRuleFinding[] {
   const findings: ArchitectureRuleFinding[] = [];
   const path = normalizePath(file.path);
+  const declarations = findAstNodes(file, (node) => node.kind === 'ClassDeclaration' || node.kind === 'InterfaceDeclaration');
+  const externalCalls = findAstNodes(file, (node) => node.kind === 'ExternalCall');
 
   if (/src\/domain\//.test(path) && /(user|order|payment|review|validation).*(user|order|payment|review|validation)/i.test(file.content)) {
     findings.push(finding(file, 'Bounded Context', 'DDD', 'MEDIUM', 'Arquivo de dominio mistura termos de contextos distintos.', 1));
   }
 
-  if (/(class|interface)\s+\w*Entity\b/.test(file.content) && !/\bid\b/.test(file.content)) {
-    findings.push(finding(file, 'Entidades', 'DDD', 'HIGH', 'Entidade deve possuir identidade explicita.', lineOf(file.content, /(class|interface)\s+\w*Entity\b/)));
+  const entity = declarations.find((node) => /Entity$/.test(node.name ?? ''));
+  if (entity && !/\bid\b/.test(file.content)) {
+    findings.push(finding(file, 'Entidades', 'DDD', 'HIGH', 'Entidade deve possuir identidade explicita.', entity.line));
   }
 
-  if (/(class|interface)\s+\w*ValueObject\b/.test(file.content) && /\b(set|update|mutate)\w*\s*\(/.test(file.content)) {
-    findings.push(finding(file, 'Value Objects', 'DDD', 'MEDIUM', 'Value Object deve preservar imutabilidade sem mutadores.', lineOf(file.content, /\b(set|update|mutate)\w*\s*\(/)));
+  const valueObject = declarations.find((node) => /ValueObject$/.test(node.name ?? ''));
+  const mutator = findAstNodes(file, (node) => node.kind === 'MethodDeclaration' && /^(set|update|mutate)/.test(node.name ?? ''))[0];
+  if (valueObject && mutator) {
+    findings.push(finding(file, 'Value Objects', 'DDD', 'MEDIUM', 'Value Object deve preservar imutabilidade sem mutadores.', mutator.line));
   }
 
-  if (/src\/domain\/.*service/i.test(path) && /(vscode|fetch\(|axios|infrastructure)/.test(file.content)) {
-    findings.push(finding(file, 'Serviços de domínio', 'DDD', 'HIGH', 'Servico de dominio nao deve coordenar infraestrutura ou I/O externo.', lineOf(file.content, /(vscode|fetch\(|axios|infrastructure)/)));
+  if (/src\/domain\/.*service/i.test(path) && externalCalls.some((node) => /(vscode|fetch|axios)/.test(node.value ?? ''))) {
+    findings.push(finding(file, 'Serviços de domínio', 'DDD', 'HIGH', 'Servico de dominio nao deve coordenar infraestrutura ou I/O externo.', externalCalls[0].line));
   }
 
   return findings;
 }
 
-function detectCircularDependencies(files: SourceFile[]): ArchitectureRuleFinding[] {
+function detectCircularDependencies(files: SourceAst[]): ArchitectureRuleFinding[] {
   const byPath = new Map(files.map((file) => [normalizePath(file.path), file]));
   const findings: ArchitectureRuleFinding[] = [];
 
   files.forEach((file) => {
     const filePath = normalizePath(file.path);
-    const imports = extractImports(file.content).map((item) => resolveImportPath(filePath, item));
+    const imports = getImportSources(file).map((item) => resolveImportPath(filePath, item));
 
     imports.forEach((importPath) => {
       const imported = byPath.get(importPath);
       if (!imported) return;
 
-      const reverseImports = extractImports(imported.content).map((item) => resolveImportPath(importPath, item));
+      const reverseImports = getImportSources(imported).map((item) => resolveImportPath(importPath, item));
       if (reverseImports.includes(filePath) && filePath < importPath) {
-        findings.push(finding(file, 'Dependência circular', 'Clean Architecture', 'HIGH', `Dependencia circular entre ${filePath} e ${importPath}.`, lineOf(file.content, /import\s+/)));
+        findings.push(finding(file, 'Dependência circular', 'Clean Architecture', 'HIGH', `Dependencia circular entre ${filePath} e ${importPath}.`, firstImportLine(file)));
       }
     });
   });
@@ -123,7 +145,7 @@ function detectCircularDependencies(files: SourceFile[]): ArchitectureRuleFindin
 }
 
 function finding(
-  file: SourceFile,
+  file: SourceAst,
   rule: string,
   category: ArchitectureRuleCategory,
   severity: ArchitectureRuleFinding['severity'],
@@ -133,8 +155,8 @@ function finding(
   return { rule, category, severity, description, file: file.path, line };
 }
 
-function extractImports(content: string): string[] {
-  return Array.from(content.matchAll(/import\s+(?:[^'"`]+from\s+)?['"`]([^'"`]+)['"`]/g)).map((match) => match[1]);
+function firstImportLine(file: SourceAst): number {
+  return findAstNodes(file, (node) => node.kind === 'ImportDeclaration')[0]?.line ?? 1;
 }
 
 function resolveImportPath(fromPath: string, importPath: string): string {
@@ -154,14 +176,4 @@ function resolveImportPath(fromPath: string, importPath: string): string {
 
 function normalizePath(path: string): string {
   return path.replaceAll('\\', '/');
-}
-
-function countMatches(content: string, pattern: RegExp): number {
-  return Array.from(content.matchAll(pattern)).length;
-}
-
-function lineOf(content: string, pattern: RegExp): number {
-  const match = pattern.exec(content);
-  if (!match?.index) return 1;
-  return content.slice(0, match.index).split(/\r?\n/).length;
 }

@@ -83,3 +83,7 @@ export function updateSessionMergeDecision(session: ReviewSession, now = new Dat
     history: appendHistory(session, 'MERGE_BLOCK_UPDATED', decision.blocked ? 'Merge bloqueado por pendencias de review' : 'Merge liberado para a sessao', updatedAt)
   };
 }
+
+export function updateMergeDecision(session: ReviewSession, now = new Date()): ReviewSession {
+  return updateSessionMergeDecision(session, now);
+}

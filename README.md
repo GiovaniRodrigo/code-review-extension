@@ -51,7 +51,7 @@ npm test
 npm run compile
 ```
 
-Resultado validado: **31 testes passando** e build completo da extensão/Webview.
+Resultado validado: **40 testes passando** e build completo da extensão/Webview.
 
 ## Arquitetura
 

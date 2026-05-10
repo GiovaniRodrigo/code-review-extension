@@ -8,3 +8,4 @@ export * from './ReviewPersistenceService';
 export * from './assistedIntelligence';
 export * from './integrationDescriptors';
 export * from './performanceCache';
+export * from './useCases';

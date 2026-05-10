@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { ReviewSessionService } from '../application/reviewSessionService';
+import { ReviewSessionUseCases } from '../application/useCases';
 
 export class ReviewSidebarProvider implements vscode.WebviewViewProvider {
   static readonly viewType = 'codeReview.sidebar';
 
-  constructor(private readonly service: ReviewSessionService) {}
+  constructor(private readonly service: ReviewSessionUseCases) {}
 
   async resolveWebviewView(webviewView: vscode.WebviewView): Promise<void> {
     const state = await this.service.getDashboardState(vscode.env.machineId, vscode.env.language);
