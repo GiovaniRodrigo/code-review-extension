@@ -1,8 +1,8 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { ReviewSession } from '../domain/reviewSession';
-import { ReviewSessionRepository } from '../application/reviewSessionService';
+import { ReviewSession } from '../domain';
+import { ReviewSessionRepository } from '../application';
 
 interface LocalReviewDatabase {
   version: 1;
@@ -32,7 +32,11 @@ export class LocalJsonReviewSessionRepository implements ReviewSessionRepository
 
   async list(): Promise<ReviewSession[]> {
     const database = await this.readDatabase();
-    return database.sessions;
+    return [...database.sessions].sort((a, b) => {
+      const aTime = Date.parse(a.updatedAt || a.createdAt || '');
+      const bTime = Date.parse(b.updatedAt || b.createdAt || '');
+      return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+    });
   }
 
   async getById(id: string): Promise<ReviewSession | undefined> {

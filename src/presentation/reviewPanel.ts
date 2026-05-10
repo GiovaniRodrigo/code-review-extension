@@ -8,7 +8,7 @@ import {
   isValidationFindingStatus,
   isValidationSeverity,
   ReviewNavigationKind
-} from '../domain/reviewSession';
+} from '../domain';
 
 type ReviewView = 'dashboard' | 'analysis';
 
@@ -16,11 +16,16 @@ const execFileAsync = promisify(execFile);
 
 export class ReviewPanel {
   private panel?: vscode.WebviewPanel;
+  private readonly diffBeforeDocuments = new Map<string, string>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly service: ReviewSessionService
-  ) {}
+  ) {
+    this.context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('code-review-before', {
+      provideTextDocumentContent: (uri) => this.diffBeforeDocuments.get(uri.toString()) ?? ''
+    }));
+  }
 
   open(view: ReviewView): void {
     if (this.panel) {
@@ -49,16 +54,36 @@ export class ReviewPanel {
     this.postState();
   }
 
-  async startReview(): Promise<void> {
+
+  async refreshFromGitContext(showNotification = true): Promise<void> {
+    const detectedAuthor = await getGitUserName();
+    const session = await this.service.syncCurrentSessionWithGit(detectedAuthor, vscode.env.machineId);
+
+    if (this.panel) {
+      await this.postState();
+    }
+
+    if (showNotification) {
+      if (session) {
+        vscode.window.setStatusBarMessage(`Code Review: sessão ativa ${session.title}`, 4000);
+      } else {
+        vscode.window.setStatusBarMessage('Code Review: nenhuma sessão para a branch/PR atual', 4000);
+      }
+    }
+  }
+
+  async startReview(selection?: { currentBranch?: string; baseBranch?: string; pullRequestId?: string }): Promise<void> {
     if (!this.panel) {
       this.open('analysis');
     }
 
-    const author = await getGitUserName();
+    const detectedAuthor = await getGitUserName();
+    const author = inferDeveloperFromBranch(selection?.currentBranch) || detectedAuthor;
     const reviewer = vscode.env.machineId;
-    const session = await this.service.startReview(author, reviewer);
+    const session = await this.service.startReview(author, reviewer, selection);
 
     this.post({ type: 'reviewSessionStarted', payload: session });
+    await this.postState();
     vscode.window.showInformationMessage('Review session iniciada.');
   }
 
@@ -68,7 +93,11 @@ export class ReviewPanel {
     }
 
     if (message.type === 'startReview') {
-      await this.startReview();
+      await this.startReview({
+        currentBranch: typeof message.payload?.currentBranch === 'string' ? message.payload.currentBranch : undefined,
+        baseBranch: typeof message.payload?.baseBranch === 'string' ? message.payload.baseBranch : undefined,
+        pullRequestId: typeof message.payload?.pullRequestId === 'string' ? message.payload.pullRequestId : undefined
+      });
     }
 
     if (message.type === 'openReview' && typeof message.payload?.id === 'string') {
@@ -262,7 +291,8 @@ export class ReviewPanel {
     if (message.type === 'openDiff' && typeof message.payload?.file === 'string') {
       await this.openGitDiff(
         message.payload.file,
-        typeof message.payload.commit === 'string' ? message.payload.commit : 'HEAD'
+        typeof message.payload.commit === 'string' ? message.payload.commit : 'HEAD',
+        typeof message.payload.line === 'number' ? message.payload.line : 1
       );
       this.post({ type: 'operationCompleted', payload: { message: `Diff aberto: ${message.payload.file}` } });
     }
@@ -311,6 +341,11 @@ export class ReviewPanel {
     if (message.type === 'syncRemote') {
       const syncedPath = await this.service.syncRemote();
       this.post({ type: 'operationCompleted', payload: { message: `Sincronizacao concluida em: ${syncedPath}` } });
+    }
+
+    if (message.type === 'openSettingsJson') {
+      await vscode.commands.executeCommand('workbench.action.openSettingsJson');
+      this.post({ type: 'operationCompleted', payload: { message: 'settings.json aberto para configurar integrações.' } });
     }
 
     if (message.type === 'runVSCodeTests') {
@@ -467,16 +502,29 @@ export class ReviewPanel {
     await vscode.window.showTextDocument(document, { preview: false });
   }
 
-  private async openGitDiff(file: string, commit = 'HEAD'): Promise<void> {
+  private async openGitDiff(file: string, commit = 'HEAD', line = 1): Promise<void> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
       throw new Error('Abra um workspace para navegar até arquivos da revisão.');
     }
 
     const normalized = file.replace(/^\/+/, '');
-    const diff = await this.readGitDiff(workspaceFolder.uri.fsPath, normalized, commit);
-    const document = await vscode.workspace.openTextDocument({ content: diff, language: 'diff' });
-    await vscode.window.showTextDocument(document, { preview: false });
+    const normalizedCommit = commit?.trim() || 'HEAD';
+    const beforeRef = normalizedCommit === 'HEAD' ? 'HEAD' : `${normalizedCommit}^`;
+    const beforeContent = await this.readGitFile(workspaceFolder.uri.fsPath, normalized, beforeRef);
+    const beforeUri = vscode.Uri.parse(`code-review-before:/${encodeURIComponent(normalized)}?ref=${encodeURIComponent(beforeRef)}&t=${Date.now()}`);
+    this.diffBeforeDocuments.set(beforeUri.toString(), beforeContent);
+
+    const afterUri = vscode.Uri.joinPath(workspaceFolder.uri, normalized);
+    const title = `Code Review Diff: ${normalized} (${beforeRef} ↔ workspace)`;
+    await vscode.commands.executeCommand('vscode.diff', beforeUri, afterUri, title, { preview: false });
+
+    const editor = vscode.window.visibleTextEditors.find((item) => item.document.uri.toString() === afterUri.toString());
+    if (editor) {
+      const position = new vscode.Position(Math.max(0, line - 1), 0);
+      editor.selection = new vscode.Selection(position, position);
+      editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+    }
   }
 
   private handleError(error: unknown): void {
@@ -645,4 +693,11 @@ function getNonce(): string {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+function inferDeveloperFromBranch(branch?: string): string | undefined {
+  if (!branch) return undefined;
+  const normalized = branch.trim();
+  const match = normalized.match(/^(?:feature|fix|hotfix|bugfix|chore|refactor)\/([^/]+)\//i);
+  return match?.[1];
 }

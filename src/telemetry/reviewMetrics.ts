@@ -1,4 +1,4 @@
-import { ReviewSession, ValidationFinding } from '../domain/reviewSession';
+import { ReviewSession, ValidationFinding } from '../domain';
 
 export interface ReviewMetrics {
   qualityScore: number;
