@@ -32,7 +32,25 @@ test('lists sessions and opens an existing review as current', async () => {
 
   assert.equal(opened.id, first.id);
   assert.equal(state.currentSession?.id, first.id);
-  assert.equal(state.sessions.length, 1);
+  assert.equal(state.sessions.length, 2);
+});
+
+
+test('keeps independent history when creating sessions for different branches', async () => {
+  const repository = new MemoryReviewSessionRepository();
+  const gitService = new MutableGitService(git);
+  const service = new ReviewSessionService(repository, gitService);
+
+  const first = await service.startReview('Developer', 'Reviewer');
+  gitService.context = { ...git, currentBranch: 'feature/payment' };
+  const second = await service.startReview('Developer', 'Reviewer');
+  const state = await service.getDashboardState('Reviewer');
+
+  assert.notEqual(first.id, second.id);
+  assert.equal(state.sessions.length, 2);
+  assert.equal(state.currentSession?.id, second.id);
+  assert.ok(state.sessions.some((session) => session.sourceBranch === 'feature/session-list'));
+  assert.ok(state.sessions.some((session) => session.sourceBranch === 'feature/payment'));
 });
 
 test('rejects opening a review session that does not exist', async () => {
@@ -199,6 +217,17 @@ class MemoryReviewSessionRepository {
   async delete(id) {
     this.sessions = this.sessions.filter((session) => session.id !== id);
     if (this.current?.id === id) this.current = this.sessions[0];
+  }
+}
+
+
+class MutableGitService {
+  constructor(context) {
+    this.context = context;
+  }
+
+  async getContext() {
+    return this.context;
   }
 }
 
