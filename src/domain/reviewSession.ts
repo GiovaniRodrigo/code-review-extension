@@ -1,3 +1,6 @@
+import * as vscode from 'vscode';
+import { getSessionSummary } from './reviewSessionHelper';
+
 export const REVIEW_SESSION_STATUSES = [
   'OPEN',
   'IN_REVIEW',

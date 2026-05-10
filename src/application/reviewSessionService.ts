@@ -1,3 +1,4 @@
+import { LocalJsonReviewSessionRepository } from '../infrastructure/localJsonReviewSessionRepository';
 import {
   analyzeArchitectureRules,
   SourceFile,
