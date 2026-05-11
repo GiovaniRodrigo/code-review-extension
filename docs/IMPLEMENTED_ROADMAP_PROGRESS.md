@@ -1,81 +1,19 @@
-# Progresso Implementado do ROADMAP
+# Implementação aplicada a partir do roadmap
 
-## Fase 9 — Persistência e Auditoria
+## Itens aplicados
 
-Status: concluída.
+- Contratos centralizados em `src/contracts`.
+- Runtime Community/Premium.
+- Estado visual de edição para dashboard.
+- Graph local inicial.
+- Analyzer arquitetural inicial.
+- Providers de IA Community/Premium.
+- Workflow Engine.
+- Retrieval local por palavras-chave.
+- Contratos de plugins.
+- Configuração `giovaniCodeReview.premiumTier`.
+- Testes TDD do roadmap.
 
-### Entregas
+## Limites desta implementação
 
-- Banco local em arquivo JSON versionado no `globalStorage` da extensão.
-- Migração automática do estado legado do VS Code `workspaceState` para o banco local.
-- Auditoria append-only em NDJSON com encadeamento por hash SHA-256.
-- Exportação de auditoria por comando e atalho.
-- Exportação do banco local por comando e atalho.
-- Backup local com arquivo timestampado.
-- Sincronização remota simulada para caminho configurável (`codeReview.remoteSyncPath`) ou arquivo `.code-review-sync.json` no workspace.
-
-### Comandos
-
-| Comando | Atalho | Finalidade |
-| --- | --- | --- |
-| `codeReview.exportAuditLog` | `Ctrl+Alt+E` | Exporta auditoria append-only |
-| `codeReview.exportLocalDatabase` | `Ctrl+Alt+D` | Exporta banco local |
-| `codeReview.createBackup` | `Ctrl+Alt+B` | Cria backup local |
-| `codeReview.syncRemote` | `Ctrl+Alt+S` | Sincroniza base para arquivo remoto configurável |
-
-## Fase 10 — Performance
-
-Status: concluída como base funcional.
-
-### Entregas
-
-- Cache local TTL para o estado do dashboard.
-- Lazy loading das sessões listadas no dashboard, limitado a 50 itens por carga.
-- Cálculo assíncrono do estado com `Promise.all`.
-- Renderização incremental preparada por batch de 25 itens.
-- Estado de performance exposto para a UI.
-
-## Fase 11 — Integrações Futuras
-
-Status: iniciado.
-
-### Entregas
-
-- Adaptadores descritivos para GitHub, GitLab, Azure DevOps e Bitbucket.
-- Adaptadores descritivos para Jira, Linear, Slack e Discord.
-- UI de configurações exibindo integrações preparadas para configuração futura.
-
-## Arquivos principais alterados
-
-- `src/infrastructure/localJsonReviewSessionRepository.ts`
-- `src/infrastructure/audit/fileAuditService.ts`
-- `src/infrastructure/performanceCache.ts`
-- `src/infrastructure/integrationAdapters.ts`
-- `src/application/reviewSessionService.ts`
-- `src/presentation/reviewPanel.ts`
-- `src/extension.ts`
-- `webview-ui/src/main.jsx`
-- `webview-ui/src/styles.css`
-- `package.json`
-- `docs/ROADMAP.md`
-
-## Fase 12 — Onboarding e Tutoriais Guiados
-
-Status: implementado.
-
-Entregas:
-
-- Onboarding automático para primeiro acesso.
-- Botão para reabrir tutorial guiado no menu lateral.
-- Overlay escurecido com destaque do elemento ativo.
-- Balão explicativo com contador de etapa.
-- Controles de navegação: Próximo, Voltar, Pular e Concluir.
-- Persistência local de conclusão com `localStorage`.
-- Estrutura extensível por `data-tour` e `defaultTourSteps`.
-- Documentação criada em `docs/ONBOARDING_TOURS.md`.
-
-Validação:
-
-- `npm run build:webview`: aprovado.
-- `npm run build:extension`: aprovado.
-- `npm test`: 27 testes aprovados.
+Esta entrega cria a fundação compilável e testada das fases. Backend premium completo, embeddings reais, adapters reais de IA e UI visual completa ficam preparados por contratos e documentação, mas devem ser expandidos em etapas seguintes.

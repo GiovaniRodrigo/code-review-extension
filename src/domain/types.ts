@@ -1,9 +1,12 @@
 export const REVIEW_SESSION_STATUSES = [
+  'DRAFT',
   'OPEN',
   'IN_REVIEW',
   'NEEDS_CHANGES',
   'FIXED',
   'APPROVED',
+  'REJECTED',
+  'MERGED',
   'REOPENED'
 ] as const;
 

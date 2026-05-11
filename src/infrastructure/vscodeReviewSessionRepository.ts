@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { ReviewSession } from '../domain';
 import { ReviewSessionRepository } from '../application';
 
-const CURRENT_SESSION_KEY = 'codeReview.currentSession';
-const SESSIONS_KEY = 'codeReview.sessions';
+const CURRENT_SESSION_KEY = 'giovaniCodeReview.currentSession';
+const SESSIONS_KEY = 'giovaniCodeReview.sessions';
 
 export class VscodeReviewSessionRepository implements ReviewSessionRepository {
   constructor(private readonly context: vscode.ExtensionContext) {}

@@ -1,10 +1,18 @@
-import { ReviewSessionRepository, AuditService } from './interfaces';
+import { PremiumPlan } from '../domain';
+import { ReviewSessionRepository, AuditService, RemoteReviewDatabaseClient } from './interfaces';
+import { PremiumReviewSyncService } from './PremiumReviewSyncService';
 
 export class ReviewPersistenceService {
+  private readonly premiumSync: PremiumReviewSyncService;
+
   constructor(
     private readonly repository: ReviewSessionRepository,
-    private readonly auditService?: AuditService
-  ) {}
+    private readonly auditService?: AuditService,
+    plan: PremiumPlan = { edition: 'community' },
+    remoteClient?: RemoteReviewDatabaseClient
+  ) {
+    this.premiumSync = new PremiumReviewSyncService(repository, plan, remoteClient);
+  }
 
   async exportLocalDatabase(): Promise<string> {
     return this.repository.exportDatabase?.() ?? JSON.stringify({ sessions: await this.repository.list() }, null, 2);
@@ -17,9 +25,8 @@ export class ReviewPersistenceService {
   }
 
   async syncRemote(targetPath?: string): Promise<string> {
-    const result = await this.repository.syncToRemote?.(targetPath);
-    if (!result) throw new Error('Repositorio atual nao oferece sincronizacao remota.');
-    return result;
+    const result = await this.premiumSync.sync(targetPath);
+    return JSON.stringify(result, null, 2);
   }
 
   async exportAuditData(): Promise<string> {

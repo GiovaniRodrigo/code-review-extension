@@ -12,7 +12,7 @@ await esbuild.build({
   format: 'esm'
 });
 await esbuild.build({
-  entryPoints: ['src/domain/reviewSession.ts'],
+  entryPoints: ['src/domain/index.ts'],
   bundle: true,
   outfile: '.tmp-tests/assistedIntelligenceDomain.mjs',
   platform: 'node',

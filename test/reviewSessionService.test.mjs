@@ -158,6 +158,32 @@ test('runs architecture validation and stores findings in the session', async ()
   assert.ok(result.session.findings.some((finding) => finding.rule === 'DIP'));
 });
 
+
+test('generates and persists real AI review comments through configured provider', async () => {
+  const repository = new MemoryReviewSessionRepository();
+  const aiProvider = new FakeAIProvider();
+  const service = new ReviewSessionService(
+    repository,
+    new StaticGitService({ ...git, changedFiles: ['src/application/userService.ts'] }),
+    new StaticSourceFileProvider([{ path: 'src/application/userService.ts', content: 'export class UserService { save(){} sendEmail(){} }' }]),
+    undefined,
+    { edition: 'community' },
+    undefined,
+    aiProvider
+  );
+  const session = await service.startReview('Developer', 'Reviewer');
+
+  const result = await service.generateAIReviewComments(session.id, 'Reviewer', 'pt-BR');
+
+  assert.equal(result.generatedCount, 1);
+  assert.equal(result.session.comments.length, 1);
+  assert.match(result.session.comments[0].author, /^IA · Fake AI/);
+  assert.match(result.session.comments[0].body, /Comentário técnico automático/);
+  assert.match(result.session.comments[0].body, /SRP/);
+  assert.equal(aiProvider.lastContext.changedFiles[0], 'src/application/userService.ts');
+  assert.match(aiProvider.lastContext.diff, /UserService/);
+});
+
 test('manages collaboration messages partial approvals and merge decision', async () => {
   const service = new ReviewSessionService(new MemoryReviewSessionRepository(), new StaticGitService({
     ...git,
@@ -238,5 +264,34 @@ class StaticSourceFileProvider {
 
   async readFiles() {
     return this.files;
+  }
+}
+
+
+class FakeAIProvider {
+  id = 'fake.ai';
+  label = 'Fake AI';
+  lastContext;
+
+  async getModelInfo() {
+    return { provider: 'fake', model: 'unit-test', local: true };
+  }
+
+  async generateReviewComments(context) {
+    this.lastContext = context;
+    return [{
+      id: 'fake-ai-comment-1',
+      file: context.changedFiles[0],
+      line: 1,
+      severity: 'MEDIUM',
+      source: 'ai',
+      body: 'Possível violação de SRP: UserService mistura persistência e comunicação. Extraia responsabilidades para serviços menores.',
+      rationale: 'Classe possui indícios de múltiplas responsabilidades.',
+      requiresHumanApproval: true
+    }];
+  }
+
+  async summarizeReview() {
+    return 'Resumo fake';
   }
 }

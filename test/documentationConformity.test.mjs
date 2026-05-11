@@ -16,9 +16,10 @@ test('navigation badges and rule groups are derived from state instead of fixed 
 
 test('documentation describes the implemented stack and persistence strategy', async () => {
   const docs = await Promise.all([
-    readFile('docs/ARQUITECTURE.md', 'utf8'),
+    readFile('docs/ARCHITECTURE.md', 'utf8'),
     readFile('docs/ROADMAP.md', 'utf8'),
-    readFile('docs/PERFORMACE.md', 'utf8'),
+    readFile('docs/PERFORMANCE.md', 'utf8'),
+    readFile('docs/PREMIUM_EDITION.md', 'utf8'),
     readFile('docs/IA/CLEAN_CONTEXT.md', 'utf8')
   ]);
   const combined = docs.join('\n');
@@ -35,4 +36,21 @@ test('clean script preserves lockfiles for reproducible installs', async () => {
 
   assert.equal(pkg.scripts.clean.includes('package-lock.json'), false);
   assert.equal(pkg.scripts.clean.includes('webview-ui/package-lock.json'), false);
+});
+
+
+test('official documentation describes the Community and Premium edition split', async () => {
+  const docs = await Promise.all([
+    readFile('README.md', 'utf8'),
+    readFile('docs/PREMIUM_EDITION.md', 'utf8'),
+    readFile('docs/ARCHITECTURE.md', 'utf8'),
+    readFile('docs/BUSINESS_RULES.MD', 'utf8')
+  ]);
+  const combined = docs.join('\n');
+
+  assert.match(combined, /Community/);
+  assert.match(combined, /Premium/);
+  assert.match(combined, /banco remoto/);
+  assert.match(combined, /giovaniCodeReview\.premiumApiUrl/);
+  assert.match(combined, /token premium.*não pode ser exposto|token premium não pode ser exposto/i);
 });

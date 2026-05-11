@@ -11,7 +11,10 @@ import {
 } from '../domain';
 import { DashboardState } from './interfaces';
 
-export type StartReviewSelection = Partial<Pick<GitContext, 'currentBranch' | 'baseBranch' | 'pullRequestId' | 'changedFiles' | 'commits'>>;
+export type StartReviewSelection = Partial<Pick<GitContext, 'currentBranch' | 'baseBranch' | 'pullRequestId' | 'changedFiles' | 'commits'>> & {
+  title?: string;
+  subtitle?: string;
+};
 export type AddCommentCommand = Omit<AddReviewCommentInput, 'now' | 'id'>;
 export type CreateFindingCommand = Omit<CreateValidationFindingInput, 'now' | 'id'>;
 export interface RegisterCorrectionCommand { author: string; commit: string; description: string }
@@ -19,6 +22,7 @@ export interface RevalidateFindingCommand { reviewer: string; result: Validation
 export interface CollaborationMessageCommand { author: string; body: string; threadId?: string }
 export interface PartialApprovalCommand { scope: PartialApprovalScope; target: string; reviewer: string }
 export interface ArchitectureValidationResult { session: ReviewSession; findings: ReviewSession['findings']; findingsCount: number }
+export interface AIReviewCommentsResult { session: ReviewSession; generatedCount: number; provider: string; comments: ReviewSession['comments']; }
 
 export interface ReviewLifecycleUseCases {
   syncCurrentSessionWithGit(author: string, reviewer: string): Promise<ReviewSession | undefined>;
@@ -38,6 +42,7 @@ export interface ReviewFeedbackUseCases {
   registerCorrection(id: string, findingId: string, input: RegisterCorrectionCommand): Promise<ReviewSession>;
   revalidate(id: string, findingId: string, input: RevalidateFindingCommand): Promise<ReviewSession>;
   runArchitectureValidation(id: string): Promise<ArchitectureValidationResult>;
+  generateAIReviewComments(id: string, user: string, language?: string): Promise<AIReviewCommentsResult>;
 }
 
 export interface ReviewCollaborationUseCases {

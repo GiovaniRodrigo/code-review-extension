@@ -6,8 +6,22 @@ export interface CreateReviewSessionInput {
   git: GitContext;
   author: string;
   reviewer: string;
+  title?: string;
+  subtitle?: string;
   now?: Date;
   id?: string;
+}
+
+
+function buildDefaultReviewTitle(git: GitContext): string {
+  if (git.pullRequestId?.trim()) {
+    return `PR #${git.pullRequestId.trim()} - ${git.currentBranch}`;
+  }
+  return `Review - ${git.currentBranch}`;
+}
+
+function buildDefaultReviewSubtitle(git: GitContext): string {
+  return `${git.currentBranch} -> ${git.baseBranch}`;
 }
 
 export function isReviewer(session: ReviewSession, user: string): boolean {
@@ -36,6 +50,8 @@ export function createReviewSession(input: CreateReviewSessionInput): ReviewSess
   }
 
   const now = (input.now ?? new Date()).toISOString();
+  const title = input.title?.trim() || buildDefaultReviewTitle(input.git);
+  const subtitle = input.subtitle?.trim() || buildDefaultReviewSubtitle(input.git);
   const branchSlug = input.git.pullRequestId?.trim()
     ? `pr-${input.git.pullRequestId.trim()}`
     : input.git.currentBranch.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
@@ -45,6 +61,8 @@ export function createReviewSession(input: CreateReviewSessionInput): ReviewSess
     id,
     sourceBranch: input.git.currentBranch,
     targetBranch: input.git.baseBranch,
+    title,
+    subtitle,
     author: input.author,
     reviewer: input.reviewer,
     status: 'OPEN',
@@ -63,7 +81,7 @@ export function createReviewSession(input: CreateReviewSessionInput): ReviewSess
       {
         id: `${id}-created`,
         type: 'SESSION_CREATED',
-        message: `Review criada para ${input.git.currentBranch} -> ${input.git.baseBranch}`,
+        message: `Review criada: ${title} (${subtitle})`,
         createdAt: now
       }
     ]

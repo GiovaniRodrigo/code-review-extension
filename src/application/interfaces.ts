@@ -1,4 +1,6 @@
-import { ReviewSession, GitContext, SourceFile, AssistedIntelligenceReport, ReviewMetrics, IntegrationDescriptor, VSCodeContextState, Translations } from '../domain';
+import { ReviewSession, GitContext, SourceFile, AssistedIntelligenceReport, ReviewMetrics, IntegrationDescriptor, VSCodeContextState, Translations, PremiumFeatureFlags, PremiumPlan } from '../domain';
+import { EditionPresentationState } from '../editions/shared/EditionPresentation';
+import { EnterpriseFeatureState } from './EnterpriseFeatureService';
 
 export interface ReviewSessionRepository {
   getCurrent(): Promise<ReviewSession | undefined>;
@@ -9,6 +11,19 @@ export interface ReviewSessionRepository {
   exportDatabase?(): Promise<string>;
   createBackup?(): Promise<string>;
   syncToRemote?(targetPath?: string): Promise<string>;
+}
+
+
+export interface RemoteReviewDatabaseClient {
+  syncSessions(input: {
+    organizationId: string;
+    workspaceId: string;
+    sessions: ReviewSession[];
+  }): Promise<{ remoteDatabase: string; syncedAt: string }>;
+}
+
+export interface PremiumPlanProvider {
+  getPlan(): PremiumPlan;
 }
 
 export interface GitService {
@@ -42,4 +57,7 @@ export interface DashboardState {
   currentUser: string;
   translations: Translations;
   vscode?: VSCodeContextState;
+  premium: { plan: PremiumPlan; features: PremiumFeatureFlags };
+  editionPresentation: EditionPresentationState;
+  enterprise: EnterpriseFeatureState;
 }

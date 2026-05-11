@@ -1,0 +1,4 @@
+class Test {
+  save() {}
+  delete() {}
+}

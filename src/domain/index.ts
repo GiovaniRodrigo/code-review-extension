@@ -13,3 +13,4 @@ export * from './NavigationLogic';
 export * from './architectureRules';
 export * from './reviewSessionHelper';
 export * from './ast';
+export * from './PremiumPlan';

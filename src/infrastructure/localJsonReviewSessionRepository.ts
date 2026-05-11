@@ -83,11 +83,11 @@ export class LocalJsonReviewSessionRepository implements ReviewSessionRepository
   async syncToRemote(targetPath?: string): Promise<string> {
     const database = await this.readDatabase();
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    const configuredPath = vscode.workspace.getConfiguration('codeReview').get<string>('remoteSyncPath');
+    const configuredPath = vscode.workspace.getConfiguration('giovaniCodeReview').get<string>('remoteSyncPath');
     const destination = targetPath || configuredPath || (workspaceFolder ? path.join(workspaceFolder, '.code-review-sync.json') : undefined);
 
     if (!destination) {
-      throw new Error('Nao foi possivel determinar o destino da sincronizacao remota. Configure codeReview.remoteSyncPath ou abra um workspace.');
+      throw new Error('Nao foi possivel determinar o destino da sincronizacao remota. Configure giovaniCodeReview.remoteSyncPath ou abra um workspace.');
     }
 
     await fs.mkdir(path.dirname(destination), { recursive: true });

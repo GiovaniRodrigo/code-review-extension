@@ -587,3 +587,18 @@ Ferramenta:
 | Organização     | Modular            |
 | Linguagem       | TypeScript no Extension Host; JavaScript/JSX na Webview |
 | Frontend        | React              |
+
+# Arquitetura Premium
+
+A camada Premium foi implementada sem acoplar domínio ou aplicação ao VS Code. A extensão lê o plano pelo `VscodePremiumPlanProvider`, injeta o `PremiumPlan` na aplicação e usa o contrato `RemoteReviewDatabaseClient` para sincronizar sessões com o banco remoto pago.
+
+```text
+VS Code Extension -> PremiumReviewSyncService -> RemoteReviewDatabaseClient -> Premium API -> Remote Database
+```
+
+A edição Community permanece local-first e usa snapshot local. A edição Premium exige `premiumApiUrl` e `premiumToken`.
+
+
+## Feedback de usuário
+
+O projeto exige feedback completo para ações assíncronas, incluindo carregamento, sucesso, erro, vazio e progresso. A especificação oficial está em `docs/USER_FEEDBACK_UX.md`.

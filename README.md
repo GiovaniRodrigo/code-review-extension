@@ -35,12 +35,17 @@ Esta extensão ajuda equipes a revisar código com mais contexto, padronização
 | Comando | Atalho | Finalidade |
 |---|---:|---|
 | Code Review: Abrir Dashboard | `Ctrl+Alt+R` | Abre a visão principal |
-| Code Review: Iniciar Revisão | `Ctrl+Alt+Shift+R` | Cria uma sessão de revisão |
-| Code Review: Abrir Pull Request | — | Abre fluxo de PR |
-| Code Review: Exportar Auditoria | `Ctrl+Alt+E` | Exporta trilha de auditoria |
-| Code Review: Exportar Banco Local | `Ctrl+Alt+D` | Exporta persistência local |
-| Code Review: Criar Backup | `Ctrl+Alt+B` | Cria backup da base local |
-| Code Review: Sincronizar Remoto | `Ctrl+Alt+S` | Sincroniza dados remotos |
+| Code Review: Sincronizar Remoto | `Ctrl+Alt+S` | Sincroniza dados remotos da versão Premium |
+
+IDs internos usados pela versão atual:
+
+```text
+giovaniCodeReview.openDashboard
+giovaniCodeReview.syncRemote
+giovaniCodeReview.sidebar
+```
+
+Os IDs usam o namespace `giovaniCodeReview` para evitar colisão com versões antigas instaladas da extensão.
 
 ## Validação da versão
 
@@ -51,7 +56,7 @@ npm test
 npm run compile
 ```
 
-Resultado validado: **40 testes passando** e build completo da extensão/Webview.
+Resultado validado: **66 testes passando** e build completo da extensão/Webview.
 
 ## Arquitetura
 
@@ -73,3 +78,33 @@ O projeto segue princípios de Clean Architecture:
 ## Licença
 
 MIT © 2026 Code Review Team
+
+## Edições Community e Premium
+
+O projeto possui modelo open-core:
+
+- **Community**: uso local, banco JSON local versionado, AST Builder, diagnósticos, dashboards e TUI.
+- **Premium**: banco remoto pago, sincronização colaborativa, organização/workspace, auditoria e base para realtime.
+
+A documentação detalhada está em `docs/PREMIUM_EDITION.md`.
+
+
+## Feedback de usuário
+
+O projeto exige feedback completo para ações assíncronas, incluindo carregamento, sucesso, erro, vazio e progresso. A especificação oficial está em `docs/USER_FEEDBACK_UX.md`.
+
+## Roadmap aplicado — AST + Graph + Analyzer + IA
+
+Esta versão inclui a fundação do novo design de produto:
+
+- contratos centralizados em `src/contracts`;
+- separação experiencial Community/Premium;
+- Graph Engine local inicial;
+- Analyzer Engine inicial;
+- IA plugável com providers Community/Premium;
+- Workflow Engine;
+- comentários automatizados como sugestões que exigem aprovação humana;
+- retrieval local inicial;
+- documentação oficial atualizada.
+
+A versão Community mantém execução local-first. A versão Premium habilita banco remoto, sincronização, IA integrada e evolução para Graph/analytics organizacional.

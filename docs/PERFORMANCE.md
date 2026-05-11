@@ -472,3 +472,10 @@ O sistema deve possuir testes para:
 | CPU          | Workers               |
 | Memória      | Cache limitado        |
 | UX           | Feedback contínuo     |
+
+# Performance na Versão Premium
+
+- A versão Community usa snapshot local e não depende de rede.
+- A versão Premium sincroniza em lote as sessões com a API remota.
+- O dashboard recebe apenas o plano sanitizado, sem token.
+- O banco remoto deve evoluir para sincronização incremental para evitar payloads grandes.

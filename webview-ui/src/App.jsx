@@ -6,6 +6,7 @@ import { ReviewCenter } from './components/organisms/ReviewCenter';
 import { StartReviewModal } from './components/organisms/StartReviewModal';
 import { ResizeHandle } from './components/molecules/ResizeHandle';
 import { CollapsedSidebarToggle } from './components/molecules/CollapsedSidebarToggle';
+import { UserFeedback } from './components/molecules/UserFeedback';
 
 const vscodeApi = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : undefined;
 
@@ -13,7 +14,7 @@ export function App() {
   const initialView = document.body?.dataset?.initialView || 'dashboard';
   const [view, setView] = useState(initialView);
   const [state, setState] = useState();
-  const [snackbar, setSnackbar] = useState('Carregando contexto da revisão...');
+  const [feedback, setFeedback] = useState({ tone: 'loading', title: 'Carregando', message: 'Carregando contexto da revisão...', progress: 25 });
   const [tourActive, setTourActive] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [leftSidebarHidden, setLeftSidebarHidden] = useState(false);
@@ -33,7 +34,7 @@ export function App() {
     const listener = (event) => {
       if (event.data?.type === 'dashboardState') {
         setState(event.data.payload);
-        setSnackbar('Contexto da revisão atualizado.');
+        setFeedback({ tone: 'success', title: 'Contexto atualizado', message: 'Dados da revisão atualizados.', progress: 100 });
       }
 
       if (event.data?.type === 'reviewSessionStarted') {
@@ -42,19 +43,27 @@ export function App() {
           currentSession: event.data.payload,
           sessions: [event.data.payload, ...(current?.sessions ?? []).filter((session) => session.id !== event.data.payload.id)]
         }));
-        setSnackbar('Review session iniciada.');
+        setFeedback({ tone: 'success', title: 'Sessão criada', message: 'Review session iniciada com sucesso.', progress: 100 });
       }
 
       if (event.data?.type === 'architectureValidationCompleted') {
-        setSnackbar(`${event.data.payload.count} validações arquiteturais encontradas.`);
+        setFeedback({ tone: 'success', title: 'Validação concluída', message: `${event.data.payload.count} validações arquiteturais encontradas.`, progress: 100 });
+      }
+
+      if (event.data?.type === 'aiReviewCommentsGenerated') {
+        setFeedback({ tone: 'success', title: 'Comentários IA gerados', message: `${event.data.payload.count} comentário(s) curto(s) e estruturado(s) criados por ${event.data.payload.provider}.`, progress: 100 });
+      }
+
+      if (event.data?.type === 'operationStarted') {
+        setFeedback({ tone: 'loading', title: event.data.payload?.title || 'Processando', message: event.data.payload?.message || 'Executando operação...', progress: event.data.payload?.progress ?? 40 });
       }
 
       if (event.data?.type === 'operationCompleted') {
-        setSnackbar(event.data.payload.message);
+        setFeedback({ tone: 'success', title: 'Operação concluída', message: event.data.payload.message, progress: 100 });
       }
 
       if (event.data?.type === 'operationFailed') {
-        setSnackbar(`Erro: ${event.data.payload.message}`);
+        setFeedback({ tone: 'error', title: 'Operação falhou', message: event.data.payload.message });
       }
     };
 
@@ -64,10 +73,10 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!snackbar) return undefined;
-    const timeout = window.setTimeout(() => setSnackbar(''), 3200);
+    if (!feedback?.message || feedback.tone === 'loading' || feedback.tone === 'error') return undefined;
+    const timeout = window.setTimeout(() => setFeedback(undefined), 4200);
     return () => window.clearTimeout(timeout);
-  }, [snackbar]);
+  }, [feedback]);
 
   const startReview = useMemo(() => () => setStartModalOpen(true), []);
   const startTour = () => {
@@ -78,7 +87,7 @@ export function App() {
   const finishTour = () => {
     window.localStorage.setItem('codeReviewOnboardingSeen', 'true');
     setTourActive(false);
-    setSnackbar('Tutorial concluído. Você pode reabrir pelo menu lateral.');
+    setFeedback({ tone: 'success', title: 'Tutorial concluído', message: 'Você pode reabrir pelo menu lateral.', progress: 100 });
   };
 
   const startSidebarResize = (event, side) => {
@@ -110,27 +119,29 @@ export function App() {
     state,
     t,
     vscodeApi,
+    feedback,
     qualityLabel,
-    onOpenFile: (p) => vscodeApi?.postMessage({ type: 'openWorkspaceFile', payload: p }),
-    onOpenDiff: (p) => vscodeApi?.postMessage({ type: 'openDiff', payload: p }),
-    onRunVSCodeTests: () => vscodeApi?.postMessage({ type: 'runVSCodeTests' }),
-    onCreateFinding: (p) => vscodeApi?.postMessage({ type: 'createValidationFinding', payload: p }),
-    onUpdateFindingStatus: (p) => vscodeApi?.postMessage({ type: 'updateValidationFindingStatus', payload: p }),
-    onRegisterCorrection: (p) => vscodeApi?.postMessage({ type: 'registerCorrectionAttempt', payload: p }),
-    onRevalidate: (p) => vscodeApi?.postMessage({ type: 'revalidateFinding', payload: p }),
-    onAddComment: (p) => vscodeApi?.postMessage({ type: 'addReviewComment', payload: p }),
-    onEditComment: (p) => vscodeApi?.postMessage({ type: 'editReviewComment', payload: p }),
-    onUpdateCommentStatus: (p) => vscodeApi?.postMessage({ type: 'updateReviewCommentStatus', payload: p }),
-    onSendMessage: (p) => vscodeApi?.postMessage({ type: 'addCollaborationMessage', payload: p }),
-    onApprovePartial: (p) => vscodeApi?.postMessage({ type: 'approvePartial', payload: p }),
-    onRefreshMergeDecision: (p) => vscodeApi?.postMessage({ type: 'refreshMergeDecision', payload: p }),
-    onOpenReview: (p) => vscodeApi?.postMessage({ type: 'openReview', payload: p }),
-    onUpdateStatus: (p) => vscodeApi?.postMessage({ type: 'updateReviewStatus', payload: p })
+    onOpenFile: (p) => postWithFeedback(vscodeApi, setFeedback, 'openWorkspaceFile', p, 'Abrindo arquivo...'),
+    onOpenDiff: (p) => postWithFeedback(vscodeApi, setFeedback, 'openDiff', p, 'Abrindo diff...'),
+    onRunVSCodeTests: () => postWithFeedback(vscodeApi, setFeedback, 'runVSCodeTests', undefined, 'Solicitando execução de testes...'),
+    onCreateFinding: (p) => postWithFeedback(vscodeApi, setFeedback, 'createValidationFinding', p, 'Registrando validação...'),
+    onUpdateFindingStatus: (p) => postWithFeedback(vscodeApi, setFeedback, 'updateValidationFindingStatus', p, 'Atualizando status da validação...'),
+    onRegisterCorrection: (p) => postWithFeedback(vscodeApi, setFeedback, 'registerCorrectionAttempt', p, 'Registrando tentativa de correção...'),
+    onRevalidate: (p) => postWithFeedback(vscodeApi, setFeedback, 'revalidateFinding', p, 'Revalidando finding...'),
+    onAddComment: (p) => postWithFeedback(vscodeApi, setFeedback, 'addReviewComment', p, 'Publicando comentário...'),
+    onEditComment: (p) => postWithFeedback(vscodeApi, setFeedback, 'editReviewComment', p, 'Atualizando comentário...'),
+    onUpdateCommentStatus: (p) => postWithFeedback(vscodeApi, setFeedback, 'updateReviewCommentStatus', p, 'Atualizando status do comentário...'),
+    onSendMessage: (p) => postWithFeedback(vscodeApi, setFeedback, 'addCollaborationMessage', p, 'Enviando mensagem colaborativa...'),
+    onApprovePartial: (p) => postWithFeedback(vscodeApi, setFeedback, 'approvePartial', p, 'Registrando aprovação parcial...'),
+    onRefreshMergeDecision: (p) => postWithFeedback(vscodeApi, setFeedback, 'refreshMergeDecision', p, 'Atualizando decisão de merge...'),
+    onOpenReview: (p) => postWithFeedback(vscodeApi, setFeedback, 'openReview', p, 'Abrindo sessão de review...'),
+    onUpdateStatus: (p) => postWithFeedback(vscodeApi, setFeedback, 'updateReviewStatus', p, 'Atualizando status da sessão...'),
+    onRunReview: (p) => postWithFeedback(vscodeApi, setFeedback, 'generateAIReviewComments', p, 'Gerando comentários técnicos com IA local... contexto reduzido, timeout ativo e resposta estruturada.')
   };
 
   return (
     <div
-      className="app-shell"
+      className={`app-shell ${state?.premium?.plan?.edition === 'premium' ? 'edition-premium' : 'edition-community'}`}
       style={{
         '--left-sidebar-width': leftSidebarHidden ? '48px' : `${leftSidebarWidth}px`,
         '--right-sidebar-width': rightSidebarHidden ? '48px' : `${rightSidebarWidth}px`
@@ -167,8 +178,8 @@ export function App() {
         onFinish={finishTour}
         onJumpView={setView}
       />
-      {startModalOpen && <StartReviewModal state={state} onClose={() => setStartModalOpen(false)} onStartReview={(p) => vscodeApi?.postMessage({ type: 'startReview', payload: p })} />}
-      {snackbar && <div className="snackbar" role="status">{snackbar}</div>}
+      {startModalOpen && <StartReviewModal state={state} onClose={() => setStartModalOpen(false)} onStartReview={(p) => postWithFeedback(vscodeApi, setFeedback, 'startReview', p, 'Criando sessão de revisão...')} />}
+      <UserFeedback feedback={feedback} onDismiss={() => setFeedback(undefined)} />
     </div>
   );
 }
@@ -189,4 +200,9 @@ function qualityLabel(score, t) {
   if (score >= 70) return 'Bom';
   if (score >= 50) return 'Atenção';
   return 'Crítico';
+}
+
+function postWithFeedback(vscodeApi, setFeedback, type, payload, message) {
+  setFeedback({ tone: 'loading', title: 'Processando', message, progress: 45 });
+  vscodeApi?.postMessage({ type, payload });
 }

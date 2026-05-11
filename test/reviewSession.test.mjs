@@ -5,7 +5,7 @@ import esbuild from 'esbuild';
 
 await mkdir('.tmp-tests', { recursive: true });
 await esbuild.build({
-  entryPoints: ['src/domain/reviewSession.ts'],
+  entryPoints: ['src/domain/index.ts'],
   bundle: true,
   outfile: '.tmp-tests/reviewSession.mjs',
   platform: 'node',
@@ -50,6 +50,22 @@ test('creates an auditable review session from git context', () => {
   assert.deepEqual(session.changedFiles, ['src/extension.ts']);
   assert.equal(session.history.length, 1);
   assert.equal(session.history[0].type, 'SESSION_CREATED');
+});
+
+test('stores title and subtitle provided during review creation', () => {
+  const session = createReviewSession({
+    git,
+    author: 'Developer',
+    reviewer: 'Reviewer',
+    title: 'Revisão Sprint 12 - Pagamentos',
+    subtitle: 'PR 42 · feature/review-session → main',
+    now: new Date('2026-05-08T12:00:00.000Z'),
+    id: 'review-title'
+  });
+
+  assert.equal(session.title, 'Revisão Sprint 12 - Pagamentos');
+  assert.equal(session.subtitle, 'PR 42 · feature/review-session → main');
+  assert.match(session.history[0].message, /Revisão Sprint 12 - Pagamentos/);
 });
 
 test('rejects session creation without required branches', () => {

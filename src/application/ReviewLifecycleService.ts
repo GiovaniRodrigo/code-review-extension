@@ -37,7 +37,7 @@ export class ReviewLifecycleService {
     return undefined;
   }
 
-  async startReview(author: string, reviewer: string, selection?: Partial<GitContext>): Promise<ReviewSession> {
+  async startReview(author: string, reviewer: string, selection?: Partial<GitContext> & { title?: string; subtitle?: string }): Promise<ReviewSession> {
     const detectedGit = await this.gitService.getContext();
     const git: GitContext = {
       ...detectedGit,
@@ -48,7 +48,7 @@ export class ReviewLifecycleService {
       commits: selection?.commits?.length ? selection.commits : detectedGit.commits
     };
 
-    const session = createReviewSession({ git, author, reviewer });
+    const session = createReviewSession({ git, author, reviewer, title: selection?.title, subtitle: selection?.subtitle });
     await this.saveAndAudit(session);
     return session;
   }

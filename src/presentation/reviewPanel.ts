@@ -16,7 +16,11 @@ const execFileAsync = promisify(execFile);
 
 export class ReviewPanel {
   private panel?: vscode.WebviewPanel;
+  private panelDisposables: vscode.Disposable[] = [];
   private readonly diffBeforeDocuments = new Map<string, string>();
+  private readonly commentDecorations = new Map<string, vscode.TextEditorDecorationType>();
+  private postStateInFlight?: Promise<void>;
+  private postStateTimer?: NodeJS.Timeout;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -45,11 +49,14 @@ export class ReviewPanel {
       }
     );
 
-    this.panel.onDidDispose(() => {
-      this.panel = undefined;
-    });
-
-    this.panel.webview.onDidReceiveMessage((message) => this.handleMessage(message).catch((error) => this.handleError(error)));
+    this.panelDisposables = [];
+    this.panelDisposables.push(
+      this.panel.onDidDispose(() => {
+        this.disposePanelResources();
+        this.panel = undefined;
+      }),
+      this.panel.webview.onDidReceiveMessage((message) => this.handleMessage(message).catch((error) => this.handleError(error)))
+    );
     this.panel.webview.html = getWebviewHtml(this.panel.webview, this.context.extensionUri, view);
     this.postState();
   }
@@ -60,7 +67,7 @@ export class ReviewPanel {
     const session = await this.service.syncCurrentSessionWithGit(detectedAuthor, vscode.env.machineId);
 
     if (this.panel) {
-      await this.postState();
+      this.schedulePostState();
     }
 
     if (showNotification) {
@@ -72,7 +79,7 @@ export class ReviewPanel {
     }
   }
 
-  async startReview(selection?: { currentBranch?: string; baseBranch?: string; pullRequestId?: string }): Promise<void> {
+  async startReview(selection?: { currentBranch?: string; baseBranch?: string; pullRequestId?: string; title?: string; subtitle?: string }): Promise<void> {
     if (!this.panel) {
       this.open('analysis');
     }
@@ -88,6 +95,8 @@ export class ReviewPanel {
   }
 
   private async handleMessage(message: { type?: string; payload?: Record<string, unknown> }): Promise<void> {
+    this.postOperationStarted(message.type);
+
     if (message.type === 'requestState') {
       await this.postState();
     }
@@ -96,7 +105,9 @@ export class ReviewPanel {
       await this.startReview({
         currentBranch: typeof message.payload?.currentBranch === 'string' ? message.payload.currentBranch : undefined,
         baseBranch: typeof message.payload?.baseBranch === 'string' ? message.payload.baseBranch : undefined,
-        pullRequestId: typeof message.payload?.pullRequestId === 'string' ? message.payload.pullRequestId : undefined
+        pullRequestId: typeof message.payload?.pullRequestId === 'string' ? message.payload.pullRequestId : undefined,
+        title: typeof message.payload?.title === 'string' ? message.payload.title : undefined,
+        subtitle: typeof message.payload?.subtitle === 'string' ? message.payload.subtitle : undefined
       });
     }
 
@@ -244,6 +255,13 @@ export class ReviewPanel {
     if (message.type === 'runArchitectureValidation' && typeof message.payload?.id === 'string') {
       const result = await this.service.runArchitectureValidation(message.payload.id);
       this.post({ type: 'architectureValidationCompleted', payload: { count: result.findingsCount } });
+      await this.postState();
+    }
+
+    if (message.type === 'generateAIReviewComments' && typeof message.payload?.id === 'string') {
+      const result = await this.service.generateAIReviewComments(message.payload.id, vscode.env.machineId, vscode.env.language);
+      this.post({ type: 'aiReviewCommentsGenerated', payload: { count: result.generatedCount, provider: result.provider } });
+      await this.refreshReviewDecorations();
       await this.postState();
     }
 
@@ -533,10 +551,30 @@ export class ReviewPanel {
     this.post({ type: 'operationFailed', payload: { message } });
   }
 
+  private schedulePostState(delayMs = 120): void {
+    if (!this.panel) return;
+    if (this.postStateTimer) clearTimeout(this.postStateTimer);
+    this.postStateTimer = setTimeout(() => {
+      this.postStateTimer = undefined;
+      void this.postState();
+    }, delayMs);
+  }
+
   private async postState(): Promise<void> {
-    const state = await this.service.getDashboardState(vscode.env.machineId);
-    const vscodeContext = await this.collectVSCodeContext();
-    this.post({ type: 'dashboardState', payload: { ...state, vscode: vscodeContext } });
+    if (!this.panel) return;
+    if (this.postStateInFlight) return this.postStateInFlight;
+
+    this.postStateInFlight = (async () => {
+      try {
+        const state = await this.service.getDashboardState(vscode.env.machineId);
+        const vscodeContext = await this.collectVSCodeContext();
+        this.post({ type: 'dashboardState', payload: { ...state, vscode: vscodeContext } });
+      } finally {
+        this.postStateInFlight = undefined;
+      }
+    })();
+
+    return this.postStateInFlight;
   }
 
   private async collectVSCodeContext(): Promise<{ problems: Array<{ file: string; line: number; severity: string; message: string; source?: string }>; tests: { available: boolean; lastRunStatus: string; lastRunAt?: string } }> {
@@ -554,7 +592,7 @@ export class ReviewPanel {
 
     const commands = await vscode.commands.getCommands(true);
     const testsAvailable = commands.includes('testing.runAll') || commands.some((command) => command.startsWith('testing.'));
-    const lastRun = this.context.workspaceState.get<{ status: string; at?: string }>('codeReview.lastVSCodeTestRun', { status: 'NOT_RUN' });
+    const lastRun = this.context.workspaceState.get<{ status: string; at?: string }>('giovaniCodeReview.lastVSCodeTestRun', { status: 'NOT_RUN' });
 
     return {
       problems,
@@ -569,10 +607,10 @@ export class ReviewPanel {
   private async runVSCodeTests(): Promise<void> {
     try {
       await vscode.commands.executeCommand('testing.runAll');
-      await this.context.workspaceState.update('codeReview.lastVSCodeTestRun', { status: 'RUN_REQUESTED', at: new Date().toISOString() });
+      await this.context.workspaceState.update('giovaniCodeReview.lastVSCodeTestRun', { status: 'RUN_REQUESTED', at: new Date().toISOString() });
       vscode.window.showInformationMessage('Execucao de testes solicitada ao VS Code Test Explorer.');
     } catch {
-      await this.context.workspaceState.update('codeReview.lastVSCodeTestRun', { status: 'UNAVAILABLE', at: new Date().toISOString() });
+      await this.context.workspaceState.update('giovaniCodeReview.lastVSCodeTestRun', { status: 'UNAVAILABLE', at: new Date().toISOString() });
       vscode.window.showWarningMessage('O VS Code Test Explorer nao esta disponivel para este workspace.');
     }
   }
@@ -585,6 +623,9 @@ export class ReviewPanel {
     const activeFile = vscode.workspace.asRelativePath(editor.document.uri, false);
     const comments = (state.currentSession.comments ?? []).filter((comment) => comment.file === activeFile);
     if (!comments.length) return;
+
+    const decorationKey = editor.document.uri.toString();
+    this.commentDecorations.get(decorationKey)?.dispose();
 
     const decoration = vscode.window.createTextEditorDecorationType({
       isWholeLine: true,
@@ -602,13 +643,64 @@ export class ReviewPanel {
       };
     }));
 
-    this.context.subscriptions.push(decoration);
+    this.commentDecorations.set(decorationKey, decoration);
+  }
+
+  private postOperationStarted(type?: string): void {
+    const labels: Record<string, string> = {
+      startReview: 'Criando sessão de revisão...',
+      openReview: 'Abrindo sessão de revisão...',
+      deleteReviewSession: 'Removendo sessão com confirmação...',
+      updateReviewStatus: 'Atualizando status da sessão...',
+      addReviewComment: 'Publicando comentário...',
+      editReviewComment: 'Atualizando comentário...',
+      updateReviewCommentStatus: 'Atualizando status do comentário...',
+      createValidationFinding: 'Registrando validação...',
+      updateValidationFindingStatus: 'Atualizando validação...',
+      registerCorrectionAttempt: 'Registrando correção...',
+      revalidateFinding: 'Revalidando item...',
+      runArchitectureValidation: 'Validando arquitetura...',
+      addCollaborationMessage: 'Enviando mensagem...',
+      approvePartial: 'Registrando aprovação parcial...',
+      refreshMergeDecision: 'Atualizando decisão de merge...',
+      openWorkspaceFile: 'Abrindo arquivo...',
+      openDiff: 'Abrindo diff...',
+      exportReviewReport: 'Gerando relatório...',
+      exportLocalDatabase: 'Exportando banco local...',
+      createBackup: 'Criando backup...',
+      loadGitFile: 'Carregando arquivo do Git...',
+      loadCommitFiles: 'Carregando arquivos do commit...',
+      syncRemote: 'Sincronizando dados remotos...',
+      openSettingsJson: 'Abrindo configurações...',
+      runVSCodeTests: 'Solicitando testes ao VS Code...'
+    };
+
+    if (!type || !labels[type]) return;
+    this.post({ type: 'operationStarted', payload: { title: 'Processando', message: labels[type], progress: 45 } });
   }
 
   private post(message: unknown): void {
     this.panel?.webview.postMessage(message);
   }
+
+  private disposePanelResources(): void {
+    if (this.postStateTimer) {
+      clearTimeout(this.postStateTimer);
+      this.postStateTimer = undefined;
+    }
+
+    for (const disposable of this.panelDisposables.splice(0)) {
+      disposable.dispose();
+    }
+
+    for (const decoration of this.commentDecorations.values()) {
+      decoration.dispose();
+    }
+    this.commentDecorations.clear();
+    this.diffBeforeDocuments.clear();
+  }
 }
+
 
 function isNavigationKind(value: unknown): value is ReviewNavigationKind {
   return value === 'commit' || value === 'diff' || value === 'file' || value === 'comment' || value === 'validation';
@@ -670,7 +762,7 @@ function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri, initi
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; font-src ${webview.cspSource};" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; font-src ${webview.cspSource} data:;" />
   <link rel="stylesheet" href="${styleUri}" />
   <title>Code Review</title>
 </head>

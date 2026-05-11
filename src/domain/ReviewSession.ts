@@ -8,6 +8,8 @@ export interface ReviewSession {
   id: string;
   sourceBranch: string;
   targetBranch: string;
+  title: string;
+  subtitle: string;
   author: string;
   reviewer: string;
   status: ReviewSessionStatus;

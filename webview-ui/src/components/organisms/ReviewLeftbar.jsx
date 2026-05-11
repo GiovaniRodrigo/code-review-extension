@@ -1,7 +1,8 @@
 import React from 'react';
-import { Home, AlertTriangle, Lightbulb, MessageSquare, GitPullRequest, GitCommit, CheckCircle2, BarChart3, Clock3, Settings, PanelLeftClose, HelpCircle } from 'lucide-react';
+import { Home, AlertTriangle, Lightbulb, MessageSquare, GitPullRequest, GitCommit, CheckCircle2, BarChart3, Clock3, Settings, PanelLeftClose, HelpCircle, Building2 } from 'lucide-react';
 import logo from '../../../../media/logo_128px.png';
 import { RuleItem } from '../molecules/RuleItem';
+import { EditionStatus } from '../molecules/EditionStatus';
 
 export function ReviewLeftbar({ view, setView, state, onStartTour, onToggle, t }) {
   const session = state?.currentSession;
@@ -20,6 +21,7 @@ export function ReviewLeftbar({ view, setView, state, onStartTour, onToggle, t }
     ['conformities', CheckCircle2, t('navigation.labels.conformities') || 'Conformidades', navBadges.conformities],
     ['telemetry', BarChart3, t('navigation.labels.telemetry') || 'Telemetria', navBadges.telemetry],
     ['history', Clock3, t('navigation.labels.history') || 'Histórico', navBadges.history],
+    ['enterprise', Building2, 'Enterprise', navBadges.enterprise],
     ['settings', Settings, t('navigation.labels.settings') || 'Configurações', '']
   ];
 
@@ -37,6 +39,8 @@ export function ReviewLeftbar({ view, setView, state, onStartTour, onToggle, t }
           <PanelLeftClose size={16} />
         </button>
       </div>
+
+      <EditionStatus state={state} />
 
       <section className="review-state">
         <span>{t('dashboard.timeline') || 'Revisão atual'}</span>
@@ -90,7 +94,8 @@ function buildNavigationBadges(state) {
     gitReview: state?.git?.changedFiles?.length ? String(state.git.changedFiles.length) : '',
     conformities: `${conformityScore}%`,
     telemetry: `${qualityScore}%`,
-    history: state?.sessions?.length ? String(state.sessions.length) : ''
+    history: state?.sessions?.length ? String(state.sessions.length) : '',
+    enterprise: state?.enterprise?.workflow?.activeGate === 'blocked' ? 'gate' : 'ok'
   };
 }
 

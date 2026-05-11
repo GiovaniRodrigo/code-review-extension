@@ -1,7 +1,8 @@
-import { ReviewCommentStatus, ReviewNavigationTarget, ReviewSession, ReviewSessionStatus, ValidationFindingStatus } from '../domain';
-import { ReviewSessionRepository, GitService, SourceFileProvider, AuditService, DashboardState } from './interfaces';
+import { PremiumPlan, ReviewCommentStatus, ReviewNavigationTarget, ReviewSession, ReviewSessionStatus, ValidationFindingStatus } from '../domain';
+import { ReviewSessionRepository, GitService, SourceFileProvider, AuditService, DashboardState, RemoteReviewDatabaseClient } from './interfaces';
 import {
   AddCommentCommand,
+  AIReviewCommentsResult,
   ArchitectureValidationResult,
   CollaborationMessageCommand,
   CreateFindingCommand,
@@ -16,6 +17,8 @@ import { ReviewFeedbackService } from './ReviewFeedbackService';
 import { ReviewCollaborationService } from './ReviewCollaborationService';
 import { ReviewDashboardService } from './ReviewDashboardService';
 import { ReviewPersistenceService } from './ReviewPersistenceService';
+import { AIProvider } from '../contracts';
+import { AIReviewCommentService } from './AIReviewCommentService';
 
 export class ReviewSessionService implements ReviewSessionUseCases {
   private readonly lifecycle: ReviewLifecycleService;
@@ -23,18 +26,23 @@ export class ReviewSessionService implements ReviewSessionUseCases {
   private readonly collaboration: ReviewCollaborationService;
   private readonly dashboard: ReviewDashboardService;
   private readonly persistence: ReviewPersistenceService;
+  private readonly aiReviewComments: AIReviewCommentService;
 
   constructor(
     repository: ReviewSessionRepository,
     gitService: GitService,
     sourceFileProvider?: SourceFileProvider,
-    auditService?: AuditService
+    auditService?: AuditService,
+    plan: PremiumPlan = { edition: 'community' },
+    remoteClient?: RemoteReviewDatabaseClient,
+    communityAIProvider?: AIProvider
   ) {
     this.lifecycle = new ReviewLifecycleService(repository, gitService, auditService);
     this.feedback = new ReviewFeedbackService(repository, sourceFileProvider, auditService);
     this.collaboration = new ReviewCollaborationService(repository, auditService);
-    this.dashboard = new ReviewDashboardService(repository, gitService);
-    this.persistence = new ReviewPersistenceService(repository, auditService);
+    this.dashboard = new ReviewDashboardService(repository, gitService, plan, communityAIProvider);
+    this.persistence = new ReviewPersistenceService(repository, auditService, plan, remoteClient);
+    this.aiReviewComments = new AIReviewCommentService(repository, sourceFileProvider, auditService, communityAIProvider);
   }
 
   // Lifecycle
@@ -93,6 +101,10 @@ export class ReviewSessionService implements ReviewSessionUseCases {
 
   async runArchitectureValidation(id: string): Promise<ArchitectureValidationResult> {
     return this.feedback.runArchitectureValidation(id);
+  }
+
+  async generateAIReviewComments(id: string, user: string, language?: string): Promise<AIReviewCommentsResult> {
+    return this.aiReviewComments.generate(id, user, language);
   }
 
   // Collaboration

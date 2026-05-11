@@ -1,0 +1,6 @@
+
+rule:
+  name: no-business-in-controller
+  severity: high
+  category: architecture
+  description: Controllers não devem conter regras de negócio.

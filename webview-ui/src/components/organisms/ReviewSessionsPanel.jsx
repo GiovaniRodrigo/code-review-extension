@@ -26,8 +26,8 @@ export function ReviewSessionsPanel({ sessions = [], currentSession, currentUser
     <section className="sessions-panel">
       <div className="section-title">
         <div>
-          <h2>{t('history.title')}</h2>
-          <p className="muted">{t('history.subtitle')}</p>
+          <h2>{currentSession?.title || 'Histórico de revisões'}</h2>
+          <p className="muted">{currentSession?.subtitle || 'Sessões criadas com título e subtítulo informados no início da revisão.'}</p>
         </div>
         {currentSession && <StatusControls session={currentSession} currentUser={currentUser} t={t} onUpdateStatus={onUpdateStatus} />}
       </div>
@@ -40,8 +40,8 @@ export function ReviewSessionsPanel({ sessions = [], currentSession, currentUser
           >
             <FolderOpen size={17} />
             <span>
-              <strong>{titles[session.id] || session.sourceBranch}</strong>
-              <small>{session.sourceBranch} → {session.targetBranch} · {session.history.length} eventos</small>
+              <strong>{session.title || titles[session.id] || session.sourceBranch}</strong>
+              <small>{session.subtitle || `${session.sourceBranch} → ${session.targetBranch}`} · {session.history.length} eventos</small>
             </span>
             <b>{session.status}</b>
           </button>

@@ -24,7 +24,9 @@ export const ptBr = {
     nextActions: "Próximas Ações",
     updateContext: "Atualizar Contexto",
     exportReport: "Exportar Relatório",
-    runReview: "Executar Revisão"
+    runReview: "Gerar comentários IA",
+    newSession: "Nova Sessão",
+    newSessionHelp: "Cria ou inicia uma sessão real de revisão. A geração por IA fica em Intelligence."
   },
   diagnostics: {
     title: "Problemas Técnicos Encontrados",
@@ -69,6 +71,10 @@ export const ptBr = {
       comment: "Comentário",
       validation: "Validação"
     }
+  },
+  history: {
+    title: "Histórico de revisões",
+    subtitle: "Sessões criadas com título e subtítulo informados no início da revisão."
   },
   collaboration: {
     title: "Fluxo Reviewer/Developer",

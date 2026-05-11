@@ -9,6 +9,7 @@ import { CommentsCenter } from './CommentsCenter';
 import { GitReviewCenter } from './GitReviewCenter';
 import { SettingsCenter } from './SettingsCenter';
 import { ConformitiesCenter } from './ConformitiesCenter';
+import { EnterpriseCenter } from './EnterpriseCenter';
 
 export function ReviewCenter({ view, state, onStartReview, t, qualityLabel, vscodeApi, ...props }) {
   const commonProps = { state, t, qualityLabel, vscodeApi, ...props };
@@ -24,6 +25,7 @@ export function ReviewCenter({ view, state, onStartReview, t, qualityLabel, vsco
     case 'git-review': return <GitReviewCenter {...commonProps} currentUser={state?.currentUser} />;
     case 'settings': return <SettingsCenter {...commonProps} />;
     case 'conformities': return <ConformitiesCenter {...commonProps} />;
+    case 'enterprise': return <EnterpriseCenter {...commonProps} />;
     default: return <DashboardCenter {...commonProps} onStartReview={onStartReview} />;
   }
 }

@@ -417,3 +417,17 @@ Toda ação deve registrar:
 * O sistema deve priorizar clareza visual.
 
 * O sistema deve seguir princípios de UI/UX do Material Design 3.
+
+# Regras de Negócio — Versão Premium
+
+- O banco remoto é recurso da versão paga.
+- A versão Community deve funcionar localmente sem API, token ou assinatura.
+- A versão Premium deve exigir configuração de API e token antes de sincronizar remotamente.
+- Sessões premium pertencem a uma organização e workspace.
+- O token premium não pode ser exposto ao dashboard ou webview.
+- A sincronização remota deve usar contrato de aplicação para preservar baixo acoplamento.
+
+
+## Feedback de usuário
+
+O projeto exige feedback completo para ações assíncronas, incluindo carregamento, sucesso, erro, vazio e progresso. A especificação oficial está em `docs/USER_FEEDBACK_UX.md`.

@@ -24,7 +24,9 @@ export const en = {
     nextActions: "Next Actions",
     updateContext: "Update Context",
     exportReport: "Export Report",
-    runReview: "Run Review"
+    runReview: "Generate AI comments",
+    newSession: "New Session",
+    newSessionHelp: "Create or start a real review session. AI generation is available in Intelligence."
   },
   diagnostics: {
     title: "Technical Issues Found",
@@ -69,6 +71,10 @@ export const en = {
       comment: "Comment",
       validation: "Validation"
     }
+  },
+  history: {
+    title: "Review history",
+    subtitle: "Sessions created with title and subtitle during review creation."
   },
   collaboration: {
     title: "Reviewer/Developer Flow",
