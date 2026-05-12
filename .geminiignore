@@ -1,0 +1,18 @@
+# Ignore media and assets
+media/
+**/*.png
+**/*.svg
+**/*.jpg
+**/*.ico
+
+# Ignore build artifacts
+dist/
+build/
+out/
+node_modules/
+
+# Ignore IDE specific files not needed for context
+.vscode/
+.idea/
+.eclipse/
+.zed/
