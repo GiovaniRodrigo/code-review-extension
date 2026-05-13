@@ -26,3 +26,4 @@ Este documento define o processo padrão para implementar novas funcionalidades 
 - [ ] Nenhuma dependência de IDE no Core.
 - [ ] Documentação de API atualizada (se necessário).
 - [ ] UI seguindo o Design System.
+- [ ] `CHANGELOG.md` atualizado com a implementação finalizada.

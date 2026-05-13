@@ -1,0 +1,9 @@
+{
+  "name": "vim-code-review",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Vim/Neovim extension (coc.nvim) for AI Code Review",
+  "scripts": {
+    "package": "echo 'Packaging Vim extension...' && tar -czf vim-code-review.tar.gz src/ package.json"
+  }
+}

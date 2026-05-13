@@ -1,5 +1,15 @@
 # Roadmap do Motor de Review de IA
 
+## Marco MVP VS Code Utilizável
+- Extensão VS Code empacotável em `.vsix`.
+- Análise do arquivo ativo com provider `mock`, `ollama` ou `openai`.
+- Findings estruturados com severidade, status e confidence score.
+- Sidebar com estados de carregamento, erro, sessão vazia e sessão restaurada.
+- Fluxo Human-in-the-Loop para aprovar ou rejeitar findings.
+- Diagnostics inline somente após aprovação humana.
+- Persistência local e restauração por branch.
+- Comando para limpar a sessão atual.
+
 ## Fase 1: Fundamentos
 - Descobertas estruturadas (findings).
 - Comentários inline na IDE.

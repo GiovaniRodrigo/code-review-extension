@@ -1,5 +1,61 @@
 # Human-in-the-Loop (HITL)
 
+## MVP VS Code
+
+O MVP atual entrega um fluxo local de code review assistido por IA para VS Code:
+
+- analise do arquivo ativo;
+- findings estruturados com severidade e confidence score;
+- sidebar com aprovacao/rejeicao Human-in-the-Loop;
+- diagnosticos inline apenas apos aprovacao humana;
+- persistencia local das sessoes por branch;
+- provider mock para uso imediato;
+- provider local Ollama configuravel.
+- provider OpenAI configuravel.
+
+### Como usar
+
+1. Execute `npm install`.
+2. Execute `npm test`.
+3. Gere o pacote com `npm run package:vscode`.
+4. Instale `apps/vscode/vscode-code-review-2.0.0.vsix` no VS Code.
+5. Abra um projeto no VS Code.
+6. Execute o comando `Analyze Code with IA`.
+7. Revise os findings na view `AI Review > Findings`.
+8. Aprove ou rejeite cada finding.
+9. Findings aprovados aparecem como diagnosticos inline no editor.
+
+Para limpar a sessao atual, execute o comando `Clear Current Review Session`.
+
+### Configuracao
+
+Por padrao, a extensao usa o provider `mock`.
+
+Para usar Ollama local:
+
+```json
+{
+  "codeReview.provider": "ollama",
+  "codeReview.ollama.baseUrl": "http://localhost:11434",
+  "codeReview.ollama.model": "llama3"
+}
+```
+
+Para usar OpenAI:
+
+1. Execute o comando `Set OpenAI API Key`.
+2. Salve a chave no prompt seguro do VS Code.
+3. Configure o provider:
+
+```json
+{
+  "codeReview.provider": "openai",
+  "codeReview.openai.model": "gpt-4o-mini"
+}
+```
+
+As sessoes sao persistidas no storage global da extensao e restauradas pela branch atual quando a view e aberta.
+
 ## Visão Geral
 
 O sistema de validação por Inteligência Artificial deve obrigatoriamente operar utilizando o modelo Human-in-the-Loop (HITL).

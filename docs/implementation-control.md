@@ -15,12 +15,12 @@ Foco na infraestrutura básica e entrega de valor inicial (diagnósticos e comen
 
 | Item do Roadmap | Requisitos Vinculados | Status | Notas |
 | :--- | :--- | :---: | :--- |
-| **Arquitetura Base** | RF-001, RF-007, RF-012, RF-015, RF-016, RF-018, RNF-001, RNF-002, RNF-003, RNF-004, RNF-020, RNF-029 | ⚪ | Definição de camadas e contratos. |
-| **Descobertas Estruturadas** | RF-003, RF-004, RF-005, RF-028, RNF-016 | ⚪ | Geração de diagnósticos via IA com HITL. |
-| **Comentários Inline** | RF-006, RF-019 | ⚪ | Exibição e gestão de comentários na IDE. |
-| **Motor de Severidade** | RF-021 | ⚪ | Classificação de problemas (Info, Warning, Error). |
-| **Gestão de Sessão** | RF-001, RF-002 | ⚪ | Troca automática por branch. |
-| **Dashboard Básico** | RF-013 | ⚪ | Visão geral dos diagnósticos. |
+| **Arquitetura Base** | RF-001, RF-007, RF-012, RF-015, RF-016, RF-018, RNF-001, RNF-002, RNF-003, RNF-004, RNF-020, RNF-029 | 🔵 | Core, Domain, Infra, UI e VS Code Adapter separados por contratos e cobertos por testes. |
+| **Descobertas Estruturadas** | RF-003, RF-004, RF-005, RF-028, RNF-016 | 🔵 | Geração de findings estruturados via providers Mock, OpenAI e Ollama, preservando HITL. |
+| **Comentários Inline** | RF-006, RF-019 | 🔵 | Findings aprovados geram diagnostics inline no VS Code. |
+| **Motor de Severidade** | RF-021 | 🔵 | `SeverityEngine` classifica findings como Info, Warning ou Error. |
+| **Gestão de Sessão** | RF-001, RF-002 | 🔵 | Sessões persistidas em arquivo e restauradas por branch via API Git do VS Code. |
+| **Dashboard Básico** | RF-013 | 🔵 | Sidebar Findings exibe diagnosticos, severidade, status e acoes HITL. |
 
 ---
 
@@ -51,7 +51,7 @@ Escalabilidade, multi-cloud e integração com fluxos de trabalho corporativos.
 
 | Item do Roadmap | Requisitos Vinculados | Status | Notas |
 | :--- | :--- | :---: | :--- |
-| **IA Multi-provedor** | RF-008, RF-009, RF-010, RF-011, RF-027, RF-029, RNF-022, RNF-023 | ⚪ | Fallback e suporte a IA Local/Cloud/IDE. |
+| **IA Multi-provedor** | RF-008, RF-009, RF-010, RF-011, RF-027, RF-029, RNF-022, RNF-023 | 🟡 | Suporte configuravel a Mock, OpenAI e Ollama; fallback automatico e provider integrado a IDE ainda pendentes. |
 | **Publicação de PRs** | RF-006 (Extensão) | ⚪ | Integração direta com GitHub/GitLab. |
 | **Workflow & Auditoria** | RF-022, RNF-017 | ⚪ | Logs e rastreabilidade para conformidade. |
 | **Streaming & Perf.** | RF-023, RNF-006, RNF-007, RNF-008, RNF-025 | ⚪ | Otimização para modo Premium Cloud. |

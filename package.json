@@ -1,0 +1,27 @@
+{
+  "name": "code-review-extension",
+  "private": true,
+  "description": "AI-assisted Code Review Extension - Multi-IDE Architecture",
+  "version": "2.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "build": "turbo run build",
+    "package": "turbo run package",
+    "package:vscode": "npm run package --workspace=apps/vscode",
+    "package:jetbrains": "npm run package --workspace=apps/jetbrains",
+    "package:vim": "npm run package --workspace=apps/vim",
+    "package:sublime": "npm run package --workspace=apps/sublime",
+    "package:all": "npm run package"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "turbo": "latest",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}

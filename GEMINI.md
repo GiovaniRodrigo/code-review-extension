@@ -8,7 +8,8 @@ Extensão de IDE para Code Review assistido por IA, focada em arquitetura multi-
 ## 2. Mandatos Críticos (Mandatory)
 
 - **Desacoplamento de IDE**: O núcleo (Core/Domain/Application) **NUNCA** deve depender de APIs de IDEs (ex: `vscode`, `jetbrains`). Toda interação com a IDE deve ser feita através do contrato `IDEAdapter`.
-- **TDD Obrigatório**: O desenvolvimento de regras de negócio e Use Cases deve seguir o ciclo **Red-Green-Refactor**. Novos testes unitários são obrigatórios para qualquer mudança na lógica.
+- **TDD Onipresente**: O desenvolvimento de **TODAS** as camadas (Domain, Application, Infrastructure e UI) deve seguir rigorosamente o ciclo **Red-Green-Refactor**. É terminantemente proibido escrever código de implementação antes do teste unitário correspondente.
+- **Localização de Testes**: Todos os testes devem residir em pastas chamadas `tests/` dentro de seus respectivos pacotes (ex: `packages/core/tests/`), nunca misturados ao código-fonte em `src/`.
 - **Human-in-the-Loop (HITL)**: Toda sugestão gerada por IA deve ser tratada como `pending` e **EXIGIR** aprovação humana explícita antes de qualquer ação. **PROIBIDO** aplicar correções de código automaticamente.
 - **Strategy para IA**: Provedores de IA (OpenAI, Ollama, Cloud) devem ser intercambiáveis via `AIProvider`. Nunca acople lógica a um provedor específico.
 
@@ -41,9 +42,10 @@ Referência: `docs/patterns/design-patterns.md`
 ## 6. Fluxo de Implementação
 
 1. **Pesquisa/Design**: Validar impacto nas camadas e contratos.
-2. **TDD (Core)**: Implementar lógica com testes antes do código.
-3. **UI Integration**: Conectar à Presentation Layer via Hooks/Services.
-4. **Validação HITL**: Garantir fluxo de aprovação humana.
+2. **TDD (Red)**: Escrever o teste unitário que falha na pasta `tests/`.
+3. **Implementação (Green)**: Escrever o código mínimo em `src/` para o teste passar.
+4. **Refatoração (Refactor)**: Melhorar o código mantendo os testes passando.
+5. **Integração UI/IDE**: Conectar componentes seguindo o mesmo ciclo de validação.
 
 ## 7. Tecnologias Preferenciais
 

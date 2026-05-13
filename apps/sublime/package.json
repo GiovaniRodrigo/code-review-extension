@@ -1,0 +1,9 @@
+{
+  "name": "sublime-code-review",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Sublime Text package for AI Code Review",
+  "scripts": {
+    "package": "echo 'Packaging Sublime Text extension...' && zip -r sublime-code-review.sublime-package ."
+  }
+}
