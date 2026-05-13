@@ -46,11 +46,41 @@ Implementações técnicas (Git CLI, APIs de IA, Armazenamento local).
 ## 3. Organização de Pastas
 ```text
 project/
-├── apps/ (Adapters das IDEs)
+├── apps/
+│   └── vscode/
+│       └── src/
+│           ├── extension.ts
+│           ├── bootstrap/
+│           │   └── ExtensionBootstrap.ts
+│           ├── contracts/
+│           │   ├── ICommand.ts
+│           │   ├── ICommandHandler.ts
+│           │   └── IExtensionDependencies.ts
+│           ├── dependencies/
+│           │   └── createExtensionDependencies.ts
+│           ├── commands/
+│           │   ├── registerCommands.ts
+│           │   ├── AnalyzeCommand.ts
+│           │   ├── ClearSessionCommand.ts
+│           │   └── SetOpenAIKeyCommand.ts
+│           ├── command-handlers/
+│           │   ├── AnalyzeCommandHandler.ts
+│           │   ├── ClearSessionCommandHandler.ts
+│           │   └── SetOpenAIKeyCommandHandler.ts
+│           ├── providers/
+│           │   └── createAIProvider.ts
+│           ├── services/
+│           │   └── restoreCurrentBranchSession.ts
+│           ├── adapters/
+│           │   └── VSCodeAdapter.ts
+│           └── views/
+│               └── ReviewViewProvider.ts
 ├── packages/
-│   ├── core/ (Application + Domain)
+│   ├── core/
+│   │   ├── application/
+│   │   └── domain/
 │   ├── infrastructure/
-│   ├── ui/ (Design System)
+│   ├── ui/
 │   └── ide-contracts/
 └── docs/
 ```
