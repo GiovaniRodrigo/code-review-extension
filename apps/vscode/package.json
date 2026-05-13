@@ -62,6 +62,26 @@
       {
         "command": "code-review.restoreSession",
         "title": "Code Review: Restore Session for Current Branch"
+      },
+      {
+        "command": "code-review.publishPrReview",
+        "title": "Code Review: Publish Approved Findings to PR/MR"
+      },
+      {
+        "command": "code-review.syncGitLabMR",
+        "title": "Code Review: Sync with GitLab MR"
+      },
+      {
+        "command": "code-review.setGitLabToken",
+        "title": "Code Review: Set GitLab Private Token"
+      },
+      {
+        "command": "code-review.setGitLabCredentials",
+        "title": "Code Review: Set GitLab Login/Password"
+      },
+      {
+        "command": "code-review.setGitLabUrl",
+        "title": "Code Review: Set GitLab Base URL"
       }
     ],
     "viewsContainers": {
@@ -124,6 +144,16 @@
           "type": "string",
           "default": "https://gitlab.com",
           "description": "GitLab instance base URL."
+        },
+        "codeReview.gitlab.projectId": {
+          "type": "string",
+          "default": "",
+          "description": "GitLab Project ID (numeric or path/to/project)."
+        },
+        "codeReview.gitlab.username": {
+          "type": "string",
+          "default": "",
+          "description": "GitLab username (for basic auth)."
         }
       }
     }
