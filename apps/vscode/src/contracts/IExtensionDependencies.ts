@@ -9,7 +9,7 @@ import {
 } from '@code-review/infra';
 
 import { VSCodeAdapter } from '../adapters/VSCodeAdapter';
-import { ReviewViewProvider } from '../views/ReviewViewProvider';
+import { ReviewViewProvider } from '../../src/ReviewViewProvider';
 
 export interface IExtensionDependencies {
   context: vscode.ExtensionContext;

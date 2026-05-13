@@ -16,7 +16,7 @@ import { VSCodeAdapter }
   from '../adapters/VSCodeAdapter';
 
 import { ReviewViewProvider }
-  from '../views/ReviewViewProvider';
+  from '../../src/ReviewViewProvider';
 
 export function createExtensionDependencies(
   context: vscode.ExtensionContext

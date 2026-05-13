@@ -12,7 +12,6 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
         const {
             vscodeAdapter,
             reviewViewProvider,
-            analyzeCodeUseCase
         } = this.dependencies;
 
         const baseBranch = await vscode.window.showInputBox({
@@ -40,12 +39,40 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
 
         const findings = [];
 
+        let processed = 0;
+
         for (const commit of commits) {
+
+            processed++;
+
+            reviewViewProvider.setProgress(
+                `AI analyzing commit ${processed}/${commits.length}`,
+                Math.round(
+                    (processed / commits.length) * 100
+                ),
+                [
+                    `Commit: ${commit.hash.slice(0, 7)}`,
+                    commit.message
+                ]
+            );
+
             const diff =
-                await vscodeAdapter.getCommitDiff(commit.hash);
+                await vscodeAdapter.getCommitDiff(
+                    commit.hash
+                );
+
+            reviewViewProvider.appendProgressStep(
+                'Diff generated.'
+            );
 
             const provider =
-                await createAIProvider(this.dependencies.context);
+                await createAIProvider(
+                    this.dependencies.context
+                );
+
+            reviewViewProvider.appendProgressStep(
+                'Sending diff to AI...'
+            );
 
             const result =
                 await provider.analyzeCode({
@@ -54,21 +81,41 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
                     language: 'diff'
                 });
 
+            reviewViewProvider.appendProgressStep(
+                `${result.findings.length} findings returned by AI.`
+            );
+
+            const mappedFindings =
+                result.findings.map(
+                    finding => ({
+                        ...finding,
+
+                        id:
+                            `${commit.hash}:${finding.id}`,
+
+                        file:
+                            finding.file ||
+                            `commit:${commit.hash}`,
+
+                        commitHash:
+                            commit.hash,
+
+                        commitMessage:
+                            commit.message,
+
+                        status:
+                            'pending'
+                    })
+                );
+
             findings.push(
-                ...result.findings.map(finding => ({
-                    ...finding,
-                    id: `${commit.hash}:${finding.id}`,
-                    file: finding.file || `commit:${commit.hash}`,
-                    commitHash: commit.hash,
-                    commitMessage: commit.message,
-                    status: 'pending'
-                }))
+                ...mappedFindings
+            );
+
+            reviewViewProvider.updateFindings(
+                `branch-${baseBranch}`,
+                findings
             );
         }
-
-        reviewViewProvider.updateFindings(
-            `branch-${baseBranch}`,
-            findings
-        );
     }
 }
