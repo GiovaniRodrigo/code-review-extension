@@ -27,6 +27,14 @@ export class GitHubApiPullRequestProvider
         return '';
     }
 
+    async getPullRequestByBranch(
+        branch: string
+    ): Promise<PullRequestInfo | undefined> {
+        // Implementação simplificada usando a lógica de listagem (poderia ser otimizada)
+        const prs = await this.listPullRequests();
+        return prs.find(pr => pr.sourceBranch === branch);
+    }
+
     async configure(): Promise<void> {
         let token =
             await this.context.secrets.get(

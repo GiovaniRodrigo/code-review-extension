@@ -80,9 +80,10 @@
         "title": "Code Review: Set AI Provider"
       },
       {
-        "command": "code-review.syncGitLabMR",
-        "title": "Code Review: Sync with GitLab MR"
-      }
+        "command": "code-review.syncRemotePR",
+        "title": "Code Review: Sync with GitHub/GitLab PR/MR"
+      },
+
     ],
     "viewsContainers": {
       "activitybar": [

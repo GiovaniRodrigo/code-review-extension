@@ -1,5 +1,7 @@
 # Orquestração e Configuração
 
+> Para regras completas de execução da IA, modos `fast`, `standard`, `deep`, `audit`, contratos JSON, contexto mínimo, RAG, AST, quality gate e fallback, consulte [06-execution-guidelines.md](./06-execution-guidelines.md).
+
 ## 1. Seleção de Provider
 O `AIProviderRegistry` gerencia os provedores disponíveis. O usuário seleciona o ativo via configurações.
 

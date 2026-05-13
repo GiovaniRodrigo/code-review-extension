@@ -12,7 +12,7 @@ import { SearchRepositoryContextCommand } from './SearchRepositoryContextCommand
 import { FocusCommand } from './FocusCommand';
 import { RestoreSessionCommand } from './RestoreSessionCommand';
 import { PublishPrReviewCommand } from './PublishPrReviewCommand';
-import { SyncGitLabMRCommand } from './SyncGitLabMRCommand';
+import { SyncRemotePRCommand } from './SyncRemotePRCommand';
 import { SetGitLabTokenCommand } from './SetGitLabTokenCommand';
 import { SetGitLabCredentialsCommand } from './SetGitLabCredentialsCommand';
 import { SetGitLabUrlCommand } from './SetGitLabUrlCommand';
@@ -35,7 +35,7 @@ export function registerCommands(
     FocusCommand,
     RestoreSessionCommand,
     PublishPrReviewCommand,
-    SyncGitLabMRCommand,
+    SyncRemotePRCommand,
     SetGitLabTokenCommand,
     SetGitLabCredentialsCommand,
     SetGitLabUrlCommand

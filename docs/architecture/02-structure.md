@@ -1,5 +1,7 @@
 # Estrutura e Camadas
 
+> Para a árvore alvo completa do monorepo e a estratégia de migração por camadas, consulte [07-target-project-structure.md](./07-target-project-structure.md).
+
 ## 1. Arquitetura Geral
 
 O sistema é dividido em camadas para garantir a separação de interesses:

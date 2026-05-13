@@ -1,5 +1,7 @@
 # Contratos de Dados da IA
 
+> Para os contratos operacionais de resposta da IA, incluindo findings, validação de finding, sugestão de correção e fallback, consulte [06-execution-guidelines.md](./06-execution-guidelines.md).
+
 ## 1. Entrada da IA (AIAnalysisInput)
 Contém o contexto necessário para a análise:
 - SessionId, Branch, PR.
