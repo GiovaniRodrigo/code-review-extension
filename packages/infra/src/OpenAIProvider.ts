@@ -1,4 +1,4 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './index';
+import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
 
 export class OpenAIProvider implements AIProvider {
   private apiUrl = 'https://api.openai.com/v1/chat/completions';

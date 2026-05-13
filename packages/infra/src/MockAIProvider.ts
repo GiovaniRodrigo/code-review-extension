@@ -1,5 +1,5 @@
 import { Finding } from '@code-review/domain';
-import { AIProvider, AIAnalysisInput, AIAnalysisResult } from './index';
+import { AIProvider, AIAnalysisInput, AIAnalysisResult } from './interfaces';
 
 export class MockAIProvider implements AIProvider {
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {

@@ -1,12 +1,14 @@
 import { Finding, ReviewSession } from '@code-review/domain';
 import { AIProvider, IDEAdapter, ReviewRepository } from '@code-review/infra';
 import { SeverityEngine } from './SeverityEngine';
+import { ContextEngine } from './ContextEngine';
 
 export class AnalyzeCodeUseCase {
   constructor(
     private aiProvider: AIProvider,
     private ideAdapter: IDEAdapter,
     private repository: ReviewRepository,
+    private contextEngine: ContextEngine,
     private severityEngine = new SeverityEngine()
   ) {}
 
@@ -22,11 +24,14 @@ export class AnalyzeCodeUseCase {
     if (!code.trim()) {
       throw new Error('Active file is empty');
     }
+
+    const context = await this.contextEngine.buildContext(filePath);
     
     const analysisResult = await this.aiProvider.analyzeCode({
       code,
       filePath,
-      language: this._detectLanguage(filePath)
+      language: this._detectLanguage(filePath),
+      context
     });
     
     const findings: Finding[] = analysisResult.findings.map((p, index) => ({

@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ReviewSession } from '@code-review/domain';
-import { ReviewRepository } from './index';
+import { ReviewRepository } from './interfaces';
 
 interface StoredReviewSession extends Omit<ReviewSession, 'createdAt' | 'updatedAt'> {
   createdAt: string;
@@ -31,6 +31,11 @@ export class FileReviewRepository implements ReviewRepository {
   async getSessionById(id: string): Promise<ReviewSession | null> {
     const sessions = await this._readSessions();
     return sessions.get(id) || null;
+  }
+
+  async getAllSessions(): Promise<ReviewSession[]> {
+    const sessions = await this._readSessions();
+    return [...sessions.values()];
   }
 
   async deleteSession(id: string): Promise<void> {

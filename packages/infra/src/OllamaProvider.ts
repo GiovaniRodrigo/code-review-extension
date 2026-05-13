@@ -1,4 +1,4 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './index';
+import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
 
 export class OllamaProvider implements AIProvider {
   constructor(

@@ -1,5 +1,5 @@
 import { ReviewSession } from '@code-review/domain';
-import { ReviewRepository } from './index';
+import { ReviewRepository } from './interfaces';
 
 export class InMemoryReviewRepository implements ReviewRepository {
   private sessions: Map<string, ReviewSession> = new Map();
@@ -18,6 +18,10 @@ export class InMemoryReviewRepository implements ReviewRepository {
 
   async getSessionById(id: string): Promise<ReviewSession | null> {
     return this.sessions.get(id) || null;
+  }
+
+  async getAllSessions(): Promise<ReviewSession[]> {
+    return [...this.sessions.values()];
   }
 
   async deleteSession(id: string): Promise<void> {

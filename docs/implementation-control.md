@@ -40,9 +40,9 @@ Evolução para entendimento semântico e histórico do projeto.
 
 | Item do Roadmap | Requisitos Vinculados | Status | Notas |
 | :--- | :--- | :---: | :--- |
-| **Heatmap** | RF-013 (Extensão) | ⚪ | Visualização de áreas críticas de código. |
-| **Inteligência Org.** | RF-017, RF-024 | ⚪ | Aprendizado com feedback humano (HITL). |
-| **Memória de IA** | RF-024, RF-025, RNF-026, RNF-027, RNF-028 | ⚪ | Context Engine e Embeddings. |
+| **Heatmap** | RF-013 (Extensão) | 🔵 | `HeatmapService` implementado para agregar riscos por arquivo com base no historico. |
+| **Inteligência Org.** | RF-017, RF-024 | 🔵 | `ContextEngine` implementado para incluir feedback HITL (aprovacoes/rejeicoes) no prompt da IA. |
+| **Memória de IA** | RF-024, RF-025, RNF-026, RNF-027, RNF-028 | 🟡 | Contratos `EmbeddingProvider` e `VectorStore` definidos; implementacao RAG pendente. |
 
 ---
 
