@@ -1,4 +1,4 @@
-import { AuditLogEntry, AuditLogService } from './AuditLogService';
+import { AuditLogEntry, AuditLogService } from '@code-review/domain';
 
 export class FileAuditLogService implements AuditLogService {
   private logs: AuditLogEntry[] = [];

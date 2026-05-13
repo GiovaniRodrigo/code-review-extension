@@ -8,4 +8,5 @@ export * from './OllamaProvider';
 export * from './AIProviderRegistry';
 export * from './FallbackAIProvider';
 export * from './GitHubProvider';
+export * from './GitLabProvider';
 export * from './FileAuditLogService';
