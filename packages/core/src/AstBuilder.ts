@@ -237,6 +237,9 @@ export class AstBuilder {
   }
 
   private _hasExportModifier(node: ts.Node): boolean {
-    return Boolean(ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword));
+    if (!ts.canHaveModifiers(node)) {
+      return false;
+    }
+    return Boolean(ts.getModifiers(node as any)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword));
   }
 }

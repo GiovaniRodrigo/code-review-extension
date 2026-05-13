@@ -1,5 +1,10 @@
 export * from './AnalyzeCodeUseCase';
 export * from './ValidateFindingUseCase';
 export * from './SeverityEngine';
-
+export * from './AstBuilder';
+export * from './StaticRuleEngine';
+export * from './RiskScorer';
 export * from './ContextEngine';
+export * from './HeatmapService';
+export * from './PublishPRReviewUseCase';
+export * from './AuditLogService';
