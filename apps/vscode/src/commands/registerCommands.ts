@@ -1,3 +1,6 @@
+import { AnalyzeBranchCommitsCommand }
+  from './AnalyzeBranchCommitsCommand';
+
 import { IExtensionDependencies }
   from '../contracts/IExtensionDependencies';
 
@@ -23,6 +26,10 @@ export function registerCommands(
   ).register();
 
   new SetOpenAIKeyCommand(
+    dependencies
+  ).register();
+
+  new AnalyzeBranchCommitsCommand(
     dependencies
   ).register();
 }

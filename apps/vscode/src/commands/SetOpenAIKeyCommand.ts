@@ -12,9 +12,12 @@ import { SetOpenAIKeyCommandHandler }
 export class SetOpenAIKeyCommand
   implements ICommand {
 
+  readonly id =
+    'code-review.setOpenAIApiKey';
+
   constructor(
     private readonly dependencies: IExtensionDependencies
-  ) {}
+  ) { }
 
   register(): void {
 
@@ -25,7 +28,7 @@ export class SetOpenAIKeyCommand
 
     const disposable =
       vscode.commands.registerCommand(
-        'code-review.setOpenAIApiKey',
+        this.id,
         () => handler.execute()
       );
 

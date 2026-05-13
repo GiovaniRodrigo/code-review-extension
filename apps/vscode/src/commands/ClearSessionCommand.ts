@@ -12,9 +12,12 @@ import { ClearSessionCommandHandler }
 export class ClearSessionCommand
   implements ICommand {
 
+  readonly id =
+    'code-review.clearSession';
+
   constructor(
     private readonly dependencies: IExtensionDependencies
-  ) {}
+  ) { }
 
   register(): void {
 
@@ -25,7 +28,7 @@ export class ClearSessionCommand
 
     const disposable =
       vscode.commands.registerCommand(
-        'code-review.clearSession',
+        this.id,
         () => handler.execute()
       );
 

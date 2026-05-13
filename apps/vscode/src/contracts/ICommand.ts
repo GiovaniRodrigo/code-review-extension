@@ -1,3 +1,9 @@
+import * as vscode from 'vscode';
+
 export interface ICommand {
-  register(): void;
+  id: string;
+
+  register(
+    context: vscode.ExtensionContext
+  ): void;
 }

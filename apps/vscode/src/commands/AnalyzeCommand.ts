@@ -12,12 +12,14 @@ import { AnalyzeCommandHandler }
 export class AnalyzeCommand
   implements ICommand {
 
+  readonly id =
+    'code-review.analyze';
+
   constructor(
     private readonly dependencies: IExtensionDependencies
-  ) {}
+  ) { }
 
   register(): void {
-
     const handler =
       new AnalyzeCommandHandler(
         this.dependencies
@@ -25,7 +27,7 @@ export class AnalyzeCommand
 
     const disposable =
       vscode.commands.registerCommand(
-        'code-review.analyze',
+        this.id,
         () => handler.execute()
       );
 

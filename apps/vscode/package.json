@@ -20,15 +20,19 @@
     "commands": [
       {
         "command": "code-review.analyze",
-        "title": "Analyze Code with IA"
+        "title": "Code Review: Analyze Code with IA"
+      },
+      {
+        "command": "code-review.analyzeBranchCommits",
+        "title": "Code Review: Analyze Branch Commits"
       },
       {
         "command": "code-review.clearSession",
-        "title": "Clear Current Review Session"
+        "title": "Code Review: Clear Current Review Session"
       },
       {
         "command": "code-review.setOpenAIApiKey",
-        "title": "Set OpenAI API Key"
+        "title": "Code Review: Set OpenAI API Key"
       }
     ],
     "viewsContainers": {

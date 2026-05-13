@@ -26,6 +26,10 @@ describe('VSCodeAdapter', () => {
 
   it('retorna branch do Git quando a extensão Git está disponível', async () => {
     vi.mocked(vscode.extensions.getExtension).mockReturnValueOnce({
+      isActive: true,
+
+      activate: vi.fn(),
+
       exports: {
         getAPI: () => ({
           repositories: [
