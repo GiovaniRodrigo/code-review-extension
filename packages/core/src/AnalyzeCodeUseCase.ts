@@ -18,11 +18,11 @@ export class AnalyzeCodeUseCase {
     const branch = await this.ideAdapter.getActiveBranch();
 
     if (!filePath) {
-      throw new Error('No active file selected for analysis');
+      throw new Error('No active file selected for analysis. Please open a file in the editor and try again.');
     }
 
     if (!code.trim()) {
-      throw new Error('Active file is empty');
+      throw new Error('The active file is empty. Please add some code and try again.');
     }
 
     const context = await this.contextEngine.buildContext(filePath);

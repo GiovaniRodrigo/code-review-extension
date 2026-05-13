@@ -71,7 +71,7 @@ describe('AnalyzeCodeUseCase', () => {
 
     const useCase = new AnalyzeCodeUseCase(mockAI, mockIDE, mockRepo, mockContext);
 
-    await expect(useCase.execute()).rejects.toThrow('No active file selected for analysis');
+    await expect(useCase.execute()).rejects.toThrow('No active file selected for analysis. Please open a file in the editor and try again.');
     expect(mockAI.analyzeCode).not.toHaveBeenCalled();
   });
 
@@ -80,7 +80,7 @@ describe('AnalyzeCodeUseCase', () => {
 
     const useCase = new AnalyzeCodeUseCase(mockAI, mockIDE, mockRepo, mockContext);
 
-    await expect(useCase.execute()).rejects.toThrow('Active file is empty');
+    await expect(useCase.execute()).rejects.toThrow('The active file is empty. Please add some code and try again.');
     expect(mockAI.analyzeCode).not.toHaveBeenCalled();
   });
 });

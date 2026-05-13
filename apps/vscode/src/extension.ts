@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AnalyzeCodeUseCase, ValidateFindingUseCase } from '@code-review/core';
+import { AnalyzeCodeUseCase, ValidateFindingUseCase, ContextEngine } from '@code-review/core';
 import { AIProvider, FileReviewRepository, MockAIProvider, OllamaProvider, OpenAIProvider } from '@code-review/infra';
 import { VSCodeAdapter } from './VSCodeAdapter';
 import { ReviewViewProvider } from './ReviewViewProvider';
@@ -7,6 +7,7 @@ import { ReviewViewProvider } from './ReviewViewProvider';
 export function activate(context: vscode.ExtensionContext) {
   const adapter = new VSCodeAdapter();
   const repository = new FileReviewRepository(context.globalStorageUri.fsPath);
+  const contextEngine = new ContextEngine(repository);
   const validateUseCase = new ValidateFindingUseCase(repository, adapter);
   
   const provider = new ReviewViewProvider(context.extensionUri, validateUseCase, adapter);
@@ -21,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     try {
       const aiProvider = await createAIProvider(context);
-      const useCase = new AnalyzeCodeUseCase(aiProvider, adapter, repository);
+      const useCase = new AnalyzeCodeUseCase(aiProvider, adapter, repository, contextEngine);
       const session = await useCase.execute();
       provider.updateFindings(session.id, session.findings);
       vscode.window.showInformationMessage(`Review completed: ${session.findings.length} findings found.`);
