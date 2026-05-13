@@ -36,7 +36,7 @@ export class SyncRemotePRCommandHandler implements ICommandHandler {
 
             reviewViewProvider.setLoading(`Buscando Pull/Merge Request para a branch ${branch}...`);
 
-            const provider = PullRequestProviderFactory.create(providerType, context);
+            const provider = PullRequestProviderFactory.create(providerType, this.dependencies);
             
             if (provider.configure) {
                 // Checar se as configurações básicas existem

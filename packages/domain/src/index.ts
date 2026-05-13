@@ -51,3 +51,11 @@ export interface AuditLogService {
   log(action: string, actor: string, metadata: any): Promise<void>;
   getLogs(filter: any): Promise<AuditLogEntry[]>;
 }
+
+export * from './shared/DomainError';
+export * from './shared/Entity';
+export * from './shared/ValueObject';
+export * from './sync/entities/SyncProvider';
+export * from './sync/entities/SyncSession';
+export * from './access/policies/AccessPolicy';
+export * from './rag/entities/RagDocument';

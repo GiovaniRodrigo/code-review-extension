@@ -10,7 +10,7 @@
         ],
         "paths": {
             "@code-review/core": [
-                "../../packages/core/src/runtime.ts"
+                "../../packages/core/src/index.ts"
             ],
             "@code-review/domain": [
                 "../../packages/domain/src/index.ts"

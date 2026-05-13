@@ -12,6 +12,8 @@ describe('registerCommands', () => {
     expect(vscode.commands.registerCommand).toHaveBeenCalledWith('code-review.analyze', expect.any(Function));
     expect(vscode.commands.registerCommand).toHaveBeenCalledWith('code-review.clearSession', expect.any(Function));
     expect(vscode.commands.registerCommand).toHaveBeenCalledWith('code-review.setOpenAIApiKey', expect.any(Function));
-    expect(dependencies.context.subscriptions).toHaveLength(3);
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith('code-review.indexRepositoryRag', expect.any(Function));
+    expect(vscode.commands.registerCommand).toHaveBeenCalledWith('code-review.syncRemotePR', expect.any(Function));
+    expect(dependencies.context.subscriptions).toHaveLength(16);
   });
 });

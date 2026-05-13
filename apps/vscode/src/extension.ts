@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { ExtensionBootstrap } from './bootstrap/ExtensionBootstrap';
+import { activateExtension } from './bootstrap/activateExtension';
 
 export function activate(
   context: vscode.ExtensionContext
 ): void {
-  new ExtensionBootstrap(context).initialize();
+  activateExtension(context);
 }
 
 export function deactivate(): void {}
