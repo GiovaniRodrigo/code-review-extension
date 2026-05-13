@@ -9,15 +9,18 @@ import { ICommandHandler }
 import { IExtensionDependencies }
   from '../contracts/IExtensionDependencies';
 
-import { createAIProvider }
-  from '../providers/createAIProvider';
+import { AIReviewService }
+  from '../services/AIReviewService';
 
 export class AnalyzeCommandHandler
   implements ICommandHandler {
 
+  private readonly aiReviewService = new AIReviewService();
+
   constructor(
-    private readonly dependencies: IExtensionDependencies
-  ) {}
+    private readonly dependencies:
+      IExtensionDependencies
+  ) { }
 
   async execute(): Promise<void> {
 
@@ -34,7 +37,7 @@ export class AnalyzeCommandHandler
     try {
 
       const aiProvider =
-        await createAIProvider(context);
+        await this.aiReviewService.createProvider(context);
 
       const useCase =
         new AnalyzeCodeUseCase(

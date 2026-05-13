@@ -7,6 +7,7 @@ import {
   AIAnalysisResult,
   AIProvider
 } from './interfaces';
+import { match } from 'node:assert';
 
 export class OllamaProvider
   implements AIProvider {
@@ -68,63 +69,53 @@ ${input.code}
           }
         );
 
-      console.log(
-        'OLLAMA FULL RESPONSE:',
-        JSON.stringify(response.data, null, 2)
-      );
-
       const content =
         response.data?.message?.content;
 
-      console.log(
-        'OLLAMA RAW CONTENT:',
-        content
-      );
-
       let parsed: any;
 
-      try {
-        const cleaned =
-          content
-            .replace(/```json/g, '')
-            .replace(/```/g, '')
-            .trim();
+      if (typeof content !== 'string') {
+        try {
+          const cleaned =
+            content
+              .replace(/```json/g, '')
+              .replace(/```/g, '')
+              .trim();
 
-        parsed =
-          JSON.parse(cleaned);
+          parsed =
+            JSON.parse(cleaned);
 
-      } catch {
-
-        console.error(
-          'INVALID OLLAMA JSON:',
-          content
-        );
-
-        return {
-          findings: [
-            {
-              line: 1,
-              severity: 'warning',
-              message:
-                'AI returned invalid JSON response.',
-              suggestedFix:
-                'Adjust Ollama prompt formatting.'
-            }
-          ],
-          confidenceScore: 0
-        };
+        } catch {
+          return {
+            findings: [
+              {
+                line: 1,
+                severity: 'warning',
+                message:
+                  'AI returned invalid JSON response.',
+                suggestedFix:
+                  'Adjust Ollama prompt formatting.'
+              }
+            ],
+            confidenceScore: 0
+          };
+        }
+      } else {
+        parsed = content;
       }
 
-      console.log(
-        'OLLAMA PARSED:',
-        JSON.stringify(parsed, null, 2)
-      );
+      let parseToResponse;
+      if (typeof parsed === 'string') {
+        parseToResponse = parsed.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      }
+      if (Array.isArray(parsed.findings)) {
+        parseToResponse = parsed.findings;
+      }
+
 
       return {
         findings:
-          Array.isArray(parsed.findings)
-            ? parsed.findings
-            : [],
+          parseToResponse,
 
         confidenceScore:
           typeof parsed.confidenceScore === 'number'

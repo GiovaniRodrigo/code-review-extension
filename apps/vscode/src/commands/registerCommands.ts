@@ -12,6 +12,7 @@ import { ClearSessionCommand }
 
 import { SetOpenAIKeyCommand }
   from './SetOpenAIKeyCommand';
+import { AnalyzePrCommand } from './AnalyzePrCommand';
 
 export function registerCommands(
   dependencies: IExtensionDependencies
@@ -30,6 +31,10 @@ export function registerCommands(
   ).register();
 
   new AnalyzeBranchCommitsCommand(
+    dependencies
+  ).register();
+
+  new AnalyzePrCommand(
     dependencies
   ).register();
 }

@@ -49,35 +49,66 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
 
     this._postState();
 
-    webviewView.webview.onDidReceiveMessage(async data => {
-      if (!this._currentSessionId && data.sessionId) {
-        this._currentSessionId = data.sessionId;
-      }
+    webviewView.webview.onDidReceiveMessage(
+      async (data) => {
 
-      switch (data.type) {
-        case 'select': {
-          const finding = this._findings.find(f => f.id === data.id);
-
-          if (finding) {
-            await this._ideAdapter.focusFinding(finding);
-          }
-
-          break;
+        if (
+          !this._currentSessionId &&
+          data.sessionId
+        ) {
+          this._currentSessionId =
+            data.sessionId;
         }
 
-        case 'approve':
-          await this._handleAction(data.id, 'approved');
-          break;
+        switch (data.type) {
 
-        case 'reject':
-          await this._handleAction(data.id, 'rejected');
-          break;
+          case 'select': {
 
-        case 'applyFix':
-          await this._handleApplyFix(data.id);
-          break;
+            const finding =
+              this._findings.find(
+                f => f.id === data.id
+              );
+
+            if (finding) {
+              await this._ideAdapter.focusFinding(
+                finding
+              );
+            }
+
+            break;
+          }
+
+          case 'approve': {
+
+            await this._handleAction(
+              data.id,
+              'approved'
+            );
+
+            break;
+          }
+
+          case 'reject': {
+
+            await this._handleAction(
+              data.id,
+              'rejected'
+            );
+
+            break;
+          }
+
+          case 'applyFix': {
+
+            await this._handleApplyFix(
+              data.id
+            );
+
+            break;
+          }
+        }
       }
-    });
+    );
   }
 
   public updateFindings(
@@ -109,7 +140,7 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
     this._postState();
   }
 
-  
+
 
   public setProgress(
     message: string,

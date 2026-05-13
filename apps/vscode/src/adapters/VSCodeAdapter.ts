@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-
 import {
   BranchCommit,
   CommitChangedFile,
   CommitChangeSet,
   IDEAdapter
 } from '@code-review/infra';
-
 import { Finding } from '@code-review/domain';
+import { WorkspaceHelper }
+  from '../helpers/WorkspaceHelper';
 
 const execFileAsync = promisify(execFile);
 
@@ -50,7 +50,7 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async getBranchCommits(baseBranch: string): Promise<BranchCommit[]> {
-    const cwd = this._getWorkspacePath();
+    const cwd = WorkspaceHelper.getWorkspacePath();
 
     const { stdout } = await execFileAsync(
       'git',
@@ -294,5 +294,43 @@ export class VSCodeAdapter implements IDEAdapter {
 
   private _getWorkspaceFallbackBranch(): string {
     return vscode.workspace.workspaceFolders?.[0]?.name || 'main';
+  }
+
+  async getPullRequests(): Promise<any[]> {
+    const cwd = this._getWorkspacePath();
+
+    const { stdout } = await execFileAsync(
+      'gh',
+      [
+        'pr',
+        'list',
+        '--json',
+        'number,title,headRefName,baseRefName,url,state'
+      ],
+      { cwd }
+    );
+
+    return JSON.parse(stdout);
+  }
+
+  async getPullRequestDiff(
+    prNumber: number
+  ): Promise<string> {
+    const cwd = this._getWorkspacePath();
+
+    const { stdout } = await execFileAsync(
+      'gh',
+      [
+        'pr',
+        'diff',
+        String(prNumber)
+      ],
+      {
+        cwd,
+        maxBuffer: 1024 * 1024 * 20
+      }
+    );
+
+    return stdout;
   }
 }

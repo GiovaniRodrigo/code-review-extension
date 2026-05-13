@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 import { ICommandHandler } from '../contracts/ICommandHandler';
 import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
-import { createAIProvider } from '../providers/createAIProvider';
+import { AIReviewService } from '../services/AIReviewService';
 
 export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
     constructor(
         private readonly dependencies: IExtensionDependencies
     ) { }
+
+    private readonly aiReviewService = new AIReviewService();
 
     async execute(): Promise<void> {
         const {
@@ -65,17 +67,9 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
                 'Diff generated.'
             );
 
-            const provider =
-                await createAIProvider(
-                    this.dependencies.context
-                );
-
-            reviewViewProvider.appendProgressStep(
-                'Sending diff to AI...'
-            );
-
             const result =
-                await provider.analyzeCode({
+                await this.aiReviewService.analyze({
+                    context: this.dependencies.context,
                     code: diff,
                     filePath: `commit:${commit.hash}`,
                     language: 'diff'

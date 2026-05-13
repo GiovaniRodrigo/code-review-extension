@@ -33,6 +33,10 @@
       {
         "command": "code-review.setOpenAIApiKey",
         "title": "Code Review: Set OpenAI API Key"
+      },
+      {
+        "command": "code-review.analyzePr",
+        "title": "Code Review: Analyze Pull Request"
       }
     ],
     "viewsContainers": {
@@ -80,6 +84,21 @@
           "type": "string",
           "default": "gpt-4o-mini",
           "description": "OpenAI model used for code review."
+        },
+        "codeReview.github.token": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub token for PR analysis."
+        },
+        "codeReview.gitlab.token": {
+          "type": "string",
+          "default": "",
+          "description": "GitLab token for MR analysis."
+        },
+        "codeReview.gitlab.baseUrl": {
+          "type": "string",
+          "default": "https://gitlab.com",
+          "description": "GitLab instance base URL."
         }
       }
     }

@@ -13,10 +13,44 @@ export class OpenAIProvider {
   private apiUrl = 'https://api.openai.com/v1/chat/completions';
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
-    const prompt = `Review the following ${input.language || 'code'} from file ${input.filePath}. 
-    Return a JSON object with a list of "findings" (line, message, severity, suggestedFix) and a "confidenceScore" (0-1).
-    Code:
-    ${input.code}`;
+    const prompt = `
+You are a senior software engineer performing a Pull Request review.
+
+Analyze the following git diff carefully.
+
+Return ONLY valid JSON in this format:
+
+{
+  "findings": [
+    {
+      "id": "unique-id",
+      "line": 10,
+      "message": "Problem description",
+      "severity": "info|warning|error",
+      "suggestedFix": "Optional fix",
+      "file": "path/to/file.ts"
+    }
+  ],
+  "confidenceScore": 0.0
+}
+
+Rules:
+- Return findings only for real problems.
+- Focus on:
+  - bugs
+  - security
+  - architecture
+  - performance
+  - null safety
+  - async issues
+  - bad practices
+  - clean code violations
+- Ignore formatting issues.
+- If no problems exist, return empty findings.
+
+Git diff:
+${input.code}
+`;
 
     try {
       const response = await this.httpClient.post(
