@@ -5,3 +5,7 @@ export * from './MockAIProvider';
 export * from './MockEmbeddingProvider';
 export * from './OpenAIProvider';
 export * from './OllamaProvider';
+export * from './AIProviderRegistry';
+export * from './FallbackAIProvider';
+export * from './GitHubProvider';
+export * from './FileAuditLogService';

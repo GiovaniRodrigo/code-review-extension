@@ -51,10 +51,10 @@ Escalabilidade, multi-cloud e integração com fluxos de trabalho corporativos.
 
 | Item do Roadmap | Requisitos Vinculados | Status | Notas |
 | :--- | :--- | :---: | :--- |
-| **IA Multi-provedor** | RF-008, RF-009, RF-010, RF-011, RF-027, RF-029, RNF-022, RNF-023 | 🟡 | Suporte configuravel a Mock, OpenAI e Ollama; fallback automatico e provider integrado a IDE ainda pendentes. |
-| **Publicação de PRs** | RF-006 (Extensão) | ⚪ | Integração direta com GitHub/GitLab. |
-| **Workflow & Auditoria** | RF-022, RNF-017 | ⚪ | Logs e rastreabilidade para conformidade. |
-| **Streaming & Perf.** | RF-023, RNF-006, RNF-007, RNF-008, RNF-025 | ⚪ | Otimização para modo Premium Cloud. |
+| **IA Multi-provedor** | RF-008, RF-009, RF-010, RF-011, RF-027, RF-029, RNF-022, RNF-023 | 🔵 | `AIProviderRegistry` e `FallbackAIProvider` implementados para suporte hibrido e resiliencia. |
+| **Publicação de PRs** | RF-006 (Extensão) | 🔵 | `GitHubProvider` e `PublishPRReviewUseCase` implementados para automatizar comentarios em PRs. |
+| **Workflow & Auditoria** | RF-022, RNF-017 | 🔵 | `AuditLogService` implementado para rastreabilidade de acoes criticas. |
+| **Streaming & Perf.** | RF-023, RNF-006, RNF-007, RNF-008, RNF-025 | 🟡 | Otimizações de streaming e performance em progresso. |
 
 ---
 

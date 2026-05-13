@@ -42,3 +42,13 @@ export interface VectorStore {
   add(id: string, vector: number[], metadata: any): Promise<void>;
   query(vector: number[], limit: number): Promise<any[]>;
 }
+
+export interface PRComment {
+  file: string;
+  line: number;
+  body: string;
+}
+
+export interface GitProvider {
+  publishComments(owner: string, repo: string, prNumber: number, comments: PRComment[]): Promise<void>;
+}
