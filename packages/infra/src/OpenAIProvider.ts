@@ -1,12 +1,16 @@
 import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
 
-export class OpenAIProvider implements AIProvider {
-  private apiUrl = 'https://api.openai.com/v1/chat/completions';
+import axios, {
+  type AxiosInstance
+} from 'axios';
 
+export class OpenAIProvider {
   constructor(
-    private apiKey: string,
-    private httpClient: { post: (url: string, data: any, config: any) => Promise<any> }
-  ) {}
+    private readonly apiKey: string,
+    private readonly httpClient: AxiosInstance = axios
+  ) { }
+
+  private apiUrl = 'https://api.openai.com/v1/chat/completions';
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
     const prompt = `Review the following ${input.language || 'code'} from file ${input.filePath}. 
@@ -31,7 +35,7 @@ export class OpenAIProvider implements AIProvider {
       );
 
       const content = JSON.parse(response.data.choices[0].message.content);
-      
+
       return {
         findings: content.findings || [],
         confidenceScore: content.confidenceScore || 0

@@ -16,16 +16,35 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async getActiveBranch(): Promise<string> {
-    const gitExtension = vscode.extensions.getExtension('vscode.git')?.exports;
-    const git = gitExtension?.getAPI?.(1);
-    const repository = git?.repositories?.[0];
-    const branch = repository?.state?.HEAD?.name;
+    try {
+      const gitExtension =
+        vscode.extensions.getExtension('vscode.git');
 
-    if (branch) {
-      return branch;
+      if (!gitExtension) {
+        return this._getWorkspaceFallbackBranch();
+      }
+
+      if (!gitExtension.isActive) {
+        await gitExtension.activate();
+      }
+
+      const git =
+        gitExtension.exports?.getAPI?.(1);
+
+      const repository =
+        git?.repositories?.[0];
+
+      const branch =
+        repository?.state?.HEAD?.name;
+
+      if (branch) {
+        return branch;
+      }
+
+      return this._getWorkspaceFallbackBranch();
+    } catch {
+      return this._getWorkspaceFallbackBranch();
     }
-
-    return vscode.workspace.workspaceFolders?.[0]?.name || 'main';
   }
 
   async showFinding(finding: Finding): Promise<void> {
@@ -46,7 +65,7 @@ export class VSCodeAdapter implements IDEAdapter {
     const uri = vscode.Uri.file(finding.file);
     const document = await vscode.workspace.openTextDocument(uri);
     const editor = await vscode.window.showTextDocument(document);
-    
+
     const range = new vscode.Range(finding.line - 1, 0, finding.line - 1, 0);
     editor.selection = new vscode.Selection(range.start, range.end);
     editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
@@ -108,5 +127,12 @@ export class VSCodeAdapter implements IDEAdapter {
     }
 
     return vscode.window.visibleTextEditors?.find(editor => Boolean(editor.document.uri.fsPath));
+  }
+
+  private _getWorkspaceFallbackBranch(): string {
+    return (
+      vscode.workspace.workspaceFolders?.[0]?.name ||
+      'main'
+    );
   }
 }

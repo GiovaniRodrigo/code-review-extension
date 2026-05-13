@@ -1,11 +1,13 @@
 import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
+import axios, { type AxiosInstance } from "axios";
 
-export class OllamaProvider implements AIProvider {
+export class OllamaProvider {
   constructor(
-    private baseUrl: string,
-    private model: string,
-    private httpClient: { post: (url: string, data: any) => Promise<any> }
-  ) {}
+    public readonly baseUrl: string,
+    public readonly model: string,
+    private readonly httpClient: AxiosInstance = axios
+  ) { }
+
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
     const prompt = `Review the following ${input.language || 'code'} from file ${input.filePath}.

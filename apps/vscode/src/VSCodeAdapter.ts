@@ -46,8 +46,25 @@ export class VSCodeAdapter implements IDEAdapter {
     const uri = vscode.Uri.file(finding.file);
     const document = await vscode.workspace.openTextDocument(uri);
     const editor = await vscode.window.showTextDocument(document);
-    
-    const range = new vscode.Range(finding.line - 1, 0, finding.line - 1, 0);
+
+    const line =
+      Math.max(
+        (finding.line || 1) - 1,
+        0
+      );
+
+    const column =
+      Math.max(
+        (finding.column || 1) - 1,
+        0
+      );
+
+    const range = new vscode.Range(
+      line,
+      column,
+      line,
+      column
+    );
     editor.selection = new vscode.Selection(range.start, range.end);
     editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
   }

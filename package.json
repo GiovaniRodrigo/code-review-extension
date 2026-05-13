@@ -31,5 +31,9 @@
     "typescript": "^5.9.3",
     "vitest": "^1.0.0",
     "vscode": "^1.1.37"
-  }
+  },
+  "dependencies": {
+    "axios": "^1.16.0"
+  },
+  "packageManager": "npm@10.9.0"
 }
