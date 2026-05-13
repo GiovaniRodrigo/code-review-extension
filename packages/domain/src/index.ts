@@ -30,4 +30,24 @@ export interface ReviewSession {
   comments: TechnicalComment[];
   createdAt: Date;
   updatedAt: Date;
+  remote?: {
+    provider: string;
+    url: string;
+    number: string | number;
+    owner: string;
+    repo: string;
+  };
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: Date;
+  action: string;
+  actor: string;
+  metadata: any;
+}
+
+export interface AuditLogService {
+  log(action: string, actor: string, metadata: any): Promise<void>;
+  getLogs(filter: any): Promise<AuditLogEntry[]>;
 }
