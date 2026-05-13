@@ -83,3 +83,27 @@ Referência: `docs/patterns/design-patterns.md`
 
 ---
 *Para detalhes específicos, consulte a pasta `docs/`.*
+
+## 9. Regras de Implementação Low-Cost (Mandatório)
+
+Este projeto prioriza o mínimo custo operacional e a máxima previsibilidade. Todas as IAs devem atuar como **IMPLEMENTADORES DETERMINÍSTICOS**.
+
+### 9.1 Mandatos de Eficiência
+- **Mínimo Reasoning**: Não explore alternativas arquiteturais. Siga rigorosamente os contratos existentes.
+- **Máxima Reutilização**: **PROIBIDO** criar novas abstrações, helpers, factories ou wrappers se já existirem interfaces ou implementações compatíveis.
+- **Mínima Alteração**: Prefira alterar 1 arquivo de forma cirúrgica do que reorganizar múltiplos arquivos.
+- **Custo de Token**: Evite explicações verbais longas. Foque na implementação técnica direta.
+
+### 9.2 Estratégia de Desenvolvimento
+1. **Reutilizar**: Verificar se o que precisa ser feito já existe ou pode ser estendido.
+2. **Implementar Mínimo**: Escrever o menor código possível que atenda ao requisito.
+3. **Testar**: Criar testes cirúrgicos que garantam apenas o Happy Path e Error Path.
+4. **Validar Coverage**: Subir cobertura com o mínimo de cenários redundantes.
+
+### 9.3 Restrições de Tecnologia
+- **Dependências**: Apenas libs permitidas (Vitest, Stryker, ts-morph, zod, pino). **PROIBIDO** adicionar novas bibliotecas sem aprovação.
+- **Performance**: Evite carregar o projeto inteiro em memória ou realizar scans de AST globais desnecessários.
+- **Imports**: Prefira imports diretos. Evite index.ts gigantes ou barrel exports complexos.
+
+### 9.4 Regra Suprema
+**IMPLEMENTAR O MENOR CÓDIGO POSSÍVEL COM O MENOR NÚMERO DE ALTERAÇÕES, UTILIZANDO A ARQUITETURA EXISTENTE E SEM COMPLEXIDADE ADICIONAL.**
