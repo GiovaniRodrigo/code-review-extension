@@ -11,6 +11,11 @@ import { ClearRepositoryRagCommand } from './ClearRepositoryRagCommand';
 import { SearchRepositoryContextCommand } from './SearchRepositoryContextCommand';
 import { FocusCommand } from './FocusCommand';
 import { RestoreSessionCommand } from './RestoreSessionCommand';
+import { PublishPrReviewCommand } from './PublishPrReviewCommand';
+import { SyncGitLabMRCommand } from './SyncGitLabMRCommand';
+import { SetGitLabTokenCommand } from './SetGitLabTokenCommand';
+import { SetGitLabCredentialsCommand } from './SetGitLabCredentialsCommand';
+import { SetGitLabUrlCommand } from './SetGitLabUrlCommand';
 
 export function registerCommands(
   dependencies: IExtensionDependencies
@@ -28,6 +33,11 @@ export function registerCommands(
     ClearRepositoryRagCommand,
     SearchRepositoryContextCommand,
     FocusCommand,
-    RestoreSessionCommand
+    RestoreSessionCommand,
+    PublishPrReviewCommand,
+    SyncGitLabMRCommand,
+    SetGitLabTokenCommand,
+    SetGitLabCredentialsCommand,
+    SetGitLabUrlCommand
   ]);
 }

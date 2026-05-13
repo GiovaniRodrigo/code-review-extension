@@ -15,7 +15,11 @@ export class SetProviderCommand implements ICommand {
             this.id,
             async () => {
                 const provider = await UIHelper.showQuickPick(
-                    ['openai', 'ollama', 'mock'],
+                    [
+                        { label: 'openai' },
+                        { label: 'ollama' },
+                        { label: 'mock' }
+                    ],
                     { title: 'Escolha o provider de IA' }
                 );
 
@@ -25,10 +29,10 @@ export class SetProviderCommand implements ICommand {
 
                 await vscode.workspace
                     .getConfiguration('codeReview')
-                    .update('provider', provider, vscode.ConfigurationTarget.Global);
+                    .update('provider', provider.label, vscode.ConfigurationTarget.Global);
 
                 vscode.window.showInformationMessage(
-                    `Provider alterado para: ${provider}`
+                    `Provider alterado para: ${provider.label}`
                 );
             }
         );

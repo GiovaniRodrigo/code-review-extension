@@ -45,10 +45,27 @@ Referência: `docs/patterns/design-patterns.md`
 
 ## 6. Estrutura de Diretórios
 
-- `apps/`: Extensões específicas (vscode, jetbrains, etc).
-- `packages/`: Núcleo compartilhado (core, domain, infra, ui).
-- `docs/`: Documentação técnica detalhada.
-- `scripts/`: Scripts operacionais (test, lint, build) usados pelas IDEs.
+```text
+/
+├── apps/                   # Extensões específicas por IDE
+│   ├── jetbrains/          # Plugin para IntelliJ/WebStorm (Kotlin)
+│   ├── vscode/             # Extensão para VS Code (TypeScript)
+│   │   ├── src/            # Código-fonte da extensão
+│   │   └── tests/          # Testes E2E, Integração e Unitários (VS Code)
+│   ├── vim/                # Suporte para Vim/Neovim
+│   └── sublime/            # Suporte para Sublime Text
+├── packages/               # Núcleo compartilhado (Monorepo)
+│   ├── core/               # Casos de uso e lógica de orquestração
+│   ├── domain/             # Entidades, contratos e regras de negócio
+│   ├── infra/              # Provedores (IA, Git, Storage) e serviços externos
+│   └── ui/                 # Componentes de interface (React)
+├── docs/                   # Documentação técnica e arquitetural
+│   ├── ai-integration/     # Estratégia e contratos de IA
+│   ├── architecture/       # Princípios e estrutura das camadas
+│   ├── design/             # UI/UX e componentes
+│   └── qualidade-software/ # Processos de QA e checklists
+└── GEMINI.md               # Este arquivo (Instruções para LLMs)
+```
 
 ## 7. Fluxo de Implementação
 

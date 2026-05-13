@@ -23,4 +23,8 @@ export interface PullRequestProvider {
     getPullRequestDiff(
         pr: PullRequestInfo
     ): Promise<string>;
+
+    getPullRequestByBranch?(
+        branch: string
+    ): Promise<PullRequestInfo | undefined>;
 }

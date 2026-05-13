@@ -106,6 +106,11 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
 
             break;
           }
+
+          case 'publish': {
+              await vscode.commands.executeCommand('code-review.publishPrReview');
+              break;
+          }
         }
       }
     );

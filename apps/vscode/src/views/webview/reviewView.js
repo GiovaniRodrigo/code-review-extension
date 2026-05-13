@@ -24,10 +24,18 @@ function renderState(message) {
     }
 
     if (message.state === 'ready') {
+        const hasPr = findings.some(f => f.prNumber);
+
         app.innerHTML = `
       <section class="summary">
-        <strong>${findings.length}</strong>
-        <span>finding(s) encontrados</span>
+        <div>
+          <strong>${findings.length}</strong>
+          <span>finding(s) encontrados</span>
+        </div>
+        ${hasPr 
+            ? `<button type="button" data-action="publish" class="publish-button">Publicar Review</button>`
+            : ''
+        }
       </section>
 
       <section class="findings-list">
