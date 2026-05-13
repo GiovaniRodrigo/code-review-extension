@@ -30,7 +30,7 @@ export class SetOpenAIKeyCommandHandler
         }
 
         await context.secrets.store(
-            'codeReview.openai.apiKey',
+            'openai-api-key',
             apiKey
         );
 

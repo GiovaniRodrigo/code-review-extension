@@ -161,17 +161,47 @@ export class AnalyzePrCommandHandler implements ICommandHandler {
       [pr.title]
     );
 
-    const diff = await provider.getPullRequestDiff(pr);
+    const diff =
+      await provider.getPullRequestDiff(pr);
 
-    reviewViewProvider.appendProgressStep('PR diff downloaded.');
-    reviewViewProvider.appendProgressStep('Sending diff to AI...');
+    reviewViewProvider.appendProgressStep(
+      'PR diff downloaded.'
+    );
 
-    const result = await this.aiReviewService.analyze({
-      context: this.dependencies.context,
-      code: diff,
-      filePath: `pr:${pr.number}`,
-      language: 'diff'
-    });
+    const allowedExtensions = [
+      '.ts',
+      '.tsx',
+      '.js',
+      '.jsx'
+    ];
+
+    const filteredDiff =
+      diff
+        .split('diff --git')
+        .filter(chunk =>
+
+          allowedExtensions.some(
+            ext =>
+              chunk.includes(ext)
+          )
+        )
+        .join('\n\ndiff --git');
+
+    reviewViewProvider.appendProgressStep(
+      'Filtered reviewable files.'
+    );
+
+    reviewViewProvider.appendProgressStep(
+      'Sending diff to AI...'
+    );
+
+    const result =
+      await this.aiReviewService.analyze({
+        context: this.dependencies.context,
+        code: filteredDiff,
+        filePath: `pr:${pr.number}`,
+        language: 'diff'
+      });
 
     reviewViewProvider.appendProgressStep(
       `${result.findings.length} findings returned by AI.`
@@ -190,7 +220,7 @@ export class AnalyzePrCommandHandler implements ICommandHandler {
       status: 'pending'
     }));
 
-    
+
 
     reviewViewProvider.updateFindings(
       `pr-${pr.number}`,

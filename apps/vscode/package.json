@@ -37,6 +37,22 @@
       {
         "command": "code-review.analyzePr",
         "title": "Code Review: Analyze Pull Request"
+      },
+      {
+        "command": "code-review.indexRepositoryRag",
+        "title": "Code Review: Index Repository RAG"
+      },
+      {
+        "command": "code-review.searchRepositoryContext",
+        "title": "Code Review: Search Repository Context"
+      },
+      {
+        "command": "code-review.clearRepositoryRag",
+        "title": "Code Review: Clear Repository RAG"
+      },
+      {
+        "command": "code-review.setProvider",
+        "title": "Code Review: Set AI Provider"
       }
     ],
     "viewsContainers": {

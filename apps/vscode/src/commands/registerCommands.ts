@@ -1,18 +1,11 @@
-import { AnalyzeBranchCommitsCommand }
-  from './AnalyzeBranchCommitsCommand';
-
-import { IExtensionDependencies }
-  from '../contracts/IExtensionDependencies';
-
-import { AnalyzeCommand }
-  from './AnalyzeCommand';
-
-import { ClearSessionCommand }
-  from './ClearSessionCommand';
-
-import { SetOpenAIKeyCommand }
-  from './SetOpenAIKeyCommand';
+import { AnalyzeBranchCommitsCommand } from './AnalyzeBranchCommitsCommand';
+import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
+import { AnalyzeCommand } from './AnalyzeCommand';
+import { ClearSessionCommand } from './ClearSessionCommand';
+import { SetOpenAIKeyCommand } from './SetOpenAIKeyCommand';
 import { AnalyzePrCommand } from './AnalyzePrCommand';
+import { IndexRepositoryRagCommand } from './IndexRepositoryRagCommand';
+import { SetProviderCommand } from './SetProviderCommand';
 
 export function registerCommands(
   dependencies: IExtensionDependencies
@@ -35,6 +28,14 @@ export function registerCommands(
   ).register();
 
   new AnalyzePrCommand(
+    dependencies
+  ).register();
+
+  new IndexRepositoryRagCommand(
+    dependencies
+  ).register();
+
+  new SetProviderCommand(
     dependencies
   ).register();
 }

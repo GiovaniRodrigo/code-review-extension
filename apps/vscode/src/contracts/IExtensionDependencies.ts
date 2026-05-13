@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+
 import {
   ContextEngine,
   ValidateFindingUseCase
@@ -10,6 +11,11 @@ import {
 
 import { VSCodeAdapter } from '../adapters/VSCodeAdapter';
 import { ReviewViewProvider } from '../../src/ReviewViewProvider';
+
+import { IndexRepositoryRagCommandHandler } from '../command-handlers/IndexRepositoryRagCommandHandler';
+import { ClearRepositoryRagCommandHandler }
+  from '../command-handlers/ClearRepositoryRagCommandHandler';
+
 
 export interface IExtensionDependencies {
   context: vscode.ExtensionContext;
@@ -23,4 +29,7 @@ export interface IExtensionDependencies {
   validateFindingUseCase: ValidateFindingUseCase;
 
   reviewViewProvider: ReviewViewProvider;
+
+  indexRepositoryRagCommandHandler: IndexRepositoryRagCommandHandler;
+  clearRepositoryRagCommandHandler: ClearRepositoryRagCommandHandler;
 }
