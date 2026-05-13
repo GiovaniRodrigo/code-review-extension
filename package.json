@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "test": "vitest run --exclude \"apps/vscode/tests/e2e/**\"",
+    "test:all": "npm run lint && npm run arch:depcruise && npm run arch:madge && npm run test:unit && npm run test:integration && npm run test:coverage && npm run test:mutation && npm run build --workspace=apps/vscode",
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --config vitest.coverage.config.ts --coverage",
@@ -24,10 +25,13 @@
     "package:vim": "npm run package --workspace=apps/vim",
     "package:sublime": "npm run package --workspace=apps/sublime",
     "package:all": "npm run package",
+    "test:mutation": "stryker run",
     "test:e2e": "vscode-test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "~8.7.0",
+    "@stryker-mutator/vitest-runner": "~8.7.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.7.0",
     "@types/vscode": "^1.118.0",
