@@ -1,60 +1,37 @@
 import * as vscode from 'vscode';
+import { ICommand } from '../contracts/ICommand';
+import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
 
-import { IExtensionDependencies }
-    from '../contracts/IExtensionDependencies';
-
-export class SetProviderCommand {
+export class SetProviderCommand implements ICommand {
+    readonly id = 'code-review.setProvider';
 
     constructor(
-        private readonly dependencies:
-            IExtensionDependencies
+        private readonly dependencies: IExtensionDependencies
     ) { }
 
-    register(): void {
+    register(context: vscode.ExtensionContext): void {
+        const disposable = vscode.commands.registerCommand(
+            this.id,
+            async () => {
+                const provider = await vscode.window.showQuickPick(
+                    ['openai', 'ollama', 'mock'],
+                    { title: 'Escolha o provider de IA' }
+                );
 
-        const disposable =
-            vscode.commands.registerCommand(
-                'code-review.setProvider',
-
-                async () => {
-
-                    const provider =
-                        await vscode.window
-                            .showQuickPick(
-                                [
-                                    'openai',
-                                    'ollama',
-                                    'mock'
-                                ],
-                                {
-                                    title:
-                                        'Escolha o provider de IA'
-                                }
-                            );
-
-                    if (!provider) {
-                        return;
-                    }
-
-                    await vscode.workspace
-                        .getConfiguration(
-                            'codeReview'
-                        )
-                        .update(
-                            'provider',
-                            provider,
-                            vscode.ConfigurationTarget.Global
-                        );
-
-                    vscode.window
-                        .showInformationMessage(
-                            `Provider alterado para: ${provider}`
-                        );
+                if (!provider) {
+                    return;
                 }
-            );
 
-        this.dependencies.context
-            .subscriptions
-            .push(disposable);
+                await vscode.workspace
+                    .getConfiguration('codeReview')
+                    .update('provider', provider, vscode.ConfigurationTarget.Global);
+
+                vscode.window.showInformationMessage(
+                    `Provider alterado para: ${provider}`
+                );
+            }
+        );
+
+        context.subscriptions.push(disposable);
     }
 }

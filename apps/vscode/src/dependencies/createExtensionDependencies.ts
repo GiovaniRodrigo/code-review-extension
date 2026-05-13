@@ -16,7 +16,7 @@ import { VSCodeAdapter }
   from '../adapters/VSCodeAdapter';
 
 import { ReviewViewProvider }
-  from '../../src/ReviewViewProvider';
+  from '../views/ReviewViewProvider';
 
 
 /*
@@ -48,6 +48,9 @@ import { BuildEmbeddingService }
 
 import { VectorStoreService }
   from '../services/rag/VectorStoreService';
+
+import { SearchContextService }
+  from '../services/rag/SearchContextService';
 
 /*
 |--------------------------------------------------------------------------
@@ -180,6 +183,12 @@ export function createExtensionDependencies(
       vectorStoreService
     );
 
+  const searchContextService =
+    new SearchContextService(
+      embeddingProvider,
+      vectorStore
+    );
+
   /*
   |--------------------------------------------------------------------------
   | Command Handlers
@@ -225,6 +234,8 @@ export function createExtensionDependencies(
 
     indexRepositoryRagCommandHandler,
 
-    clearRepositoryRagCommandHandler
+    clearRepositoryRagCommandHandler,
+
+    searchContextService
   };
 }

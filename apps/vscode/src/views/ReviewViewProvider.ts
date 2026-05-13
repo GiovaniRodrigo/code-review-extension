@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ValidateFindingUseCase } from '@code-review/core';
 import { IDEAdapter } from '@code-review/infra';
-import { getWebviewContent } from '../src/views/getWebviewContent';
+import { getWebviewContent } from './getWebviewContent';
 import * as path from 'node:path';
 
 export class ReviewViewProvider implements vscode.WebviewViewProvider {

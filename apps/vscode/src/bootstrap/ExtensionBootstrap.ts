@@ -10,7 +10,7 @@ import { restoreCurrentBranchSession }
     from '../services/restoreCurrentBranchSession';
 
 import { ReviewViewProvider }
-    from '../../src/ReviewViewProvider';
+    from '../views/ReviewViewProvider';
 
 export class ExtensionBootstrap {
 

@@ -10,11 +10,12 @@ import {
 } from '@code-review/infra';
 
 import { VSCodeAdapter } from '../adapters/VSCodeAdapter';
-import { ReviewViewProvider } from '../../src/ReviewViewProvider';
+import { ReviewViewProvider } from '../views/ReviewViewProvider';
 
 import { IndexRepositoryRagCommandHandler } from '../command-handlers/IndexRepositoryRagCommandHandler';
 import { ClearRepositoryRagCommandHandler }
   from '../command-handlers/ClearRepositoryRagCommandHandler';
+import { SearchContextService } from '../services/rag/SearchContextService';
 
 
 export interface IExtensionDependencies {
@@ -32,4 +33,5 @@ export interface IExtensionDependencies {
 
   indexRepositoryRagCommandHandler: IndexRepositoryRagCommandHandler;
   clearRepositoryRagCommandHandler: ClearRepositoryRagCommandHandler;
+  searchContextService: SearchContextService;
 }

@@ -1,36 +1,28 @@
 import * as vscode from 'vscode';
+import { ICommand } from '../contracts/ICommand';
+import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
 
-import { IExtensionDependencies }
-    from '../contracts/IExtensionDependencies';
-
-export class ClearRepositoryRagCommand {
+export class ClearRepositoryRagCommand implements ICommand {
+    readonly id = 'code-review.clearRepositoryRag';
 
     constructor(
-        private readonly dependencies:
-            IExtensionDependencies
+        private readonly dependencies: IExtensionDependencies
     ) { }
 
-    register(): void {
+    register(context: vscode.ExtensionContext): void {
+        const disposable = vscode.commands.registerCommand(
+            this.id,
+            async () => {
+                await this.dependencies
+                    .clearRepositoryRagCommandHandler
+                    .execute();
 
-        const disposable =
-            vscode.commands.registerCommand(
-                'code-review.clearRepositoryRag',
+                vscode.window.showInformationMessage(
+                    'RAG limpo com sucesso.'
+                );
+            }
+        );
 
-                async () => {
-
-                    await this.dependencies
-                        .clearRepositoryRagCommandHandler
-                        .execute();
-
-                    vscode.window
-                        .showInformationMessage(
-                            'RAG limpo com sucesso.'
-                        );
-                }
-            );
-
-        this.dependencies.context
-            .subscriptions
-            .push(disposable);
+        context.subscriptions.push(disposable);
     }
 }

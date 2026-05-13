@@ -25,21 +25,32 @@ O projeto segue uma arquitetura em camadas (`docs/architecture/`):
 ## 4. Padrões de Design (Design Patterns)
 
 Referência: `docs/patterns/design-patterns.md`
-- **Adapter**: Para múltiplas IDEs.
-- **Strategy**: Para múltiplos provedores de IA.
-- **Repository**: Para abstração de persistência.
-- **Command**: Para ações desacopladas.
-- **Registry**: Para registro dinâmico de providers e validações.
-- **Observer**: Para comunicação reativa Core -> UI.
+- **Adapter**: Desacopla o core das APIs das IDEs.
+- **Strategy**: Intercambialidade de provedores de IA.
+- **Repository**: Abstração da persistência de dados.
+- **Command**: Ações do usuário como objetos (histórico/rollback).
+- **Observer**: Comunicação reativa Core -> UI via eventos.
+- **Facade**: Interface unificada para subsistemas complexos.
+- **Registry**: Registro dinâmico de providers e comandos.
+- **Dependency Injection**: Desacoplamento de implementações concretas.
+- **Plugin Architecture**: Expansão modular e plugável.
+- **Pipeline**: Fluxos de processamento em etapas independentes.
 
-## 5. Estrutura de Diretórios
+## 5. Princípios de Design
+
+- **SOLID**: Obrigatório em toda implementação.
+- **Single Responsibility (SRP)**: Um arquivo/classe = uma responsabilidade única.
+- **Don't Repeat Yourself (DRY)**: Evitar duplicação de lógica de negócio.
+- **KISS (Keep It Simple, Stupid)**: Priorizar a simplicidade na implementação.
+
+## 6. Estrutura de Diretórios
 
 - `apps/`: Extensões específicas (vscode, jetbrains, etc).
 - `packages/`: Núcleo compartilhado (core, domain, infra, ui).
 - `docs/`: Documentação técnica detalhada.
 - `scripts/`: Scripts operacionais (test, lint, build) usados pelas IDEs.
 
-## 6. Fluxo de Implementação
+## 7. Fluxo de Implementação
 
 1. **Pesquisa/Design**: Validar impacto nas camadas e contratos.
 2. **TDD (Red)**: Escrever o teste unitário que falha na pasta `tests/`.
@@ -47,7 +58,7 @@ Referência: `docs/patterns/design-patterns.md`
 4. **Refatoração (Refactor)**: Melhorar o código mantendo os testes passando.
 5. **Integração UI/IDE**: Conectar componentes seguindo o mesmo ciclo de validação.
 
-## 7. Tecnologias Preferenciais
+## 8. Tecnologias Preferenciais
 
 - **Frontend**: React (TypeScript), shadcn/ui, Vanilla CSS (evitar Tailwind).
 - **Backend/Core**: TypeScript puro.

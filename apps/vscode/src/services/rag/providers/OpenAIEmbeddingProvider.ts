@@ -18,7 +18,7 @@ export class OpenAIEmbeddingProvider
 
         const apiKey =
             await this.secrets.get(
-                'openai-api-key'
+                'codeReview.openai.apiKey'
             );
 
         if (!apiKey) {
