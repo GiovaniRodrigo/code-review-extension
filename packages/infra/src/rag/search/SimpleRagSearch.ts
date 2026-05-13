@@ -1,4 +1,4 @@
-import { RagChunkDTO } from '@code-review/core';
+import type { RagChunkDTO } from '../../../../core/src/application/dto/rag/RagDTO';
 
 export class SimpleRagSearch {
   search(chunks: RagChunkDTO[], query: string, limit = 5): RagChunkDTO[] {

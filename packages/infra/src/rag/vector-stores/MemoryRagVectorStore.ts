@@ -1,4 +1,5 @@
-import { RagChunkDTO, RagVectorStorePort } from '@code-review/core';
+import type { RagChunkDTO } from '../../../../core/src/application/dto/rag/RagDTO';
+import type { RagVectorStorePort } from '../../../../core/src/ports/rag/RagVectorStorePort';
 
 export class MemoryRagVectorStore implements RagVectorStorePort {
   private readonly chunks: RagChunkDTO[] = [];

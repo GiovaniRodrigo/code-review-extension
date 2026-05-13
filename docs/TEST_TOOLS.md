@@ -1,412 +1,275 @@
-# Sistema de Qualidade para Extensão de IDE
+# AI Test Implementation Rules
 
 ## 1. Objetivo
 
-Este documento define as tecnologias, ferramentas e estratégias utilizadas no sistema de qualidade da extensão de IDE.
+Este documento define regras obrigatórias para implementação automatizada das ferramentas de testes da extensão multi-IDE.
 
-O foco principal é:
+A IA deve:
 
-* Baixo consumo de recursos
-* Execução local
-* Alta extensibilidade
-* Arquitetura modular
-* Compatibilidade com Node.js e TypeScript
-* Distribuição via NPM
-* Integração com IDEs
-* Suporte a análise arquitetural
-* Suporte a IA e AST
+- Reduzir ao máximo reasoning/thinking
+- Evitar decisões subjetivas
+- Evitar arquiteturas alternativas
+- Seguir implementação determinística
+- Reutilizar padrões existentes
+- Nunca quebrar Open/Closed Principle
+- Nunca alterar código existente sem necessidade
 
 ---
 
-# 2. Stack Principal
+# 2. Regras Gerais
 
-| Categoria       | Tecnologia            |
-| --------------- | --------------------- |
-| Linguagem       | TypeScript            |
-| Runtime         | Node.js               |
-| Package Manager | NPM                   |
-| Build           | ESBuild               |
-| Testes          | Vitest                |
-| Lint            | ESLint                |
-| AST             | ts-morph              |
-| Arquitetura     | dependency-cruiser    |
-| Dependências    | madge                 |
-| Configuração    | zod                   |
-| Logs            | pino                  |
-| CLI             | commander             |
-| Relatórios      | markdown-table        |
-| File Scan       | fast-glob             |
-| VS Code Testing | @vscode/test-electron |
+## 2.1 Regras Obrigatórias
+
+A IA DEVE:
+
+- Usar TypeScript
+- Usar Node.js
+- Usar NPM
+- Usar arquitetura existente
+- Respeitar SOLID
+- Respeitar DDD
+- Respeitar Clean Architecture
+- Implementar via Ports & Adapters
+- Criar código desacoplado
+- Criar testes automatizados
+- Criar interfaces antes das implementações
+
+## 2.2 Regras Proibidas
+
+A IA NÃO DEVE:
+
+- Criar lógica monolítica
+- Acoplar IDE ao core
+- Duplicar código
+- Alterar comportamento existente
+- Reescrever módulos estáveis
+- Criar dependências desnecessárias
+- Introduzir frameworks pesados
+- Criar abstrações desnecessárias
 
 ---
 
-# 3. Dependências NPM
+# 3. Stack Obrigatória
 
-## 3.1 Dependências de Desenvolvimento
+| Categoria | Tecnologia |
+|---|---|
+| Runtime | Node.js |
+| Linguagem | TypeScript |
+| Testes | Vitest |
+| Lint | ESLint |
+| AST | ts-morph |
+| Arquitetura | dependency-cruiser |
+| Dependências | madge |
+| Configuração | zod |
+| Logs | pino |
 
-```bash
-npm install -D \
-vitest \
-@vitest/coverage-v8 \
-typescript \
-eslint \
-@typescript-eslint/parser \
-dependency-cruiser \
-madge \
-ts-morph \
-@vscode/test-electron
+---
+
+# 4. Estratégia de Implementação
+
+## Ordem Obrigatória
+
+```text
+1. Interface
+2. Port
+3. Domain
+4. UseCase
+5. Infra
+6. Tests
+7. UI
 ```
 
----
-
-## 3.2 Dependências de Runtime
-
-```bash
-npm install \
-zod \
-pino \
-commander \
-fast-glob \
-markdown-table
-```
+A IA nunca deve inverter esta ordem.
 
 ---
 
-# 4. Responsabilidades das Ferramentas
+# 5. Estratégia de Testes
 
-# 4.1 Vitest
+## 5.1 Testes Obrigatórios
 
-Responsável por:
+Toda implementação DEVE possuir:
 
-* Testes unitários
-* Testes de integração
-* Cobertura de testes
-* Mocking
-* Snapshot tests
+- Teste unitário
+- Teste de integração
+- Teste de arquitetura
+- Teste de regressão
 
-## Benefícios
+## 5.2 Cobertura Obrigatória
 
-* Muito leve
-* Extremamente rápido
-* Compatível com ESM
-* Excelente suporte TypeScript
-* Compatível com Vite
-
----
-
-# 4.2 ESLint
-
-Responsável por:
-
-* Regras de código
-* Code smell
-* Convenções
-* Regras arquiteturais customizadas
-* Enforcement de padrões
-
-## Benefícios
-
-* Ecosistema gigantesco
-* Fácil criação de plugins próprios
-* Excelente integração com IDE
+| Camada | Cobertura |
+|---|---|
+| Domain | 95% |
+| Application | 90% |
+| Infra | 80% |
 
 ---
 
-# 4.3 ts-morph
-
-Responsável por:
-
-* AST Builder
-* Navegação estrutural
-* Refatoração automatizada
-* Inspeção de código
-* Extração semântica
-
-## Benefícios
-
-* Abstração poderosa sobre TypeScript Compiler API
-* Excelente para IA e análise estática
-
----
-
-# 4.4 dependency-cruiser
-
-Responsável por:
-
-* Validação arquitetural
-* Regras de dependência
-* Boundary validation
-* Camadas
-* Anti-circular dependency
-
-## Benefícios
-
-* Extremamente leve
-* Excelente para Clean Architecture
-* Excelente para DDD
-
----
-
-# 4.5 madge
-
-Responsável por:
-
-* Grafo de dependências
-* Identificação de ciclos
-* Visualização arquitetural
-
-## Benefícios
-
-* Geração simples de grafos
-* Muito rápido
-
----
-
-# 4.6 zod
-
-Responsável por:
-
-* Validação de configuração
-* Schemas
-* Tipagem segura
-* Configuração runtime
-
-## Benefícios
-
-* Excelente integração TypeScript
-* Segurança de configuração
-
----
-
-# 4.7 pino
-
-Responsável por:
-
-* Logging
-* Observabilidade local
-* Diagnóstico
-
-## Benefícios
-
-* Muito performático
-* Leve
-
----
-
-# 4.8 commander
-
-Responsável por:
-
-* CLI interna
-* Automações
-* Execução de comandos
-
----
-
-# 4.9 @vscode/test-electron
-
-Responsável por:
-
-* Testes da extensão VS Code
-* Testes E2E da extensão
-* Testes de comandos
-* Testes de integração com IDE
-
----
-
-# 5. Categorias de Testes Implementadas
-
-| Categoria         | Ferramenta            |
-| ----------------- | --------------------- |
-| Unitário          | Vitest                |
-| Integração        | Vitest                |
-| Arquitetura       | dependency-cruiser    |
-| Dependências      | madge                 |
-| Lint              | ESLint                |
-| AST               | ts-morph              |
-| Cobertura         | Vitest Coverage       |
-| VS Code Extension | @vscode/test-electron |
-| Configuração      | zod                   |
-| Logs              | pino                  |
-
----
-
-# 6. Estratégia Arquitetural
-
-O sistema deve seguir:
-
-* SOLID
-* Clean Architecture
-* DDD
-* Open/Closed Principle
-* Baixo acoplamento
-* Alta coesão
-* Arquitetura orientada a plugins
-
----
-
-# 7. Estrutura Recomendada
+# 6. Estrutura Obrigatória
 
 ```text
 packages/
-├── core/
 ├── domain/
 ├── application/
+├── core/
+├── infra/
 ├── analyzers/
-│   ├── eslint/
-│   ├── architecture/
-│   ├── ast/
-│   └── dependencies/
 ├── testing/
-│   ├── vitest/
-│   ├── coverage/
-│   └── quality-gates/
-├── ai/
-├── rag/
-├── graph/
-├── reports/
-├── ui/
-└── infra/
-    ├── vscode/
-    ├── storage/
-    ├── logging/
-    └── config/
+└── ui/
 ```
 
 ---
 
-# 8. Regras Arquiteturais
+# 7. Regras Arquiteturais
 
-## 8.1 Dependências Permitidas
+## Permitido
 
 ```text
 UI -> Application
 Application -> Domain
-Infrastructure -> Application
-Infrastructure -> Domain
+Infra -> Application
+Infra -> Domain
 ```
 
----
-
-## 8.2 Dependências Proibidas
+## Proibido
 
 ```text
-Domain -> Infrastructure
+Domain -> Infra
 Domain -> UI
 Application -> UI
 ```
 
 ---
 
-# 9. Regras de Qualidade
+# 8. Regras para IA
 
-## 9.1 Cobertura Mínima
+## 8.1 Redução de Thinking
 
-| Tipo        | Cobertura |
-| ----------- | --------- |
-| Unitários   | 80%       |
-| Application | 90%       |
-| Domain      | 95%       |
+A IA deve:
 
----
+- Preferir implementação direta
+- Evitar brainstorming
+- Evitar múltiplas soluções
+- Escolher solução padrão
+- Não explicar excessivamente
+- Não gerar alternativas desnecessárias
 
-# 9.2 Quality Gates
+## 8.2 Estratégia Determinística
 
-O sistema deve bloquear merge quando:
+Se existir padrão anterior:
 
-* Cobertura abaixo do mínimo
-* Dependência circular encontrada
-* Violação arquitetural encontrada
-* Lint error crítico
-* Vulnerabilidade crítica
-* Mutation score abaixo do mínimo
+```text
+REUTILIZAR
+```
 
----
+Se existir interface:
 
-# 10. Integração com IA
+```text
+IMPLEMENTAR
+```
 
-A arquitetura deve permitir:
+Se existir adapter:
 
-* IA local
-* IA da IDE
-* IA via API
-* Execução offline
-* RAG local
-* Graph RAG
-* AST contextual
-* Prompt contextual
+```text
+EXTENDER
+```
 
----
+Se existir analyzer:
 
-# 11. Suporte a RAG
-
-O sistema deve permitir:
-
-* Indexação de Markdown
-* Indexação de Código
-* Indexação de ADRs
-* Indexação de RFCs
-* Indexação de documentação
-* Busca vetorial
-* Grafo semântico
+```text
+SEGUIR PADRÃO
+```
 
 ---
 
-# 12. Objetivos Não Funcionais
+# 9. Estratégia para Ferramentas de Teste
 
-| Objetivo          | Meta         |
-| ----------------- | ------------ |
-| Inicialização     | < 2 segundos |
-| Uso de memória    | Baixo        |
-| Execução offline  | Obrigatória  |
-| Plugin extensível | Obrigatório  |
-| Multi IDE         | Obrigatório  |
-| Multi IA          | Obrigatório  |
-| Hot reload        | Desejável    |
+## 9.1 Vitest
+
+Implementar:
+
+- unit tests
+- integration tests
+- mocks
+- coverage
+
+Estrutura:
+
+```text
+tests/
+├── unit/
+├── integration/
+├── architecture/
+└── e2e/
+```
+
+## 9.2 ESLint
+
+Implementar:
+
+- regras arquiteturais
+- code smell
+- naming conventions
+- import restrictions
+
+## 9.3 dependency-cruiser
+
+Implementar:
+
+- boundary validation
+- anti circular dependency
+- clean architecture validation
+
+## 9.4 madge
+
+Implementar:
+
+- dependency graph
+- circular dependency detection
 
 ---
 
-# 13. Filosofia do Projeto
+# 10. Regras de Qualidade
 
-O sistema deve priorizar:
+Bloquear merge quando:
 
-* Extensibilidade
-* Manutenção
-* Legibilidade
-* Performance
-* Modularidade
-* Independência de framework
-* Facilidade de contribuição
-* Evolução incremental
-* Open/Closed Principle
+- cobertura insuficiente
+- dependência circular
+- lint error crítico
+- violação arquitetural
+- vulnerabilidade crítica
 
 ---
 
-# 14. Ferramentas Futuras Opcionais
+# 11. Regras de Performance
 
-| Categoria         | Ferramenta    |
-| ----------------- | ------------- |
-| Observabilidade   | OpenTelemetry |
-| Métricas          | Prometheus    |
-| Dashboard         | Grafana       |
-| Mutation Testing  | Stryker       |
-| Security Scan     | Semgrep       |
-| AI Quality        | Deepchecks    |
-| Coverage avançado | SonarQube     |
-| Chaos Testing     | Chaos Mesh    |
+A IA deve priorizar:
+
+- baixo uso de memória
+- execução incremental
+- cache local
+- lazy loading
+- execução offline
 
 ---
 
-# 15. Conclusão
+# 12. Regras de Extensibilidade
 
-A stack proposta prioriza:
+Toda implementação deve:
 
-* Leveza
-* Velocidade
-* Modularidade
-* Arquitetura limpa
-* Integração com IA
-* Qualidade contínua
-* Escalabilidade arquitetural
+- suportar plugins
+- suportar polimorfismo
+- suportar novos analyzers
+- suportar novas IDEs
+- suportar novos providers IA
 
-O objetivo é permitir que a extensão evolua como uma plataforma completa de engenharia de qualidade para IDEs modernas.
+---
+
+# 13. Regra Principal
+
+A IA deve SEMPRE:
+
+```text
+IMPLEMENTAR O MENOR CÓDIGO POSSÍVEL
+COM A MENOR COMPLEXIDADE POSSÍVEL
+SEM QUEBRAR A ARQUITETURA
+```

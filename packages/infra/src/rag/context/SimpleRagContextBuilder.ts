@@ -1,4 +1,5 @@
-import { RagChunkDTO, RagContextBuilderPort } from '@code-review/core';
+import type { RagChunkDTO } from '../../../../core/src/application/dto/rag/RagDTO';
+import type { RagContextBuilderPort } from '../../../../core/src/ports/rag/RagContextBuilderPort';
 
 export class SimpleRagContextBuilder implements RagContextBuilderPort {
   constructor(private readonly chunks: RagChunkDTO[] = []) {}

@@ -1,4 +1,4 @@
-import { RagEmbeddingProviderPort } from '@code-review/core';
+import type { RagEmbeddingProviderPort } from '../../../../core/src/ports/rag/RagEmbeddingProviderPort';
 
 export class MockRagEmbeddingProvider implements RagEmbeddingProviderPort {
   async generateEmbedding(text: string): Promise<number[]> {

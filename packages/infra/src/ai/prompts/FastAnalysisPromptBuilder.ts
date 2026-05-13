@@ -1,4 +1,5 @@
-import { AIAnalysisRequestDTO, PromptBuilderPort } from '@code-review/core';
+import type { AIAnalysisRequestDTO } from '../../../../core/src/application/dto/ai/AIAnalysisDTO';
+import type { PromptBuilderPort } from '../../../../core/src/ports/ai/PromptBuilderPort';
 
 export class FastAnalysisPromptBuilder implements PromptBuilderPort {
   buildAnalysisPrompt(input: AIAnalysisRequestDTO): string {

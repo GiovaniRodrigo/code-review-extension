@@ -1,0 +1,5 @@
+{
+  "tsConfig": "./tsconfig.base.json",
+  "fileExtensions": ["ts", "tsx"],
+  "excludeRegExp": ["node_modules", "dist", "coverage"]
+}

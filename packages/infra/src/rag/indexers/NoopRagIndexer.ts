@@ -1,4 +1,4 @@
-import { RagIndexerPort } from '@code-review/core';
+import type { RagIndexerPort } from '../../../../core/src/ports/rag/RagIndexerPort';
 
 export class NoopRagIndexer implements RagIndexerPort {
   async indexRepository(): Promise<void> {}

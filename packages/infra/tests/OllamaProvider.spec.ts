@@ -23,17 +23,16 @@ describe('OllamaProvider', () => {
   it('should analyze code using local Ollama', async () => {
     mockHttpClient.post.mockResolvedValue({
       data: {
-        message: {
-          content: JSON.stringify({
-            findings: [
-              {
-                line: 1,
-                message: '[Local] Use const',
-                severity: 'info'
-              }
-            ]
-          })
-        }
+        response: JSON.stringify({
+          findings: [
+            {
+              line: 1,
+              message: '[Local] Use const',
+              severity: 'info'
+            }
+          ],
+          confidenceScore: 0.9
+        })
       }
     });
 

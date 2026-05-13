@@ -18,8 +18,11 @@ export default defineConfig({
     exclude: [
       'apps/vscode/tests/e2e/**',
       'node_modules/**',
+      '**/node_modules/**',
       'dist/**',
+      '**/dist/**',
       'out/**',
+      '**/out/**',
       'coverage/**'
     ]
   },

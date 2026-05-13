@@ -1,8 +1,8 @@
-import {
+import type {
   AIAnalysisRequestDTO,
-  AIAnalysisResponseDTO,
-  AIProviderPort
-} from '@code-review/core';
+  AIAnalysisResponseDTO
+} from '../../../../core/src/application/dto/ai/AIAnalysisDTO';
+import type { AIProviderPort } from '../../../../core/src/ports/ai/AIProviderPort';
 
 export class CloudAIProvider implements AIProviderPort {
   async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {

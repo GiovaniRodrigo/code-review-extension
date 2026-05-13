@@ -1,4 +1,5 @@
-import { RepositorySyncFactoryPort, RepositorySyncPort } from '@code-review/core';
+import type { RepositorySyncFactoryPort } from '../../../../core/src/ports/sync/RepositorySyncFactoryPort';
+import type { RepositorySyncPort } from '../../../../core/src/ports/sync/RepositorySyncPort';
 import { BitbucketSyncProvider } from '../providers/BitbucketSyncProvider';
 import { GitHubSyncProvider } from '../providers/GitHubSyncProvider';
 import { GitLabSyncProvider } from '../providers/GitLabSyncProvider';
