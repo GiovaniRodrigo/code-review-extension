@@ -29,9 +29,9 @@ Aumento da precisão da análise através de parsing de código e regras customi
 
 | Item do Roadmap | Requisitos Vinculados | Status | Notas |
 | :--- | :--- | :---: | :--- |
-| **Parser de AST** | RF-014, RNF-005 | ⚪ | Entendimento estrutural da linguagem. |
-| **Motor de Regras** | RF-020, RF-026, RNF-030 | ⚪ | Pipeline de validação configurável. |
-| **Score de Risco** | RF-005 (Extensão), RF-021 (Refinamento) | ⚪ | Cálculo de criticidade por arquivo/método. |
+| **Parser de AST** | RF-014, RNF-005 | 🔵 | `AstBuilder` gera resumo estrutural serializavel para TypeScript/JavaScript com metricas iniciais e cobertura de testes. |
+| **Motor de Regras** | RF-020, RF-026, RNF-030 | 🔵 | `StaticRuleEngine` executa regras configuraveis sobre o AST com cobertura de testes. |
+| **Score de Risco** | RF-005 (Extensão), RF-021 (Refinamento) | 🔵 | `RiskScorer` calcula score e nivel de risco com base em findings estaticos e metricas do AST. |
 
 ---
 

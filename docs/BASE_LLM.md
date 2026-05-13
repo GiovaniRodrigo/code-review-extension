@@ -250,7 +250,8 @@ Ao trabalhar neste projeto, a IA deve:
 - nao inventar provider, API, formato de storage ou fluxo sem alinhar com os contratos existentes;
 - adicionar testes quando tocar regra de negocio, contrato ou fluxo de IA;
 - manter documentacao atualizada quando alterar comportamento, contrato ou requisito;
-- atualizar obrigatoriamente o `CHANGELOG.md` ao finalizar qualquer implementacao.
+- atualizar obrigatoriamente o `CHANGELOG.md` ao finalizar qualquer implementacao;
+- atualizar obrigatoriamente o `usage.md` quando uma implementacao alterar comandos, configuracoes, instalacao, empacotamento, providers, fluxo de uso ou troubleshooting.
 
 ## Checklist de Implementacao
 
@@ -266,6 +267,7 @@ Antes de concluir uma tarefa, validar:
 - Dados sensiveis nao aparecem em logs ou respostas.
 - O comportamento novo esta ligado a RF/RNF quando aplicavel.
 - O `CHANGELOG.md` foi atualizado com a implementacao concluida.
+- O `usage.md` foi atualizado quando a implementacao mudou qualquer aspecto de uso.
 
 ## Fontes
 

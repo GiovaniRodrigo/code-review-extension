@@ -28,6 +28,7 @@ describe('ReviewViewProvider', () => {
     };
     mockIDEAdapter = {
       focusFinding: vi.fn().mockResolvedValue(undefined),
+      applyFix: vi.fn().mockResolvedValue(undefined),
     };
     provider = new ReviewViewProvider(mockExtensionUri, mockValidateUseCase, mockIDEAdapter);
   });
@@ -87,5 +88,34 @@ describe('ReviewViewProvider', () => {
     await messageHandler({ type: 'select', id: 'f1' });
 
     expect(mockIDEAdapter.focusFinding).toHaveBeenCalledWith(mockFinding);
+  });
+
+  it('should call IDEAdapter.applyFix when receiving applyFix message', async () => {
+    let messageHandler: any;
+    const mockWebviewView: any = {
+      webview: {
+        options: {},
+        onDidReceiveMessage: vi.fn((handler) => {
+          messageHandler = handler;
+        }),
+        postMessage: vi.fn().mockResolvedValue(true),
+        html: '',
+      },
+    };
+
+    provider.resolveWebviewView(mockWebviewView, {} as any, {} as any);
+
+    const mockFinding = {
+      id: 'f1',
+      file: 't.ts',
+      line: 1,
+      status: 'approved',
+      suggestedFix: 'const x = 1;'
+    } as any;
+    provider.updateFindings('s1', [mockFinding]);
+
+    await messageHandler({ type: 'applyFix', id: 'f1' });
+
+    expect(mockIDEAdapter.applyFix).toHaveBeenCalledWith(mockFinding);
   });
 });

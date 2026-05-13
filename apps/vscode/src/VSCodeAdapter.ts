@@ -6,12 +6,12 @@ export class VSCodeAdapter implements IDEAdapter {
   private readonly diagnosticCollection = vscode.languages?.createDiagnosticCollection?.('ai-code-review');
 
   async getActiveFileContent(): Promise<string> {
-    const editor = vscode.window.activeTextEditor;
+    const editor = this._getCurrentEditor();
     return editor?.document.getText() || '';
   }
 
   async getActiveFilePath(): Promise<string> {
-    const editor = vscode.window.activeTextEditor;
+    const editor = this._getCurrentEditor();
     return editor?.document.uri.fsPath || '';
   }
 
@@ -53,8 +53,41 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async applyFix(finding: Finding): Promise<void> {
-    if (!finding.suggestedFix) return;
-    // Lógica para aplicar o fix no editor
+    if (!finding.suggestedFix) {
+      vscode.window.showWarningMessage('This finding does not include a suggested fix.');
+      return;
+    }
+
+    if (finding.status !== 'approved') {
+      vscode.window.showWarningMessage('Approve the finding before applying its suggested fix.');
+      return;
+    }
+
+    const uri = vscode.Uri.file(finding.file);
+    const document = await vscode.workspace.openTextDocument(uri);
+    const editor = await vscode.window.showTextDocument(document);
+    const lineIndex = Math.max(finding.line - 1, 0);
+    const currentLine = document.lineAt(lineIndex);
+    const preview = `Current:\n${currentLine.text}\n\nSuggested:\n${finding.suggestedFix}`;
+    const confirmation = await vscode.window.showWarningMessage(
+      preview,
+      { modal: true },
+      'Apply Fix'
+    );
+
+    if (confirmation !== 'Apply Fix') {
+      return;
+    }
+
+    const applied = await editor.edit(editBuilder => {
+      editBuilder.replace(currentLine.range, finding.suggestedFix || '');
+    });
+
+    if (!applied) {
+      throw new Error('VS Code rejected the edit operation');
+    }
+
+    vscode.window.showInformationMessage(`Suggested fix applied at ${finding.file}:${finding.line}`);
   }
 
   async showNotification(message: string, type: 'info' | 'warning' | 'error'): Promise<void> {
@@ -67,5 +100,13 @@ export class VSCodeAdapter implements IDEAdapter {
     if (severity === 'error') return vscode.DiagnosticSeverity.Error;
     if (severity === 'warning') return vscode.DiagnosticSeverity.Warning;
     return vscode.DiagnosticSeverity.Information;
+  }
+
+  private _getCurrentEditor(): vscode.TextEditor | undefined {
+    if (vscode.window.activeTextEditor?.document.uri.fsPath) {
+      return vscode.window.activeTextEditor;
+    }
+
+    return vscode.window.visibleTextEditors?.find(editor => Boolean(editor.document.uri.fsPath));
   }
 }

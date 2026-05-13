@@ -49,6 +49,9 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
         case 'reject':
           await this._handleAction(data.id, 'rejected');
           break;
+        case 'applyFix':
+          await this._handleApplyFix(data.id);
+          break;
       }
     });
   }
@@ -65,6 +68,20 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
       vscode.window.showInformationMessage(`Finding ${status} successfully.`);
     } catch (error: any) {
       vscode.window.showErrorMessage(`Error updating finding: ${error.message}`);
+    }
+  }
+
+  private async _handleApplyFix(findingId: string) {
+    const finding = this._findings.find(f => f.id === findingId);
+    if (!finding) {
+      vscode.window.showErrorMessage(`Finding ${findingId} not found.`);
+      return;
+    }
+
+    try {
+      await this._ideAdapter.applyFix(finding);
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`Error applying fix: ${error.message}`);
     }
   }
 
@@ -179,6 +196,9 @@ export class ReviewViewProvider implements vscode.WebviewViewProvider {
                 \${f.status === 'pending' ? \`
                   <button onclick="event.stopPropagation(); action('approve', '\${escapeHtml(f.id)}')">Approve</button>
                   <button onclick="event.stopPropagation(); action('reject', '\${escapeHtml(f.id)}')">Reject</button>
+                \` : ''}
+                \${f.status === 'approved' && f.suggestedFix ? \`
+                  <button onclick="event.stopPropagation(); action('applyFix', '\${escapeHtml(f.id)}')">Apply Fix</button>
                 \` : ''}
               </div>
             \`).join('');

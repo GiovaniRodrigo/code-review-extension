@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added a core `AstBuilder` for TypeScript/JavaScript structural summaries and static-analysis metrics.
+- Added a core runtime entrypoint to keep VS Code bundles from including static-analysis parser dependencies.
+- Added a configurable static rule engine for AST-based validation.
+- Added an initial risk scorer based on static rule findings and AST metrics.
+- Added controlled suggested-fix application from the VS Code findings view after human approval.
 - Added file-based review session persistence for the VS Code MVP.
 - Added branch-aware session restore using the VS Code Git API.
 - Added VS Code settings for selecting the `mock` or local `ollama` AI provider.
@@ -22,10 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added VS Code packaging ignore rules to keep the MVP artifact scoped to the extension runtime files.
 - Added a root `.gitignore` for generated dependencies, build outputs, packages, coverage, and Turbo cache.
 - Added MVP usage and provider configuration instructions to `README.md`.
+- Added `usage.md` with install, configuration, provider, workflow, persistence, and troubleshooting instructions.
 
 ### Changed
+- Made updating `usage.md` mandatory when implementation changes affect usage.
 - Made updating `CHANGELOG.md` mandatory after every completed implementation.
 - VS Code extension now uses persistent storage instead of in-memory review sessions.
+- VS Code analysis now falls back to the first visible editor when no active editor is reported.
 - Updated the implementation control matrix to reflect validated MVP foundation items.
 - Documented the explicit VS Code usable MVP milestone in `docs/roadmap.md`.
 

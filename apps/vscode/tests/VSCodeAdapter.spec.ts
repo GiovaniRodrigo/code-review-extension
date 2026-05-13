@@ -2,6 +2,21 @@ import { describe, it, expect, vi } from 'vitest';
 import { VSCodeAdapter } from '../src/VSCodeAdapter';
 import * as vscode from 'vscode';
 
+const { mockReplace, mockEdit, mockLine } = vi.hoisted(() => {
+  const replace = vi.fn();
+  return {
+    mockReplace: replace,
+    mockEdit: vi.fn(async (callback) => {
+      callback({ replace });
+      return true;
+    }),
+    mockLine: {
+      text: 'let x = 1;',
+      range: { start: { line: 0, character: 0 }, end: { line: 0, character: 10 } }
+    }
+  };
+});
+
 vi.mock('vscode', () => ({
   window: {
     activeTextEditor: {
@@ -10,16 +25,27 @@ vi.mock('vscode', () => ({
         uri: { fsPath: '/workspace/test.ts' },
       },
     },
+    visibleTextEditors: [
+      {
+        document: {
+          getText: vi.fn().mockReturnValue('visible content'),
+          uri: { fsPath: '/workspace/visible.ts' },
+        },
+      },
+    ],
     showTextDocument: vi.fn().mockResolvedValue({
       selection: {},
       revealRange: vi.fn(),
+      edit: mockEdit,
     }),
     showInformationMessage: vi.fn(),
-    showWarningMessage: vi.fn(),
+    showWarningMessage: vi.fn().mockResolvedValue('Apply Fix'),
     showErrorMessage: vi.fn(),
   },
   workspace: {
-    openTextDocument: vi.fn().mockResolvedValue({}),
+    openTextDocument: vi.fn().mockResolvedValue({
+      lineAt: vi.fn().mockReturnValue(mockLine),
+    }),
     workspaceFolders: [{ name: 'workspace-fallback' }],
   },
   extensions: {
@@ -77,6 +103,18 @@ describe('VSCodeAdapter', () => {
     expect(filePath).toBe('/workspace/test.ts');
   });
 
+  it('should fall back to visible editor when there is no active file editor', async () => {
+    const originalActiveEditor = (vscode.window as any).activeTextEditor;
+    (vscode.window as any).activeTextEditor = undefined;
+
+    const adapter = new VSCodeAdapter();
+
+    await expect(adapter.getActiveFileContent()).resolves.toBe('visible content');
+    await expect(adapter.getActiveFilePath()).resolves.toBe('/workspace/visible.ts');
+
+    (vscode.window as any).activeTextEditor = originalActiveEditor;
+  });
+
   it('should get active branch from VS Code Git API', async () => {
     const adapter = new VSCodeAdapter();
     const branch = await adapter.getActiveBranch();
@@ -111,5 +149,49 @@ describe('VSCodeAdapter', () => {
 
     expect(vscode.workspace.openTextDocument).toHaveBeenCalled();
     expect(vscode.window.showTextDocument).toHaveBeenCalled();
+  });
+
+  it('should apply a suggested fix only after confirmation', async () => {
+    const adapter = new VSCodeAdapter();
+    const mockFinding = {
+      id: 'finding-1',
+      file: 'test.ts',
+      line: 1,
+      message: 'Use const',
+      severity: 'info',
+      status: 'approved',
+      suggestedFix: 'const x = 1;'
+    } as any;
+
+    await adapter.applyFix(mockFinding);
+
+    expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
+      expect.stringContaining('Suggested:'),
+      { modal: true },
+      'Apply Fix'
+    );
+    expect(mockReplace).toHaveBeenCalledWith(mockLine.range, 'const x = 1;');
+    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
+      'Suggested fix applied at test.ts:1'
+    );
+  });
+
+  it('should not apply suggested fix before approval', async () => {
+    const adapter = new VSCodeAdapter();
+    const mockFinding = {
+      id: 'finding-1',
+      file: 'test.ts',
+      line: 1,
+      message: 'Use const',
+      severity: 'info',
+      status: 'pending',
+      suggestedFix: 'const x = 1;'
+    } as any;
+
+    await adapter.applyFix(mockFinding);
+
+    expect(vscode.window.showWarningMessage).toHaveBeenCalledWith(
+      'Approve the finding before applying its suggested fix.'
+    );
   });
 });
