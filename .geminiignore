@@ -9,7 +9,7 @@ media/
 dist/
 build/
 out/
-node_modules/
+**/node_modules/
 
 # Ignore IDE specific files not needed for context
 .vscode/
