@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --exclude \"apps/vscode/tests/e2e/**\"",
     "lint": "eslint .",
     "build": "turbo run build",
     "package": "turbo run package",
@@ -16,12 +16,20 @@
     "package:jetbrains": "npm run package --workspace=apps/jetbrains",
     "package:vim": "npm run package --workspace=apps/vim",
     "package:sublime": "npm run package --workspace=apps/sublime",
-    "package:all": "npm run package"
+    "package:all": "npm run package",
+    "test:e2e": "vscode-test"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.7.0",
+    "@types/vscode": "^1.118.0",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.28.0",
+    "mocha": "^11.7.5",
+    "ts-node": "^10.9.2",
     "turbo": "latest",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "typescript": "^5.9.3",
+    "vitest": "^1.0.0",
+    "vscode": "^1.1.37"
   }
 }
