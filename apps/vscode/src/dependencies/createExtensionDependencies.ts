@@ -34,7 +34,7 @@ export function createExtensionDependencies(
     new FileReviewRepository(storageDir);
 
   const contextEngine =
-    new ContextEngine();
+    new ContextEngine(reviewRepository);
 
   const validateFindingUseCase =
     new ValidateFindingUseCase(

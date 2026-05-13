@@ -6,18 +6,17 @@
         "strict": true,
         "types": [
             "node",
-            "vitest",
             "vscode"
         ],
         "paths": {
             "@code-review/core": [
-                "../packages/core/src/index.ts"
+                "../../packages/core/src/runtime.ts"
             ],
             "@code-review/domain": [
-                "../packages/domain/src/index.ts"
+                "../../packages/domain/src/index.ts"
             ],
             "@code-review/infra": [
-                "../packages/infra/src/index.ts"
+                "../../packages/infra/src/index.ts"
             ]
         }
     },
