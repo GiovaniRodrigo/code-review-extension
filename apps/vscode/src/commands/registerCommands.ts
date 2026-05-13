@@ -9,6 +9,8 @@ import { IndexRepositoryRagCommand } from './IndexRepositoryRagCommand';
 import { SetProviderCommand } from './SetProviderCommand';
 import { ClearRepositoryRagCommand } from './ClearRepositoryRagCommand';
 import { SearchRepositoryContextCommand } from './SearchRepositoryContextCommand';
+import { FocusCommand } from './FocusCommand';
+import { RestoreSessionCommand } from './RestoreSessionCommand';
 
 export function registerCommands(
   dependencies: IExtensionDependencies
@@ -24,6 +26,8 @@ export function registerCommands(
     IndexRepositoryRagCommand,
     SetProviderCommand,
     ClearRepositoryRagCommand,
-    SearchRepositoryContextCommand
+    SearchRepositoryContextCommand,
+    FocusCommand,
+    RestoreSessionCommand
   ]);
 }

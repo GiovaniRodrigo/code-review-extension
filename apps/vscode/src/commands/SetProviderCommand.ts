@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ICommand } from '../contracts/ICommand';
 import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class SetProviderCommand implements ICommand {
     readonly id = 'code-review.setProvider';
@@ -13,7 +14,7 @@ export class SetProviderCommand implements ICommand {
         const disposable = vscode.commands.registerCommand(
             this.id,
             async () => {
-                const provider = await vscode.window.showQuickPick(
+                const provider = await UIHelper.showQuickPick(
                     ['openai', 'ollama', 'mock'],
                     { title: 'Escolha o provider de IA' }
                 );

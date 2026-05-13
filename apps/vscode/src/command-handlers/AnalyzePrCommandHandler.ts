@@ -5,6 +5,7 @@ import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
 import { AIReviewService } from '../services/AIReviewService';
 import { GitHubCliHelper } from '../helpers/GitHubCliHelper';
 import { PullRequestProviderFactory } from '../providers/PullRequestProviderFactory';
+import { UIHelper } from '../helpers/UIHelper';
 
 import {
   PullRequestInfo,
@@ -65,7 +66,7 @@ export class AnalyzePrCommandHandler implements ICommandHandler {
   }
 
   private async selectProviderType(): Promise<PullRequestProviderType | undefined> {
-    const selected = await vscode.window.showQuickPick(
+    const selected = await UIHelper.showQuickPick(
       this.getProviderOptions(),
       {
         placeHolder: 'Escolha como buscar o Pull Request/Merge Request'
@@ -134,7 +135,7 @@ export class AnalyzePrCommandHandler implements ICommandHandler {
       return undefined;
     }
 
-    const selected = await vscode.window.showQuickPick(
+    const selected = await UIHelper.showQuickPick(
       prs.map(pr => ({
         label: `#${pr.number} ${pr.title}`,
         description: `${pr.sourceBranch} → ${pr.targetBranch}`,

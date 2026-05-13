@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 describe("Review Flow E2E", () => {
     it("should execute analyze command", async () => {
         const result = await vscode.commands.executeCommand(
-            "codeReview.analyze"
+            "code-review.analyze"
         );
 
         assert.ok(result !== undefined);

@@ -4,6 +4,7 @@ import {
     PullRequestInfo,
     PullRequestProvider
 } from './PullRequestProviderType';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class GitHubApiPullRequestProvider
     implements PullRequestProvider {
@@ -34,10 +35,9 @@ export class GitHubApiPullRequestProvider
 
         if (!token) {
             token =
-                await vscode.window.showInputBox({
+                await UIHelper.showInputBox({
                     prompt: 'GitHub Personal Access Token',
-                    password: true,
-                    ignoreFocusOut: true
+                    password: true
                 });
 
             if (!token) {
@@ -56,7 +56,7 @@ export class GitHubApiPullRequestProvider
         let owner = config.get<string>('owner');
 
         if (!owner) {
-            owner = await vscode.window.showInputBox({
+            owner = await UIHelper.showInputBox({
                 prompt: 'GitHub repository owner'
             });
 
@@ -74,7 +74,7 @@ export class GitHubApiPullRequestProvider
         let repo = config.get<string>('repo');
 
         if (!repo) {
-            repo = await vscode.window.showInputBox({
+            repo = await UIHelper.showInputBox({
                 prompt: 'GitHub repository name'
             });
 

@@ -5,12 +5,13 @@ import {
     PullRequestInfo,
     PullRequestProvider
 } from './PullRequestProviderType';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class UrlPullRequestProvider implements PullRequestProvider {
     private pr?: PullRequestInfo;
 
     async configure(): Promise<void> {
-        const url = await vscode.window.showInputBox({
+        const url = await UIHelper.showInputBox({
             prompt: 'Pull Request / Merge Request URL',
             placeHolder: 'https://github.com/org/repo/pull/123'
         });

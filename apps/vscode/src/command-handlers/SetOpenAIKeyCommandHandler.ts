@@ -5,6 +5,7 @@ import { ICommandHandler }
 
 import { IExtensionDependencies }
     from '../contracts/IExtensionDependencies';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class SetOpenAIKeyCommandHandler
     implements ICommandHandler {
@@ -19,10 +20,9 @@ export class SetOpenAIKeyCommandHandler
             this.dependencies;
 
         const apiKey =
-            await vscode.window.showInputBox({
+            await UIHelper.showInputBox({
                 prompt: 'Enter your OpenAI API key',
-                password: true,
-                ignoreFocusOut: true
+                password: true
             });
 
         if (!apiKey) {

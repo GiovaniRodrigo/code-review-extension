@@ -6,7 +6,7 @@ describe("Command Registration E2E", () => {
         const commands = await vscode.commands.getCommands(true);
 
         assert.ok(
-            commands.includes("codeReview.analyze")
+            commands.includes("code-review.analyze")
         );
     });
 
@@ -14,7 +14,7 @@ describe("Command Registration E2E", () => {
         const commands = await vscode.commands.getCommands(true);
 
         assert.ok(
-            commands.includes("codeReview.clearSession")
+            commands.includes("code-review.clearSession")
         );
     });
 
@@ -22,7 +22,7 @@ describe("Command Registration E2E", () => {
         const commands = await vscode.commands.getCommands(true);
 
         assert.ok(
-            commands.includes("codeReview.setOpenAIKey")
+            commands.includes("code-review.setOpenAIApiKey")
         );
     });
 });

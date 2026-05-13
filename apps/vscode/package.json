@@ -54,6 +54,14 @@
       {
         "command": "code-review.setProvider",
         "title": "Code Review: Set AI Provider"
+      },
+      {
+        "command": "code-review.focus",
+        "title": "Code Review: Focus on AI Review View"
+      },
+      {
+        "command": "code-review.restoreSession",
+        "title": "Code Review: Restore Session for Current Branch"
       }
     ],
     "viewsContainers": {

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ICommandHandler } from '../contracts/ICommandHandler';
 import { IExtensionDependencies } from '../contracts/IExtensionDependencies';
 import { AIReviewService } from '../services/AIReviewService';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
     constructor(
@@ -16,7 +17,7 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
             reviewViewProvider,
         } = this.dependencies;
 
-        const baseBranch = await vscode.window.showInputBox({
+        const baseBranch = await UIHelper.showInputBox({
             prompt: 'Branch base para comparar',
             value: 'main'
         });

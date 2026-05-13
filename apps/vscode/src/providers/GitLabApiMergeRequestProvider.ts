@@ -4,6 +4,7 @@ import {
     PullRequestInfo,
     PullRequestProvider
 } from './PullRequestProviderType';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class GitLabApiMergeRequestProvider
     implements PullRequestProvider {
@@ -34,10 +35,9 @@ export class GitLabApiMergeRequestProvider
 
         if (!token) {
             token =
-                await vscode.window.showInputBox({
+                await UIHelper.showInputBox({
                     prompt: 'GitLab Personal Access Token',
-                    password: true,
-                    ignoreFocusOut: true
+                    password: true
                 });
 
             if (!token) {
@@ -58,7 +58,7 @@ export class GitLabApiMergeRequestProvider
 
         if (!baseUrl) {
             baseUrl =
-                await vscode.window.showInputBox({
+                await UIHelper.showInputBox({
                     prompt: 'GitLab Base URL',
                     value: 'https://gitlab.com'
                 });
@@ -79,7 +79,7 @@ export class GitLabApiMergeRequestProvider
 
         if (!projectId) {
             projectId =
-                await vscode.window.showInputBox({
+                await UIHelper.showInputBox({
                     prompt: 'GitLab Project ID'
                 });
 

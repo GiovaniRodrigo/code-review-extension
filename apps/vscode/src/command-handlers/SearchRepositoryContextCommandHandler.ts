@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import { ICommandHandler } from '../contracts/ICommandHandler';
 import { SearchContextService } from '../services/rag/SearchContextService';
+import { UIHelper } from '../helpers/UIHelper';
 
 export class SearchRepositoryContextCommandHandler
 implements ICommandHandler {
@@ -11,7 +12,7 @@ implements ICommandHandler {
     ) {}
 
     async execute(): Promise<void> {
-        const query = await vscode.window.showInputBox({
+        const query = await UIHelper.showInputBox({
             title: 'Buscar contexto no RAG',
             prompt: 'Digite o termo ou pergunta para buscar no repositório',
             placeHolder: 'Ex: onde fica a regra de validação de comentários?'

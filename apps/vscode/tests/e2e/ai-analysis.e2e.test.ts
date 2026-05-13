@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 describe("AI Analysis E2E", () => {
     it("should return AI analysis result", async () => {
         const result = await vscode.commands.executeCommand(
-            "codeReview.analyze",
+            "code-review.analyze",
             {
                 diff: "const a = 1;"
             }
