@@ -56,6 +56,24 @@ Para limpar a sessao atual, execute:
 Clear Current Review Session
 ```
 
+## Inteligencia e Contexto (Fase 3)
+
+A extensao utiliza tecnicas avancadas para melhorar a precisao e visibilidade:
+
+- **Heatmap de Riscos**: O sistema analisa o historico de reviews e destaca arquivos com maior acumulado de problemas (calculado pelo `HeatmapService`).
+- **Context Engine**: Seus feedbacks (aprovar/rejeitar) sao usados como contexto para as proximas analises da IA. Se voce rejeitar um tipo de finding, a IA aprendera a nao reporta-lo novamente.
+
+## Enterprise e Ecossistema (Fase 4)
+
+### Resiliencia com Fallback
+Voce pode configurar um provedor secundario para fallback automatico. Se o provedor Cloud (ex: OpenAI) falhar ou estiver offline, a extensao tentara usar o provedor Local (ex: Ollama).
+
+### Publicacao em Pull Requests
+Findings aprovados podem ser publicados diretamente como comentarios em PRs do GitHub utilizando o `PublishPRReviewUseCase`. (Disponivel via comandos da API ou integracao customizada).
+
+### Auditoria
+Todas as acoes criticas sao registradas pelo `AuditLogService` para conformidade e rastreabilidade organizacional.
+
 ## Providers de IA
 
 ### Mock
