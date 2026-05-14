@@ -8,8 +8,6 @@ import {
   IDEAdapter
 } from '@code-review/infra';
 import { Finding } from '@code-review/domain';
-import { WorkspaceHelper }
-  from '../helpers/WorkspaceHelper';
 
 const execFileAsync = promisify(execFile);
 
@@ -50,7 +48,7 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async getBranchCommits(baseBranch: string): Promise<BranchCommit[]> {
-    const cwd = WorkspaceHelper.getWorkspacePath();
+    const cwd = this._getWorkspacePath();
 
     const { stdout } = await execFileAsync(
       'git',

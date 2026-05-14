@@ -1,3 +1,3 @@
-import { VSCodeAdapter } from '../VSCodeAdapter';
+import { VSCodeAdapter } from './VSCodeAdapter';
 
 export class VSCodeIdeAdapter extends VSCodeAdapter {}

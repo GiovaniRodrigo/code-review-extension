@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
-import { VSCodeAdapter } from '../../../src/adapters/VSCodeAdapter';
+import { VSCodeAdapter } from '../../../src/adapters/ide/VSCodeAdapter';
 
 describe('VSCodeAdapter Integration', () => {
   let adapter: VSCodeAdapter;
