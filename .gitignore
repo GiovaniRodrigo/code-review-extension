@@ -6,3 +6,4 @@ coverage/
 apps/vscode/.vscode-test/
 out/
 build/
+.vscode-test/
