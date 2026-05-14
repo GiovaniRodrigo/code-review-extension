@@ -11,7 +11,8 @@ export default [
       '**/.turbo/**',
       '**/.next/**',
       '**/.vscode-test/**',
-      '**/out/**'
+      '**/out/**',
+      '**/tests/e2e/**/*.cjs'
     ]
   },
   js.configs.recommended,

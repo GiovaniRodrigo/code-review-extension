@@ -1,35 +1,34 @@
 const path = require('node:path');
 const Mocha = require('mocha');
-const { globSync } = require('glob');
+const { glob } = require('glob');
 
-function run() {
-    const mocha = new Mocha({
-        ui: 'tdd',
-        color: true
-    });
+async function run() {
+	const mocha = new Mocha({
+		ui: 'tdd',
+		color: true
+	});
 
-    const testsRoot = __dirname;
+	const testsRoot = path.resolve(__dirname, '.');
+	const files = await glob('**/**.test.cjs', { cwd: testsRoot });
 
-    const files = globSync('**/*.test.cjs', {
-        cwd: testsRoot
-    });
+	files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
-    for (const file of files) {
-        mocha.addFile(path.resolve(testsRoot, file));
-    }
-
-    return new Promise((resolve, reject) => {
-        mocha.run(failures => {
-            if (failures > 0) {
-                reject(new Error(`${failures} tests failed`));
-                return;
-            }
-
-            resolve();
-        });
-    });
+	return new Promise((resolve, reject) => {
+		try {
+			mocha.run(failures => {
+				if (failures > 0) {
+					reject(new Error(`${failures} tests failed.`));
+				} else {
+					resolve();
+				}
+			});
+		} catch (err) {
+			console.error(err);
+			reject(err);
+		}
+	});
 }
 
 module.exports = {
-    run
+	run
 };

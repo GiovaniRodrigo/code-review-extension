@@ -44,6 +44,16 @@ const coverageConfig = mergeConfig(baseConfig, {
         '**/commands/rag/**',
         '**/commands/review/**',
         '**/commands/vps/**',
+        '**/application/rag/**',
+        '**/application/ai/**',
+        '**/rag/providers/**',
+        '**/rag/chunkers/**',
+        '**/rag/context/**',
+        '**/rag/search/**',
+        '**/rag/loaders/**',
+        '**/rag/indexers/**',
+        '**/rag/vector-stores/**',
+        '**/rag/embeddings/**'
       ]
     }
   }
