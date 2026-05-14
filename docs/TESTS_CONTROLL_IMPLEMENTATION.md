@@ -1,41 +1,71 @@
-# Controle de Implementação — Qualidade e Categorias de Testes
+# Controle de Implementação — Qualidade, Cobertura e Arquitetura
 
 ## Objetivo
 
-Este documento controla o progresso da implementação da infraestrutura de qualidade, testes, arquitetura e governança da extensão multi-IDE.
+Este documento controla o progresso da implementação da infraestrutura de qualidade, testes, arquitetura, governança e estabilização da plataforma multi-IDE.
+
+O foco atual do projeto é:
+
+* estabilização arquitetural;
+* redução de dívida técnica;
+* consolidação do bootstrap;
+* melhoria de cobertura;
+* fortalecimento dos testes estruturais;
+* padronização multi-IDE;
+* desacoplamento entre IDE e Core.
 
 ---
 
 # Legenda
 
-| Status | Significado |
-|---|---|
-| ⚪ TODO | Não iniciado |
-| 🔵 DEV | Em desenvolvimento |
-| 🟡 HML | Em homologação |
-| 🟢 DONE | Implementado |
-| 🔴 BLOCKED | Bloqueado |
-| ⚫ CANCELED | Cancelado |
+| Status     | Significado        |
+| ---------- | ------------------ |
+| ⚪ TODO     | Não iniciado       |
+| 🔵 DEV     | Em desenvolvimento |
+| 🟡 HML     | Em homologação     |
+| 🟢 DONE    | Implementado       |
+| 🔴 BLOCKED | Bloqueado          |
+| ⚫ CANCELED | Cancelado          |
+
+---
+
+# Estado Atual Geral
+
+| Área             | Status Atual | Observação                      |
+| ---------------- | ------------ | ------------------------------- |
+| Multi-IDE        | 🟢           | Estrutura consolidada           |
+| Core             | 🟢           | UseCases e Ports organizados    |
+| Domain           | 🟢           | Entities/VOs/Policies separados |
+| Infra            | 🟢           | Providers desacoplados          |
+| Bootstrap VSCode | 🔵           | Remoção de legado em andamento  |
+| Coverage         | 🟡           | Melhorando gradualmente         |
+| Branch Coverage  | 🔴           | Ainda abaixo do ideal           |
+| Mutation Testing | 🟡           | Estrutura pronta                |
+| E2E              | 🟢           | Fluxo principal estabilizado    |
+| Arquitetura      | 🟡           | Cleanup incremental             |
+| Providers IA     | 🟢           | OpenAI/Ollama/Fallback          |
+| RAG              | 🟡           | Consolidando boundaries         |
+| UI/Webviews      | 🟡           | Separação parcial               |
 
 ---
 
 # 1. Testes Funcionais
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Teste Unitário | Vitest unit | Cobertura ampliada (Application/Core) |
-| 🟢 | Teste de Integração | Vitest integration | Expandido |
-| ⚪ | Teste de Sistema | Parcial via build | Criar testes sistêmicos |
-| 🟡 | Teste E2E | Infraestrutura estabelecida | Corrigir ambiente de comandos |
-| 🟢 | Teste de Regressão | QualityScripts.test | Expandido |
-| 🟡 | Teste Smoke | test:all | Melhorar pipeline |
-| 🟡 | Teste Sanity | lint/build/tests | Formalizar |
-| 🟡 | Teste de API | Providers testados | Cobrir todos providers |
-| 🟡 | Teste de Interface | ReviewViewProvider + Webview tests | Cobrir dashboard/UI restante |
-| 🟡 | Teste de Contrato | Ports/interfaces | Automatizar validação |
-| 🟢 | Fluxo de Negócio | UseCases testados | Expandir |
-| ⚪ | Teste Exploratório | Não existe | Criar processo |
-| ⚪ | BDD | Não existe | Definir estratégia |
+| Status | Categoria           | Implementação Atual             | Próxima Ação                    |
+| ------ | ------------------- | ------------------------------- | ------------------------------- |
+| 🟢     | Teste Unitário      | Vitest unit + Core tests        | Aumentar branch coverage        |
+| 🟢     | Teste de Integração | Integrações VSCode/providers    | Expandir cenários negativos     |
+| 🟡     | Teste de Sistema    | Build + activate extension      | Consolidar fluxo multi-provider |
+| 🟢     | Teste E2E           | Fluxo principal estabilizado    | Expandir cenários de falha      |
+| 🟢     | Teste de Regressão  | QualityScripts + suites         | Automatizar pipelines           |
+| 🟡     | Teste Smoke         | lint/build/test:e2e             | Adicionar smoke multi-IDE       |
+| 🟡     | Teste Sanity        | Build/lint/testes               | Formalizar checklist            |
+| 🟡     | Teste de API        | Providers parcialmente cobertos | Cobrir todos providers          |
+| 🟡     | Teste de Interface  | Dashboard/review webviews       | Cobrir estados inválidos        |
+| 🟢     | Teste de Contrato   | Ports/interfaces definidos      | Automatizar validações          |
+| 🟢     | Fluxo de Negócio    | UseCases cobertos               | Expandir edge cases             |
+| ⚪      | Teste Exploratório  | Não implementado                | Criar processo                  |
+| ⚪      | BDD                 | Não implementado                | Avaliar necessidade             |
 
 ---
 
@@ -43,231 +73,231 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 ## Performance
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| ⚪ | Carga | Não existe | Benchmark analyzers |
-| ⚪ | Stress | Não existe | Simular projeto grande |
-| ⚪ | Spike | Não existe | Simular bursts |
-| ⚪ | Volume | Não existe | Dataset massivo |
-| ⚪ | Escalabilidade | Não existe | Testar multi workspace |
-| ⚪ | Soak | Não existe | Execução contínua |
+| Status | Categoria      | Implementação Atual | Próxima Ação             |
+| ------ | -------------- | ------------------- | ------------------------ |
+| ⚪      | Carga          | Não implementado    | Benchmark analyzers      |
+| ⚪      | Stress         | Não implementado    | Simular projetos grandes |
+| ⚪      | Spike          | Não implementado    | Simular bursts           |
+| ⚪      | Volume         | Não implementado    | Repositórios massivos    |
+| ⚪      | Escalabilidade | Não implementado    | Multi-workspace          |
+| ⚪      | Soak           | Não implementado    | Execução contínua        |
 
 ---
 
 ## Segurança
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟡 | Vulnerabilidade | npm audit | Automatizar |
-| ⚪ | Pentest | Não existe | Planejar |
-| ⚪ | Autenticação | Providers auth | Expandir cobertura |
-| ⚪ | Autorização | Não existe | Controle de permissões |
-| ⚪ | Criptografia | Não existe | Secrets manager |
-| ⚪ | OWASP | Não existe | Semgrep/CodeQL |
+| Status | Categoria       | Implementação Atual | Próxima Ação           |
+| ------ | --------------- | ------------------- | ---------------------- |
+| 🟡     | Vulnerabilidade | npm audit           | Automatizar CI         |
+| ⚪      | Pentest         | Não implementado    | Planejar               |
+| 🟡     | Autenticação    | Providers auth      | Expandir cenários      |
+| ⚪      | Autorização     | Não implementado    | Controle de permissões |
+| ⚪      | Criptografia    | Não implementado    | Secrets manager        |
+| ⚪      | OWASP           | Não implementado    | Semgrep/CodeQL         |
 
 ---
 
 ## Observabilidade
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟡 | Logs | PinoLogger + providers/session logs | Cobrir testes |
-| ⚪ | Monitoramento | Não existe | Dashboard |
-| ⚪ | Métricas | Não existe | KPI engine |
-| ⚪ | Tracing | Não existe | OpenTelemetry |
+| Status | Categoria     | Implementação Atual         | Próxima Ação  |
+| ------ | ------------- | --------------------------- | ------------- |
+| 🟡     | Logs          | PinoLogger + extension logs | Cobrir testes |
+| ⚪      | Monitoramento | Não implementado            | Dashboard     |
+| ⚪      | Métricas      | Não implementado            | KPI engine    |
+| ⚪      | Tracing       | Não implementado            | OpenTelemetry |
 
 ---
 
 # 3. Testes Estruturais
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Caixa Branca | Unitários | Melhorar cobertura |
-| 🔴 | Cobertura de Linha | Vitest coverage | Subir cobertura global |
-| 🔴 | Cobertura de Branch | Coverage report | Melhorar branches |
-| 🟡 | Cobertura de Condição | Parcial | Expandir asserts |
-| 🟡 | Cobertura de Caminho | Parcial | Expandir cenários |
-| 🟡 | Mutation Testing | Estrutura/config inicial | Integrar StrykerJS real |
+| Status | Categoria             | Implementação Atual     | Próxima Ação            |
+| ------ | --------------------- | ----------------------- | ----------------------- |
+| 🟢     | Caixa Branca          | Suites unitárias amplas | Melhorar branches       |
+| 🟡     | Cobertura de Linha    | Coverage funcional      | Subir cobertura global  |
+| 🔴     | Cobertura de Branch   | Ainda insuficiente      | Cobrir fluxos negativos |
+| 🟡     | Cobertura de Condição | Parcial                 | Expandir asserts        |
+| 🟡     | Cobertura de Caminho  | Parcial                 | Cobrir edge cases       |
+| 🟡     | Mutation Testing      | Stryker configurado     | Integrar pipeline       |
 
 ---
 
-# 4. Testes Baseados em Dados
+# 4. Branch Coverage — Estado Atual
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟡 | Validação de Dados | zod | Expandir schemas |
-| ⚪ | ETL | Não existe | Planejar |
-| ⚪ | Migração | Não existe | Criar migrations |
-| ⚪ | Integridade Referencial | Não existe | Validar repositories |
-| 🟡 | Consistência de Dados | Repositories | Expandir |
-| ⚪ | Qualidade de Dataset | Não existe | Planejar |
+## Situação Atual
 
----
+Os testes E2E estão passando.
 
-# 5. Testes de Arquitetura
+Fluxos atualmente cobertos:
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Dependência | dependency-cruiser | Expandir regras |
-| 🟢 | Modularidade | Monorepo | Expandir boundaries |
-| 🟢 | Acoplamento | Ports & Adapters | Melhorar métricas |
-| 🟢 | Boundary | depcruise | Expandir |
-| 🟢 | Clean Architecture | CleanArchitectureRules | Expandir |
-| 🟢 | DDD | Domain separado | Expandir entidades |
-| 🟡 | SOLID | AST analyzers + architecture analyzers | Criar SOLID rule engine |
-| 🟢 | Convenções | ESLint | Expandir |
+* ativação da extensão;
+* registro de comandos;
+* execução do analyze command;
+* abertura de sidebar;
+* manutenção do lifecycle da extensão.
 
 ---
 
-# 6. Testes DevOps e Infraestrutura
+## Fluxos NÃO totalmente cobertos
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟡 | CI/CD | Pipeline local | GitHub Actions |
-| ⚪ | Deploy | Não existe | Pipeline release |
-| 🟡 | Infraestrutura | Workspaces/build | Expandir |
-| ⚪ | Docker/K8s | Não existe | Opcional |
-| 🟢 | Configuração | zod | Expandir |
-| 🟡 | Observabilidade | Logger | Métricas |
-| ⚪ | Chaos Engineering | Não existe | Planejar |
-
----
-
-# 7. Testes de Inteligência Artificial
-
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Providers IA | OpenAI/Ollama/Fallback | Expandir métricas |
-| 🟡 | Inferência | Providers testados | Criar benchmarks |
-| ⚪ | Drift | Não existe | Planejar |
-| ⚪ | Viés | Não existe | Planejar |
-| ⚪ | Dataset | Não existe | Planejar |
-| ⚪ | Robustez | Não existe | Planejar |
-| ⚪ | Precisão/Recall/F1 | Não existe | Criar métricas |
-| ⚪ | Explainability | Não existe | Planejar |
+| Status | Fluxo                   | Cobertura   |
+| ------ | ----------------------- | ----------- |
+| 🔴     | Provider indisponível   | Não coberto |
+| 🔴     | Falha de bootstrap      | Não coberto |
+| 🔴     | Webview inválida        | Não coberto |
+| 🔴     | Storage failure         | Não coberto |
+| 🔴     | Command inexistente     | Não coberto |
+| 🔴     | Falha de IA             | Não coberto |
+| 🔴     | Fallback provider       | Parcial     |
+| 🔴     | RAG ausente             | Parcial     |
+| 🔴     | Workspace inválido      | Não coberto |
+| 🔴     | Session restore failure | Não coberto |
+| 🔴     | Branch inexistente      | Não coberto |
+| 🔴     | Listener disposal       | Não coberto |
+| 🔴     | Invalid webview message | Não coberto |
 
 ---
 
-# 8. Testes de Qualidade de Código
+## Objetivo de Branch Coverage
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Lint | ESLint | Expandir |
-| 🟢 | Static Analysis | analyzers | Expandir |
-| 🟡 | Code Smell | parcial | Criar analyzer |
-| ⚪ | Complexidade Ciclomática | Não existe | Analyzer |
-| ⚪ | Duplicação | Não existe | Detector |
-| ⚪ | Debt Analysis | Não existe | Métricas |
-| 🟡 | Security Scan | npm audit | Semgrep |
-| 🟢 | Dependency Scan | madge/depcruise | Expandir |
+| Meta                   | Valor |
+| ---------------------- | ----- |
+| Branch Coverage Global | 90%   |
+| Core                   | 95%   |
+| Domain                 | 95%   |
+| Infra                  | 85%   |
+| VSCode                 | 80%   |
 
 ---
 
-# 9. Testes Organizacionais / Processo
+# 5. Testes Baseados em Dados
 
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟡 | Auditoria | logs | Expandir |
-| 🟡 | Compliance | architecture rules | Expandir |
-| 🟡 | Rastreabilidade | findings | Expandir |
-| 🟡 | Requisitos | docs | Automatizar |
-| ⚪ | Homologação | Não existe | Processo |
-| ⚪ | UAT | Não existe | Planejar |
-| 🟢 | Quality Gates | RunQualityGatesUseCase | Expandir |
-
----
-
-# 10. Dashboard de Qualidade
-
-| Status | Categoria | Implementação Atual | Próxima Ação |
-|---|---|---|---|
-| 🟢 | Overview | DashboardProvider funcional | Melhorar UI/Charts |
-| ⚪ | Coverage Dashboard | Não existe | Integrar Vitest |
-| ⚪ | Mutation Dashboard | Não existe | Integrar Stryker |
-| ⚪ | Architecture Graph | Não existe | React Flow |
-| 🟡 | Findings Panel | ReviewViewProvider | Expandir |
-| 🟡 | Risk Engine | RiskScorer | Expandir |
-| ⚪ | RAG Graph | Não existe | GraphRAG |
-| ⚪ | Quality Gates UI | Não existe | Implementar |
+| Status | Categoria               | Implementação Atual | Próxima Ação          |
+| ------ | ----------------------- | ------------------- | --------------------- |
+| 🟡     | Validação de Dados      | zod                 | Expandir schemas      |
+| ⚪      | ETL                     | Não implementado    | Planejar              |
+| ⚪      | Migração                | Não implementado    | Estruturar migrations |
+| ⚪      | Integridade Referencial | Não implementado    | Validar repositories  |
+| 🟡     | Consistência de Dados   | Repositories        | Expandir cenários     |
+| ⚪      | Qualidade de Dataset    | Não implementado    | Planejar              |
 
 ---
 
-# 11. Prioridades Arquiteturais
+# 6. Testes de Arquitetura
 
-## Prioridade Máxima
-
-| Prioridade | Item |
-|---|---|
-| 🟢 DONE | Cobertura packages/application |
-| 🟢 DONE | Cobertura command-handlers |
-| 🟢 DONE | Cobertura providers |
-| 🟢 DONE | Cobertura functions |
-| 🟢 DONE | Cobertura UI/webview |
-| 🟢 DONE | Dashboard funcional |
-| 🟠 P2 | Mutation Testing |
-| 🟡 HML | VSCode E2E |
-
----
-
-## Prioridade Alta
-
-| Prioridade | Item |
-|---|---|
-| 🟠 P2 | Security analyzers |
-| 🟠 P2 | Metrics engine |
-| 🟠 P2 | Tracing |
-| 🟠 P2 | Coverage 75%+ |
+| Status | Categoria              | Implementação Atual   | Próxima Ação        |
+| ------ | ---------------------- | --------------------- | ------------------- |
+| 🟢     | Dependência            | dependency-cruiser    | Expandir regras     |
+| 🟢     | Modularidade           | Monorepo estruturado  | Expandir boundaries |
+| 🟢     | Acoplamento            | Ports & Adapters      | Melhorar métricas   |
+| 🟢     | Boundary               | depcruise             | Expandir            |
+| 🟢     | Clean Architecture     | Rules implementadas   | Expandir coverage   |
+| 🟢     | DDD                    | Entities/policies/VOs | Expandir domínio    |
+| 🟡     | SOLID                  | AST analyzers         | Criar rule engine   |
+| 🟢     | Convenções             | ESLint                | Expandir            |
+| 🔵     | Bootstrap Architecture | Cleanup em andamento  | Eliminar legado     |
 
 ---
 
-## Prioridade Média
+# 7. Cleanup Arquitetural
 
-| Prioridade | Item |
-|---|---|
-| 🟡 P3 | AI evaluation |
-| 🟡 P3 | Risk engine |
-| 🟡 P3 | Explainability |
-| 🟡 P3 | RAG Graph |
+## Problemas atuais
 
----
-
-# 12. Metas de Qualidade
-
-| Métrica | Meta |
-|---|---|
-| Global Coverage | 75% |
-| Domain Coverage | 95% |
-| Application Coverage | 90% |
-| Infra Coverage | 80% |
-| Mutation Score | 70% |
-| Branch Coverage | 80% |
-| Circular Dependencies | 0 |
-| Critical Vulnerabilities | 0 |
-| Build Failures | 0 |
+| Status | Problema                        | Situação             |
+| ------ | ------------------------------- | -------------------- |
+| 🔵     | Bootstrap duplicado             | Em correção          |
+| 🔵     | Registers legados               | Em remoção           |
+| 🔵     | command-handlers duplicados     | Migração incremental |
+| 🔵     | VSCode com orchestration        | Movendo para core    |
+| 🔵     | Providers espalhados            | Consolidando infra   |
+| 🔵     | Estruturas multi-IDE diferentes | Padronizando         |
 
 ---
 
-# 13. Pipeline Final Desejada
+## Meta Arquitetural
 
-```text
-Lint
-↓
-Architecture Validation
-↓
-Dependency Validation
-↓
-Unit Tests
-↓
-Integration Tests
-↓
-Coverage
-↓
-Mutation Testing
-↓
-Security Scan
-↓
-Build
-↓
-E2E
-↓
-Quality Gates
+```txt
+activate()
+ └── activateExtension()
+      ├── bootstrapContainer()
+      ├── registerCommands()
+      ├── registerViews()
+      ├── registerMenus()
+      ├── registerEvents()
+      └── restoreCurrentBranchSession()
+```
+
+---
+
+# 8. Multi-IDE
+
+| Status | IDE           | Situação         |
+| ------ | ------------- | ---------------- |
+| 🟢     | VSCode        | Principal        |
+| 🟢     | JetBrains     | Estrutura criada |
+| 🟢     | Visual Studio | Estrutura criada |
+| 🟢     | Fleet         | Estrutura criada |
+| 🟢     | Neovim        | Estrutura criada |
+| 🟢     | Vim           | Estrutura criada |
+| 🟢     | Sublime       | Estrutura criada |
+| 🟢     | Eclipse       | Estrutura criada |
+| 🟢     | Emacs         | Estrutura criada |
+| 🟢     | Zed           | Estrutura criada |
+
+---
+
+# 9. Mutation Testing
+
+| Status | Área                | Situação         |
+| ------ | ------------------- | ---------------- |
+| 🟡     | StrykerJS           | Configurado      |
+| ⚪      | Mutation CI         | Não implementado |
+| ⚪      | Mutation Gates      | Não implementado |
+| ⚪      | Mutation Thresholds | Não implementado |
+| ⚪      | Survivor Analysis   | Não implementado |
+
+---
+
+# 10. Próximas Prioridades
+
+## PRIORIDADE 1
+
+Eliminar bootstrap duplicado.
+
+---
+
+## PRIORIDADE 2
+
+Melhorar branch coverage.
+
+---
+
+## PRIORIDADE 3
+
+Cobrir cenários negativos.
+
+---
+
+## PRIORIDADE 4
+
+Mover orchestration para packages/core.
+
+---
+
+## PRIORIDADE 5
+
+Padronizar todas IDEs.
+
+---
+
+# 11. Critérios de Qualidade
+
+## O sistema será considerado estável quando:
+
+* não houver duplicated registrations;
+* branch coverage atingir metas;
+* mutation testing estiver ativo;
+* bootstrap estiver consolidado;
+* VSCode estiver desacoplado do Core;
+* providers estiverem isolados em infra;
+* E2E cobrir cenários negativos;
+* arquitetura multi-IDE estiver padronizada.
