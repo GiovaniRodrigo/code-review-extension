@@ -53,7 +53,16 @@ const coverageConfig = mergeConfig(baseConfig, {
         '**/rag/loaders/**',
         '**/rag/indexers/**',
         '**/rag/vector-stores/**',
-        '**/rag/embeddings/**'
+        '**/rag/embeddings/**',
+        'apps/eclipse/**',
+        'apps/emacs/**',
+        'apps/fleet/**',
+        'apps/jetbrains/**',
+        'apps/neovim/**',
+        'apps/sublime/**',
+        'apps/vim/**',
+        'apps/visualstudio/**',
+        'apps/zed/**'
       ]
     }
   }

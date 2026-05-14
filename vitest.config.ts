@@ -1,7 +1,10 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
+
+  plugins: [react()],
 
   test: {
 
@@ -27,7 +30,9 @@ export default defineConfig({
     include: [
       'packages/**/*.spec.ts',
       'packages/**/*.test.ts',
-      'apps/vscode/tests/**/*.test.ts'
+      'packages/**/*.test.tsx',
+      'apps/vscode/tests/**/*.test.ts',
+      'apps/vscode/tests/**/*.test.js'
     ],
 
     exclude: [

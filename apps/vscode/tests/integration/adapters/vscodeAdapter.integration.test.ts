@@ -79,4 +79,100 @@ describe('VSCodeAdapter Integration', () => {
     expect(vscode.window.showTextDocument).toHaveBeenCalled();
     expect(mockEditor.revealRange).toHaveBeenCalled();
   });
+
+  it('should return empty string for content when no editor is active', async () => {
+    (vscode.window.activeTextEditor as any) = undefined;
+    (vscode.window.visibleTextEditors as any) = [];
+    const content = await adapter.getActiveFileContent();
+    expect(content).toBe('');
+  });
+
+  it('should return empty string for path when no editor is active', async () => {
+    (vscode.window.activeTextEditor as any) = undefined;
+    (vscode.window.visibleTextEditors as any) = [];
+    const path = await adapter.getActiveFilePath();
+    expect(path).toBe('');
+  });
+
+  it('should handle notifications correctly', async () => {
+    await adapter.showNotification('info msg', 'info');
+    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('info msg');
+
+    await adapter.showNotification('warn msg', 'warning');
+    expect(vscode.window.showWarningMessage).toHaveBeenCalledWith('warn msg');
+
+    await adapter.showNotification('err msg', 'error');
+    expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('err msg');
+  });
+
+  it('should return branch from git extension', async () => {
+    const mockBranch = 'feature-x';
+    vi.mocked(vscode.extensions.getExtension).mockReturnValue({
+      isActive: true,
+      activate: vi.fn(),
+      exports: {
+        getAPI: () => ({
+          repositories: [{
+            state: { HEAD: { name: mockBranch } }
+          }]
+        })
+      }
+    } as any);
+
+    const branch = await adapter.getActiveBranch();
+    expect(branch).toBe(mockBranch);
+  });
+
+  it('should return fallback branch when git extension is missing', async () => {
+    vi.mocked(vscode.extensions.getExtension).mockReturnValue(undefined);
+    (vscode.workspace.workspaceFolders as any) = [{ name: 'main-folder' }];
+
+    const branch = await adapter.getActiveBranch();
+    expect(branch).toBe('main-folder');
+  });
+
+  it('should apply fix when approved and confirmed', async () => {
+    const mockFinding = {
+        id: '1',
+        file: '/test.ts',
+        line: 1,
+        message: 'fix me',
+        severity: 'error' as const,
+        status: 'approved' as const,
+        suggestedFix: 'fixed content'
+    };
+
+    const mockEdit = vi.fn().mockResolvedValue(true);
+    const mockDocument = {
+        lineAt: () => ({ text: 'old content', range: {} })
+    };
+    const mockEditor = { edit: mockEdit };
+
+    vi.mocked(vscode.workspace.openTextDocument).mockResolvedValue(mockDocument as any);
+    vi.mocked(vscode.window.showTextDocument).mockResolvedValue(mockEditor as any);
+    vi.mocked(vscode.window.showWarningMessage).mockResolvedValue('Apply Fix' as any);
+
+    await adapter.applyFix(mockFinding);
+
+    expect(mockEdit).toHaveBeenCalled();
+    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(expect.stringContaining('Suggested fix applied'));
+  });
+
+  it('should not apply fix if confirmation is rejected', async () => {
+    const mockFinding = {
+        id: '1',
+        file: '/test.ts',
+        line: 1,
+        message: 'fix me',
+        severity: 'error' as const,
+        status: 'approved' as const,
+        suggestedFix: 'fixed content'
+    };
+
+    vi.mocked(vscode.window.showWarningMessage).mockResolvedValue('Cancel' as any);
+
+    await adapter.applyFix(mockFinding);
+
+    expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+  });
 });
