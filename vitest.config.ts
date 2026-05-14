@@ -2,36 +2,250 @@ import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
 export default defineConfig({
+
   test: {
+
     pool: 'forks',
-    poolOptions: { forks: { singleFork: true } },
+
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
+    },
+
     globals: true,
+
     environment: 'node',
+
     setupFiles: [
-      path.resolve(__dirname, 'apps/vscode/tests/setup/setupTests.ts')
+      path.resolve(
+        __dirname,
+        'apps/vscode/tests/setup/setupTests.ts'
+      )
     ],
+
     include: [
       'packages/**/*.spec.ts',
       'packages/**/*.test.ts',
       'apps/vscode/tests/**/*.test.ts'
     ],
+
     exclude: [
+
+      /*
+      |--------------------------------------------------------------------------
+      | E2E
+      |--------------------------------------------------------------------------
+      */
+
       'apps/vscode/tests/e2e/**',
+
+      /*
+      |--------------------------------------------------------------------------
+      | Dependencies
+      |--------------------------------------------------------------------------
+      */
+
       'node_modules/**',
       '**/node_modules/**',
+
+      /*
+      |--------------------------------------------------------------------------
+      | Build artifacts
+      |--------------------------------------------------------------------------
+      */
+
       'dist/**',
       '**/dist/**',
+
+      'build/**',
+      '**/build/**',
+
       'out/**',
       '**/out/**',
-      'coverage/**'
-    ]
+
+      /*
+      |--------------------------------------------------------------------------
+      | Coverage
+      |--------------------------------------------------------------------------
+      */
+
+      'coverage/**',
+      '**/coverage/**',
+
+      /*
+      |--------------------------------------------------------------------------
+      | VSCode runtime
+      |--------------------------------------------------------------------------
+      */
+
+      '.vscode-test/**',
+      '**/.vscode-test/**',
+
+      /*
+      |--------------------------------------------------------------------------
+      | Passive architecture files
+      |--------------------------------------------------------------------------
+      */
+
+      '**/*.d.ts',
+
+      '**/index.ts',
+
+      '**/dto/**',
+
+      '**/contracts/**',
+
+      '**/ports/**',
+
+      '**/types/**',
+
+      '**/mocks/**',
+
+      '**/fixtures/**'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Coverage
+    |--------------------------------------------------------------------------
+    */
+
+    coverage: {
+
+      provider: 'v8',
+
+      enabled: true,
+
+      reporter: [
+        'text',
+        'json',
+        'html'
+      ],
+
+      reportsDirectory: './coverage',
+
+      exclude: [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Test files
+        |--------------------------------------------------------------------------
+        */
+
+        '**/*.spec.ts',
+        '**/*.test.ts',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Passive architecture
+        |--------------------------------------------------------------------------
+        */
+
+        '**/*.d.ts',
+
+        '**/index.ts',
+
+        '**/dto/**',
+
+        '**/contracts/**',
+
+        '**/ports/**',
+
+        '**/types/**',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mocks / fixtures
+        |--------------------------------------------------------------------------
+        */
+
+        '**/mocks/**',
+
+        '**/fixtures/**',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generated files
+        |--------------------------------------------------------------------------
+        */
+
+        '**/coverage/**',
+
+        '**/dist/**',
+
+        '**/build/**',
+
+        '**/out/**',
+
+        '**/.vscode-test/**',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dependencies
+        |--------------------------------------------------------------------------
+        */
+
+        '**/node_modules/**'
+      ],
+
+      /*
+      |--------------------------------------------------------------------------
+      | Quality Gates
+      |--------------------------------------------------------------------------
+      */
+
+      thresholds: {
+
+        lines: 75,
+
+        functions: 70,
+
+        branches: 70,
+
+        statements: 75
+      }
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reporters
+    |--------------------------------------------------------------------------
+    */
+
+    reporters: [
+      'default',
+      'html'
+    ],
+
+    outputFile: {
+      html: './coverage/tests.html'
+    }
   },
+
   resolve: {
+
     alias: {
-      vscode: path.resolve(__dirname, 'apps/vscode/tests/mocks/vscode.ts'),
-      '@code-review/core': path.resolve(__dirname, 'packages/core/src/index.ts'),
-      '@code-review/domain': path.resolve(__dirname, 'packages/domain/src/index.ts'),
-      '@code-review/infra': path.resolve(__dirname, 'packages/infra/src/index.ts')
+
+      vscode: path.resolve(
+        __dirname,
+        'apps/vscode/tests/mocks/vscode.ts'
+      ),
+
+      '@code-review/core': path.resolve(
+        __dirname,
+        'packages/core/src/index.ts'
+      ),
+
+      '@code-review/domain': path.resolve(
+        __dirname,
+        'packages/domain/src/index.ts'
+      ),
+
+      '@code-review/infra': path.resolve(
+        __dirname,
+        'packages/infra/src/index.ts'
+      )
     }
   }
 });

@@ -3,6 +3,7 @@
   "private": true,
   "description": "AI-assisted Code Review Extension - Multi-IDE Architecture",
   "version": "2.0.0",
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
