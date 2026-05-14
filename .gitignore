@@ -3,3 +3,6 @@ dist/
 *.vsix
 coverage/
 .turbo/
+apps/vscode/.vscode-test/
+out/
+build/
