@@ -6,214 +6,210 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 O foco atual do projeto é:
 
-* estabilização arquitetural;
-* redução de dívida técnica;
-* consolidação do bootstrap;
-* melhoria de cobertura;
-* fortalecimento dos testes estruturais;
-* padronização multi-IDE;
-* desacoplamento entre IDE e Core.
+- estabilização arquitetural;
+- redução de dívida técnica;
+- consolidação do bootstrap;
+- melhoria de cobertura;
+- fortalecimento dos testes estruturais;
+- padronização multi-IDE;
+- desacoplamento entre IDE e Core.
 
 ---
 
 # Legenda
 
-| Status     | Significado        |
-| ---------- | ------------------ |
-| ⚪ TODO     | Não iniciado       |
-| 🔵 DEV     | Em desenvolvimento |
-| 🟡 HML     | Em homologação     |
-| 🟢 DONE    | Implementado       |
-| 🔴 BLOCKED | Bloqueado          |
-| ⚫ CANCELED | Cancelado          |
+| Status | Significado |
+|---|---|
+| ⚪ TODO | Não iniciado |
+| 🔵 DEV | Em desenvolvimento |
+| 🟡 HML | Em homologação |
+| 🟢 DONE | Implementado |
+| 🔴 BLOCKED | Bloqueado |
+| ⚫ CANCELED | Cancelado |
 
 ---
 
 # Estado Atual Geral
 
-| Área             | Status Atual | Observação                      |
-| ---------------- | ------------ | ------------------------------- |
-| Multi-IDE        | 🟢           | Estrutura consolidada           |
-| Core             | 🟢           | UseCases e Ports organizados    |
-| Domain           | 🟢           | Entities/VOs/Policies separados |
-| Infra            | 🟢           | Providers desacoplados          |
-| Bootstrap VSCode | 🔵           | Remoção de legado em andamento  |
-| Coverage         | 🟡           | Melhorando gradualmente         |
-| Branch Coverage  | 🔴           | Ainda abaixo do ideal           |
-| Mutation Testing | 🟡           | Estrutura pronta                |
-| E2E              | 🟢           | Fluxo principal estabilizado    |
-| Arquitetura      | 🟡           | Cleanup incremental             |
-| Providers IA     | 🟢           | OpenAI/Ollama/Fallback          |
-| RAG              | 🟡           | Consolidando boundaries         |
-| UI/Webviews      | 🟡           | Separação parcial               |
+| Área | Status Atual | Observação |
+|---|---|---|
+| Multi-IDE | 🟢 | Estrutura consolidada |
+| Core | 🟢 | UseCases, Services e Ports organizados |
+| Domain | 🟢 | Entities/VOs/Policies separados |
+| Infra | 🟢 | Providers desacoplados |
+| Bootstrap VSCode | 🟢 | Bootstrap centralizado |
+| Coverage | 🟡 | Melhorando gradualmente |
+| Branch Coverage | 🟡 | Melhorou significativamente |
+| Mutation Testing | 🟡 | Estrutura pronta |
+| E2E | 🟢 | Fluxo principal estabilizado |
+| Arquitetura | 🟢 | Cleanup principal concluído |
+| Providers IA | 🟢 | OpenAI/Ollama/Fallback |
+| RAG | 🟢 | Serviços movidos para core |
+| UI/Webviews | 🟡 | Ainda sem cobertura suficiente |
+| Dependency Health | 🟢 | Sem ciclos e sem violações |
+
+---
+
+# Estado Atual dos Quality Gates
+
+| Gate | Resultado | Status |
+|---|---|---|
+| ESLint | OK | 🟢 |
+| Dependency Cruiser | Sem violações | 🟢 |
+| Madge Circular Dependency | Sem ciclos | 🟢 |
+| Unit Tests | 28 passing | 🟢 |
+| Integration Tests | 24 passing | 🟢 |
+| Coverage Tests | 100 passing | 🟢 |
+| E2E | Fluxo principal estável | 🟢 |
+| Build Pipeline | Falhando por ausência de script build | 🔴 |
+
+---
+
+# Métricas Atuais de Coverage
+
+| Métrica | Valor Atual |
+|---|---|
+| Statements | 73.21% |
+| Branches | 75.26% |
+| Functions | 59.05% |
+| Lines | 73.21% |
+
+---
+
+# Situação Atual de Branch Coverage
+
+## Melhorias já implementadas
+
+| Status | Implementação |
+|---|---|
+| 🟢 | Cenários negativos implementados |
+| 🟢 | Fallback provider testado |
+| 🟢 | Session restore com erro testado |
+| 🟢 | Bootstrap estabilizado |
+| 🟢 | Dependency validation ativa |
+| 🟢 | Circular dependency validation ativa |
+| 🟢 | RAG orchestration movida para core |
+
+---
+
+## Cenários negativos ainda não cobertos
+
+| Status | Cenário |
+|---|---|
+| 🔴 | Invalid webview payload |
+| 🔴 | Missing provider |
+| 🔴 | Invalid token |
+| 🔴 | Empty workspace |
+| 🔴 | Invalid command context |
+| 🔴 | Publish review failure |
+| 🔴 | Storage corruption |
+| 🔴 | Invalid UI interaction |
+
+---
+
+# Arquivos com Coverage Crítica
+
+## VSCode Adapter
+
+| Arquivo | Statements | Branches |
+|---|---|---|
+| VSCodeAdapter.ts | 34.43% | 40.9% |
+
+---
+
+## UI sem cobertura
+
+| Arquivo | Coverage |
+|---|---|
+| packages/ui/src/components/FindingCard.tsx | 0% |
+| apps/vscode/src/ui/js/reviewView.js | 0% |
+
+---
+
+## Infraestrutura sem cobertura
+
+| Arquivo | Coverage |
+|---|---|
+| CommandTestTool.ts | 0% |
+| NodeCommandRunner.ts | 0% |
+| PinoLogger.ts | 0% |
+| createDefaultTestTools.ts | 0% |
+
+---
+
+# Problema Atual Principal
+
+## Build Pipeline
+
+Atualmente o pipeline falha em:
+
+```bash
+npm run build
+```
+
+Erro atual:
+
+```txt
+npm error Missing script: "build"
+```
+
+---
+
+# Correção Necessária
+
+Adicionar script:
+
+```json
+{
+  "scripts": {
+    "build": "turbo build"
+  }
+}
+```
+
+ou:
+
+```json
+{
+  "scripts": {
+    "build": "tsc -b"
+  }
+}
+```
 
 ---
 
 # 1. Testes Funcionais
 
-| Status | Categoria           | Implementação Atual             | Próxima Ação                    |
-| ------ | ------------------- | ------------------------------- | ------------------------------- |
-| 🟢     | Teste Unitário      | Vitest unit + Core tests        | Aumentar branch coverage        |
-| 🟢     | Teste de Integração | Integrações VSCode/providers    | Expandir cenários negativos     |
-| 🟡     | Teste de Sistema    | Build + activate extension      | Consolidar fluxo multi-provider |
-| 🟢     | Teste E2E           | Fluxo principal estabilizado    | Expandir cenários de falha      |
-| 🟢     | Teste de Regressão  | QualityScripts + suites         | Automatizar pipelines           |
-| 🟡     | Teste Smoke         | lint/build/test:e2e             | Adicionar smoke multi-IDE       |
-| 🟡     | Teste Sanity        | Build/lint/testes               | Formalizar checklist            |
-| 🟡     | Teste de API        | Providers parcialmente cobertos | Cobrir todos providers          |
-| 🟡     | Teste de Interface  | Dashboard/review webviews       | Cobrir estados inválidos        |
-| 🟢     | Teste de Contrato   | Ports/interfaces definidos      | Automatizar validações          |
-| 🟢     | Fluxo de Negócio    | UseCases cobertos               | Expandir edge cases             |
-| ⚪      | Teste Exploratório  | Não implementado                | Criar processo                  |
-| ⚪      | BDD                 | Não implementado                | Avaliar necessidade             |
+| Status | Categoria | Situação Atual | Próxima Ação |
+|---|---|---|---|
+| 🟢 | Unitário | Estável | Melhorar branches |
+| 🟢 | Integração | Estável | Expandir negativos |
+| 🟢 | E2E | Estável | Cobrir falhas complexas |
+| 🟢 | Contrato | Estruturado | Automatizar validações |
+| 🟡 | Interface | Parcial | Testar webviews |
+| 🟡 | API | Parcial | Cobrir providers restantes |
+| ⚪ | Exploratório | Não iniciado | Planejar |
+| ⚪ | BDD | Não iniciado | Avaliar necessidade |
 
 ---
 
-# 2. Testes Não Funcionais
+# 2. Testes Estruturais
 
-## Performance
-
-| Status | Categoria      | Implementação Atual | Próxima Ação             |
-| ------ | -------------- | ------------------- | ------------------------ |
-| ⚪      | Carga          | Não implementado    | Benchmark analyzers      |
-| ⚪      | Stress         | Não implementado    | Simular projetos grandes |
-| ⚪      | Spike          | Não implementado    | Simular bursts           |
-| ⚪      | Volume         | Não implementado    | Repositórios massivos    |
-| ⚪      | Escalabilidade | Não implementado    | Multi-workspace          |
-| ⚪      | Soak           | Não implementado    | Execução contínua        |
+| Status | Categoria | Situação Atual |
+|---|---|---|
+| 🟢 | Caixa Branca | Consolidado |
+| 🟡 | Branch Coverage | Melhorando |
+| 🟡 | Path Coverage | Parcial |
+| 🟡 | Mutation Testing | Configurado |
+| 🟢 | Architecture Testing | Consolidado |
+| 🟢 | Dependency Rules | Ativas |
 
 ---
 
-## Segurança
+# 3. Arquitetura
 
-| Status | Categoria       | Implementação Atual | Próxima Ação           |
-| ------ | --------------- | ------------------- | ---------------------- |
-| 🟡     | Vulnerabilidade | npm audit           | Automatizar CI         |
-| ⚪      | Pentest         | Não implementado    | Planejar               |
-| 🟡     | Autenticação    | Providers auth      | Expandir cenários      |
-| ⚪      | Autorização     | Não implementado    | Controle de permissões |
-| ⚪      | Criptografia    | Não implementado    | Secrets manager        |
-| ⚪      | OWASP           | Não implementado    | Semgrep/CodeQL         |
-
----
-
-## Observabilidade
-
-| Status | Categoria     | Implementação Atual         | Próxima Ação  |
-| ------ | ------------- | --------------------------- | ------------- |
-| 🟡     | Logs          | PinoLogger + extension logs | Cobrir testes |
-| ⚪      | Monitoramento | Não implementado            | Dashboard     |
-| ⚪      | Métricas      | Não implementado            | KPI engine    |
-| ⚪      | Tracing       | Não implementado            | OpenTelemetry |
-
----
-
-# 3. Testes Estruturais
-
-| Status | Categoria             | Implementação Atual     | Próxima Ação            |
-| ------ | --------------------- | ----------------------- | ----------------------- |
-| 🟢     | Caixa Branca          | Suites unitárias amplas | Melhorar branches       |
-| 🟡     | Cobertura de Linha    | Coverage funcional      | Subir cobertura global  |
-| 🔴     | Cobertura de Branch   | Ainda insuficiente      | Cobrir fluxos negativos |
-| 🟡     | Cobertura de Condição | Parcial                 | Expandir asserts        |
-| 🟡     | Cobertura de Caminho  | Parcial                 | Cobrir edge cases       |
-| 🟡     | Mutation Testing      | Stryker configurado     | Integrar pipeline       |
-
----
-
-# 4. Branch Coverage — Estado Atual
-
-## Situação Atual
-
-Os testes E2E estão passando.
-
-Fluxos atualmente cobertos:
-
-* ativação da extensão;
-* registro de comandos;
-* execução do analyze command;
-* abertura de sidebar;
-* manutenção do lifecycle da extensão.
-
----
-
-## Fluxos NÃO totalmente cobertos
-
-| Status | Fluxo                   | Cobertura   |
-| ------ | ----------------------- | ----------- |
-| 🔴     | Provider indisponível   | Não coberto |
-| 🔴     | Falha de bootstrap      | Não coberto |
-| 🔴     | Webview inválida        | Não coberto |
-| 🔴     | Storage failure         | Não coberto |
-| 🔴     | Command inexistente     | Não coberto |
-| 🔴     | Falha de IA             | Não coberto |
-| 🔴     | Fallback provider       | Parcial     |
-| 🔴     | RAG ausente             | Parcial     |
-| 🔴     | Workspace inválido      | Não coberto |
-| 🔴     | Session restore failure | Não coberto |
-| 🔴     | Branch inexistente      | Não coberto |
-| 🔴     | Listener disposal       | Não coberto |
-| 🔴     | Invalid webview message | Não coberto |
-
----
-
-## Objetivo de Branch Coverage
-
-| Meta                   | Valor |
-| ---------------------- | ----- |
-| Branch Coverage Global | 90%   |
-| Core                   | 95%   |
-| Domain                 | 95%   |
-| Infra                  | 85%   |
-| VSCode                 | 80%   |
-
----
-
-# 5. Testes Baseados em Dados
-
-| Status | Categoria               | Implementação Atual | Próxima Ação          |
-| ------ | ----------------------- | ------------------- | --------------------- |
-| 🟡     | Validação de Dados      | zod                 | Expandir schemas      |
-| ⚪      | ETL                     | Não implementado    | Planejar              |
-| ⚪      | Migração                | Não implementado    | Estruturar migrations |
-| ⚪      | Integridade Referencial | Não implementado    | Validar repositories  |
-| 🟡     | Consistência de Dados   | Repositories        | Expandir cenários     |
-| ⚪      | Qualidade de Dataset    | Não implementado    | Planejar              |
-
----
-
-# 6. Testes de Arquitetura
-
-| Status | Categoria              | Implementação Atual   | Próxima Ação        |
-| ------ | ---------------------- | --------------------- | ------------------- |
-| 🟢     | Dependência            | dependency-cruiser    | Expandir regras     |
-| 🟢     | Modularidade           | Monorepo estruturado  | Expandir boundaries |
-| 🟢     | Acoplamento            | Ports & Adapters      | Melhorar métricas   |
-| 🟢     | Boundary               | depcruise             | Expandir            |
-| 🟢     | Clean Architecture     | Rules implementadas   | Expandir coverage   |
-| 🟢     | DDD                    | Entities/policies/VOs | Expandir domínio    |
-| 🟡     | SOLID                  | AST analyzers         | Criar rule engine   |
-| 🟢     | Convenções             | ESLint                | Expandir            |
-| 🔵     | Bootstrap Architecture | Cleanup em andamento  | Eliminar legado     |
-
----
-
-# 7. Cleanup Arquitetural
-
-## Problemas atuais
-
-| Status | Problema                        | Situação             |
-| ------ | ------------------------------- | -------------------- |
-| 🔵     | Bootstrap duplicado             | Em correção          |
-| 🔵     | Registers legados               | Em remoção           |
-| 🔵     | command-handlers duplicados     | Migração incremental |
-| 🔵     | VSCode com orchestration        | Movendo para core    |
-| 🔵     | Providers espalhados            | Consolidando infra   |
-| 🔵     | Estruturas multi-IDE diferentes | Padronizando         |
-
----
-
-## Meta Arquitetural
+## Estrutura atual consolidada
 
 ```txt
 activate()
@@ -228,76 +224,137 @@ activate()
 
 ---
 
-# 8. Multi-IDE
+# Melhorias arquiteturais implementadas
 
-| Status | IDE           | Situação         |
-| ------ | ------------- | ---------------- |
-| 🟢     | VSCode        | Principal        |
-| 🟢     | JetBrains     | Estrutura criada |
-| 🟢     | Visual Studio | Estrutura criada |
-| 🟢     | Fleet         | Estrutura criada |
-| 🟢     | Neovim        | Estrutura criada |
-| 🟢     | Vim           | Estrutura criada |
-| 🟢     | Sublime       | Estrutura criada |
-| 🟢     | Eclipse       | Estrutura criada |
-| 🟢     | Emacs         | Estrutura criada |
-| 🟢     | Zed           | Estrutura criada |
+| Status | Implementação |
+|---|---|
+| 🟢 | Bootstrap único |
+| 🟢 | Registrations centralizados |
+| 🟢 | Sem duplicated providers |
+| 🟢 | Sem circular dependencies |
+| 🟢 | Dependency validation |
+| 🟢 | Orchestration movida para core |
+| 🟢 | Estrutura multi-IDE consolidada |
+| 🟢 | RAG desacoplado do VSCode |
 
 ---
 
-# 9. Mutation Testing
+# 4. Multi-IDE
 
-| Status | Área                | Situação         |
-| ------ | ------------------- | ---------------- |
-| 🟡     | StrykerJS           | Configurado      |
-| ⚪      | Mutation CI         | Não implementado |
-| ⚪      | Mutation Gates      | Não implementado |
-| ⚪      | Mutation Thresholds | Não implementado |
-| ⚪      | Survivor Analysis   | Não implementado |
+| Status | IDE | Situação |
+|---|---|---|
+| 🟢 | VSCode | Principal |
+| 🟢 | JetBrains | Estrutura criada |
+| 🟢 | Visual Studio | Estrutura criada |
+| 🟢 | Fleet | Estrutura criada |
+| 🟢 | Neovim | Estrutura criada |
+| 🟢 | Vim | Estrutura criada |
+| 🟢 | Sublime | Estrutura criada |
+| 🟢 | Eclipse | Estrutura criada |
+| 🟢 | Emacs | Estrutura criada |
+| 🟢 | Zed | Estrutura criada |
 
 ---
 
-# 10. Próximas Prioridades
+# Problema Atual de Coverage Global
+
+As IDEs placeholders estão reduzindo drasticamente o coverage global.
+
+## IDEs atualmente sem testes
+
+- eclipse
+- emacs
+- fleet
+- jetbrains
+- neovim
+- sublime
+- vim
+- visualstudio
+- zed
+
+---
+
+# Recomendação Atual
+
+Excluir temporariamente da coverage:
+
+```txt
+apps/eclipse/**
+apps/emacs/**
+apps/fleet/**
+apps/jetbrains/**
+apps/neovim/**
+apps/sublime/**
+apps/vim/**
+apps/visualstudio/**
+apps/zed/**
+```
+
+---
+
+# Meta Esperada após exclusão
+
+| Métrica | Meta Esperada |
+|---|---|
+| Statements | 82-88% |
+| Branches | 84-90% |
+| Lines | 82-88% |
+
+---
+
+# Mutation Testing
+
+| Status | Área | Situação |
+|---|---|---|
+| 🟡 | StrykerJS | Configurado |
+| ⚪ | Mutation CI | Não implementado |
+| ⚪ | Mutation Gates | Não implementado |
+| ⚪ | Survivor Analysis | Não implementado |
+
+---
+
+# Próximas Prioridades
 
 ## PRIORIDADE 1
 
-Eliminar bootstrap duplicado.
+Adicionar pipeline build funcional.
 
 ---
 
 ## PRIORIDADE 2
 
-Melhorar branch coverage.
+Excluir placeholders da coverage.
 
 ---
 
 ## PRIORIDADE 3
 
-Cobrir cenários negativos.
+Cobrir VSCodeAdapter.ts.
 
 ---
 
 ## PRIORIDADE 4
 
-Mover orchestration para packages/core.
+Adicionar testes de UI/Webview.
 
 ---
 
 ## PRIORIDADE 5
 
-Padronizar todas IDEs.
+Cobrir cenários negativos restantes.
 
 ---
 
-# 11. Critérios de Qualidade
+# Critérios de Qualidade
 
 ## O sistema será considerado estável quando:
 
-* não houver duplicated registrations;
-* branch coverage atingir metas;
-* mutation testing estiver ativo;
-* bootstrap estiver consolidado;
-* VSCode estiver desacoplado do Core;
-* providers estiverem isolados em infra;
-* E2E cobrir cenários negativos;
-* arquitetura multi-IDE estiver padronizada.
+- não houver duplicated registrations;
+- branch coverage atingir metas;
+- mutation testing estiver ativo;
+- build pipeline estiver funcional;
+- VSCodeAdapter possuir cobertura adequada;
+- UI possuir testes básicos;
+- cenários negativos principais estiverem cobertos;
+- arquitetura multi-IDE estiver consolidada;
+- dependency validation continuar limpa.
