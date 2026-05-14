@@ -9,25 +9,19 @@
     "packages/*"
   ],
   "scripts": {
+    "lint": "npm run lint:eslint && npm run arch:depcruise && npm run arch:madge",
+    "lint:eslint": "eslint .",
+    "arch:depcruise": "depcruise packages apps/vscode/src --config .dependency-cruiser.cjs",
+    "arch:madge": "madge packages apps/vscode/src --circular --extensions ts",
     "test": "vitest run --exclude \"apps/vscode/tests/e2e/**\"",
-    "test:all": "npm run lint && npm run arch:depcruise && npm run arch:madge && npm run test:unit && npm run test:integration && npm run test:coverage && npm run test:mutation && npm run build --workspace=apps/vscode",
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --config vitest.coverage.config.ts --coverage",
-    "test:quality": "npm run test:unit && npm run test:integration && npm run lint && npm run arch:depcruise && npm run arch:madge && npm run audit:critical",
-    "lint": "eslint .",
-    "arch:depcruise": "depcruise packages apps/vscode/src --config .dependency-cruiser.cjs",
-    "arch:madge": "madge packages apps/vscode/src --circular --extensions ts",
-    "audit:critical": "npm audit --audit-level=critical",
-    "build": "turbo run build",
-    "package": "turbo run package",
-    "package:vscode": "npm run package --workspace=apps/vscode",
-    "package:jetbrains": "npm run package --workspace=apps/jetbrains",
-    "package:vim": "npm run package --workspace=apps/vim",
-    "package:sublime": "npm run package --workspace=apps/sublime",
-    "package:all": "npm run package",
     "test:mutation": "stryker run",
-    "test:e2e": "vscode-test"
+    "test:e2e": "tsx apps/vscode/tests/e2e/runE2E.ts",
+    "test:all": "npm run lint && npm run test:unit && npm run test:integration && npm run test:coverage && npm run build",
+    "test:full": "npm run test:all && npm run test:mutation",
+    "audit:critical": "npm audit --audit-level=critical"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
