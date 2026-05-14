@@ -23,11 +23,11 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 | Status | Categoria | Implementação Atual | Próxima Ação |
 |---|---|---|---|
-| 🟢 | Teste Unitário | Vitest unit | Melhorar cobertura |
-| 🟢 | Teste de Integração | Vitest integration | Expandir cenários |
+| 🟢 | Teste Unitário | Vitest unit | Cobertura ampliada (Application/Core) |
+| 🟢 | Teste de Integração | Vitest integration | Expandido |
 | ⚪ | Teste de Sistema | Parcial via build | Criar testes sistêmicos |
-| ⚪ | Teste E2E | Estrutura existente | Implementar VSCode E2E |
-| 🟢 | Teste de Regressão | QualityScripts.test | Expandir regressões |
+| 🟡 | Teste E2E | Infraestrutura estabelecida | Corrigir ambiente de comandos |
+| 🟢 | Teste de Regressão | QualityScripts.test | Expandido |
 | 🟡 | Teste Smoke | test:all | Melhorar pipeline |
 | 🟡 | Teste Sanity | lint/build/tests | Formalizar |
 | 🟡 | Teste de API | Providers testados | Cobrir todos providers |
@@ -137,8 +137,8 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 | Status | Categoria | Implementação Atual | Próxima Ação |
 |---|---|---|---|
-| 🟡 | Modelo | Providers | Expandir |
-| 🟡 | Inferência | OpenAI/Ollama/Fallback providers | Expandir |
+| 🟢 | Providers IA | OpenAI/Ollama/Fallback | Expandir métricas |
+| 🟡 | Inferência | Providers testados | Criar benchmarks |
 | ⚪ | Drift | Não existe | Planejar |
 | ⚪ | Viés | Não existe | Planejar |
 | ⚪ | Dataset | Não existe | Planejar |
@@ -181,7 +181,7 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 | Status | Categoria | Implementação Atual | Próxima Ação |
 |---|---|---|---|
-| 🟡 | Overview | HeatmapService/RiskScorer | Criar UI |
+| 🟢 | Overview | DashboardProvider funcional | Melhorar UI/Charts |
 | ⚪ | Coverage Dashboard | Não existe | Integrar Vitest |
 | ⚪ | Mutation Dashboard | Não existe | Integrar Stryker |
 | ⚪ | Architecture Graph | Não existe | React Flow |
@@ -198,13 +198,14 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 | Prioridade | Item |
 |---|---|
-| 🔴 P1 | Coverage global 75%+ |
-| 🔴 P1 | Application coverage |
-| 🔴 P1 | Providers coverage |
-| 🔴 P1 | Functions coverage |
-| 🔴 P1 | Bootstrap coverage |
-| 🔴 P1 | Dashboard funcional |
-| 🟠 P2 | Mutation Testing real |
+| 🟢 DONE | Cobertura packages/application |
+| 🟢 DONE | Cobertura command-handlers |
+| 🟢 DONE | Cobertura providers |
+| 🟢 DONE | Cobertura functions |
+| 🟢 DONE | Cobertura UI/webview |
+| 🟢 DONE | Dashboard funcional |
+| 🟠 P2 | Mutation Testing |
+| 🟡 HML | VSCode E2E |
 
 ---
 
@@ -212,10 +213,10 @@ Este documento controla o progresso da implementação da infraestrutura de qual
 
 | Prioridade | Item |
 |---|---|
-| 🟠 P2 | VSCode E2E |
 | 🟠 P2 | Security analyzers |
 | 🟠 P2 | Metrics engine |
 | 🟠 P2 | Tracing |
+| 🟠 P2 | Coverage 75%+ |
 
 ---
 

@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { AnalyzeCodeCommandHandler } from '../command-handlers/ai/analyzeCodeCommandHandler';
 import { ClearRepositoryRagCommandHandler } from '../command-handlers/rag/clearRepositoryRagCommandHandler';
 import { IndexRepositoryRagCommandHandler } from '../command-handlers/rag/indexRepositoryRagCommandHandler';
@@ -42,5 +43,34 @@ export function registerCommands(container: VSCodeContainer): void {
   commands.register(
     'code-review.syncWithVps',
     () => new SyncWithVpsCommandHandler(container).handle()
+  );
+
+  commands.register(
+    'code-review.clearSession',
+    async () => {
+        const branch = await container.ide.getActiveBranch();
+        container.reviewPanelProvider.clear(`Review session cleared for branch ${branch}.`);
+    }
+  );
+
+  commands.register(
+    'code-review.focus',
+    () => vscode.commands.executeCommand('workbench.view.extension.code-review')
+  );
+
+  commands.register(
+    'code-review.restoreSession',
+    async () => {
+        const branch = await container.ide.getActiveBranch();
+        await container.notifications.info(`Restoring session for ${branch}`);
+    }
+  );
+
+  commands.register(
+    'code-review.setOpenAIApiKey',
+    async () => {
+        const key = await vscode.window.showInputBox({ prompt: 'Enter OpenAI API Key' });
+        if (key) await container.storage.set('openai-key', key);
+    }
   );
 }

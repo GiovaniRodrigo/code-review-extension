@@ -40,7 +40,7 @@ export class AnalyzeBranchCommitsCommandHandler implements ICommandHandler {
             return;
         }
 
-        const findings = [];
+        const findings: any[] = [];
 
         let processed = 0;
 

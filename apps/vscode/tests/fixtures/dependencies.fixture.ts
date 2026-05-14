@@ -15,7 +15,9 @@ export function createDependencies(overrides: Record<string, unknown> = {}) {
       applyFix: vi.fn(async () => undefined)
     },
     reviewRepository: {
-      getSessionByBranch: vi.fn(async () => undefined)
+      getSessionByBranch: vi.fn(async () => undefined),
+      getSessionById: vi.fn(async () => undefined),
+      saveSession: vi.fn(async () => undefined)
     },
     contextEngine: {},
     validateFindingUseCase: {

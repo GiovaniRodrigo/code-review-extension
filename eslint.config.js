@@ -4,10 +4,14 @@ import tseslint from 'typescript-eslint';
 export default [
   {
     ignores: [
-      'node_modules/**',
-      'dist/**',
-      'coverage/**',
-      'apps/vscode/dist/**'
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/coverage/**',
+      '**/.turbo/**',
+      '**/.next/**',
+      '**/.vscode-test/**',
+      '**/out/**'
     ]
   },
   js.configs.recommended,

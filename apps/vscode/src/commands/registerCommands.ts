@@ -20,6 +20,7 @@ import { SetGitLabUrlCommand } from './SetGitLabUrlCommand';
 export function registerCommands(
   dependencies: IExtensionDependencies
 ): void {
+  console.log('[DEBUG] Registering old system commands...');
   const registry = new CommandRegistry(dependencies);
 
   registry.registerAll([

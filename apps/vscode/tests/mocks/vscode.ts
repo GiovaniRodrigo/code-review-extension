@@ -45,6 +45,12 @@ export enum DiagnosticSeverity {
   Hint = 3
 }
 
+export enum ConfigurationTarget {
+  Global = 1,
+  Workspace = 2,
+  WorkspaceFolder = 3
+}
+
 export enum TextEditorRevealType {
   Default = 0,
   InCenter = 1,
@@ -68,7 +74,8 @@ export const workspace = {
   workspaceFolders: [{ name: 'main', uri: { fsPath: '/tmp/workspace' } }],
 
   getConfiguration: vi.fn(() => ({
-    get: vi.fn((_key: string, defaultValue?: unknown) => defaultValue)
+    get: vi.fn((_key: string, defaultValue?: unknown) => defaultValue),
+    update: vi.fn().mockResolvedValue(undefined)
   })),
 
   openTextDocument: vi.fn()
@@ -88,6 +95,7 @@ export const window = {
   showErrorMessage: vi.fn(),
   showWarningMessage: vi.fn(),
   showInputBox: vi.fn(),
+  showQuickPick: vi.fn(),
 
   showTextDocument: vi.fn(),
   createWebviewPanel: vi.fn(),

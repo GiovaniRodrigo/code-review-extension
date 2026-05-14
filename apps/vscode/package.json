@@ -1,11 +1,14 @@
 {
   "name": "vscode-code-review",
+  "publisher": "code-review",
   "displayName": "AI Code Review",
   "description": "AI-assisted Code Review Extension",
   "version": "2.0.0",
   "scripts": {
+    "compile": "tsc -p .",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --sourcemap --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --outfile=dist/extension.js",
     "test": "vitest run --config vitest.config.ts",
+    "test:e2e": "npm run compile && node ./out/apps/vscode/tests/e2e/runTest.js",
     "package": "npm run build && vsce package --allow-missing-repository",
     "publish": "vsce publish"
   },
@@ -15,7 +18,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -109,8 +114,18 @@
       "code-review": [
         {
           "type": "webview",
+          "id": "code-review.dashboard",
+          "name": "Dashboard"
+        },
+        {
+          "type": "webview",
           "id": "code-review.findingsView",
-          "name": "Findings"
+          "name": "Review Findings"
+        },
+        {
+          "type": "webview",
+          "id": "code-review.ragStatus",
+          "name": "RAG Status"
         }
       ]
     },

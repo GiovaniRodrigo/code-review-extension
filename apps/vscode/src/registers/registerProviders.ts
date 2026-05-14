@@ -11,11 +11,7 @@ export function registerProviders(
       container.dashboardProvider
     ),
     vscode.window.registerWebviewViewProvider(
-      'code-review.ragStatus',
-      container.ragStatusProvider
-    ),
-    vscode.window.registerWebviewViewProvider(
-      'code-review.reviewPanel',
+      'code-review.findingsView',
       container.reviewPanelProvider
     )
   );

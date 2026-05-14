@@ -3,8 +3,9 @@ import * as vscode from "vscode";
 
 describe("Extension Activation E2E", () => {
   it("should activate extension", async () => {
+    console.log("All extensions:", vscode.extensions.all.map(e => e.id));
     const extension = vscode.extensions.getExtension(
-      "code-review-extension"
+      "code-review.vscode-code-review"
     );
 
     assert.ok(extension);

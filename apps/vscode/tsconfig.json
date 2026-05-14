@@ -1,12 +1,18 @@
 {
     "compilerOptions": {
+        "outDir": "out",
         "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
         "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": false,
         "types": [
             "node",
-            "vscode"
+            "vscode",
+            "mocha"
         ],
         "paths": {
             "@code-review/core": [

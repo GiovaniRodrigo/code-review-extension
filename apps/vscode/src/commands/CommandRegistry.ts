@@ -10,8 +10,12 @@ export class CommandRegistry {
   ) { }
 
   register(command: ICommand): void {
-    this.commands.push(command);
-    command.register(this.dependencies.context);
+    try {
+        this.commands.push(command);
+        command.register(this.dependencies.context);
+    } catch (error) {
+        console.error(`Failed to register command ${command.id}:`, error);
+    }
   }
 
   registerAll(commands: { new(deps: IExtensionDependencies): ICommand }[]): void {

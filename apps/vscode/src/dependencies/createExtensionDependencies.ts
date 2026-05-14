@@ -66,6 +66,8 @@ import { OpenAIEmbeddingProvider } from '../services/rag/providers/OpenAIEmbeddi
 export function createExtensionDependencies(
   context: vscode.ExtensionContext
 ): IExtensionDependencies {
+  console.log('[DEBUG] Creating extension dependencies...');
+
 
   /*
   |--------------------------------------------------------------------------

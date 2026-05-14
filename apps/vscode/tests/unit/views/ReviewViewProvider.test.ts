@@ -88,4 +88,44 @@ describe('ReviewViewProvider', () => {
 
     expect(ideAdapter.applyFix).toHaveBeenCalledWith(pendingFinding);
   });
+
+  it('notifica estado de loading', () => {
+    const provider = new ReviewViewProvider(extensionUri, {} as any, {} as any);
+    const { view } = createWebviewView();
+    provider.resolveWebviewView(view, {} as any, {} as any);
+
+    provider.setLoading('Analisando...');
+
+    expect(view.webview.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'loading',
+      message: 'Analisando...'
+    }));
+  });
+
+  it('notifica erro', () => {
+    const provider = new ReviewViewProvider(extensionUri, {} as any, {} as any);
+    const { view } = createWebviewView();
+    provider.resolveWebviewView(view, {} as any, {} as any);
+
+    provider.setError('Falha crítica');
+
+    expect(view.webview.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'error',
+      message: 'Falha crítica'
+    }));
+  });
+
+  it('limpa o estado', () => {
+    const provider = new ReviewViewProvider(extensionUri, {} as any, {} as any);
+    const { view } = createWebviewView();
+    provider.resolveWebviewView(view, {} as any, {} as any);
+
+    provider.clear();
+
+    expect(view.webview.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'idle',
+      sessionId: undefined,
+      findings: []
+    }));
+  });
 });

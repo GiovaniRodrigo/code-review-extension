@@ -3,6 +3,10 @@ import { TestToolResult } from './TestTool';
 export interface QualityGateReport {
   passed: boolean;
   results: TestToolResult[];
+  metrics?: {
+    coverage: number;
+    mutationScore: number;
+  };
 }
 
 export class QualityGate {
