@@ -8,3 +8,5 @@ out/
 build/
 .vscode-test/
 reports/
+.stryker-tmp/sandbox-kwFeUJ/
+reports/mutation/mutation.html
