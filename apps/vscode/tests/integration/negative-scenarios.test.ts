@@ -153,4 +153,20 @@ describe('Negative Scenarios', () => {
         }
     });
   });
+
+  it('should handle missing AI provider gracefully during analysis', async () => {
+    mockContainer.analyzeCodeWithAIUseCase.execute = vi.fn().mockRejectedValue(new Error('No AI Provider'));
+    
+    await analyzeCommand.execute(mockContainer);
+    expect(mockContainer.notifications.error).toHaveBeenCalledWith(expect.stringContaining('Failed to analyze'));
+  });
+
+  it('should handle malformed git diff gracefully', async () => {
+    const { RagReviewOrchestrator } = await import('@code-review/core');
+    const orchestrator = new RagReviewOrchestrator({} as any, {} as any, {} as any);
+    
+    // Check if the property exists before calling
+    const method = (orchestrator as any).orchestrate ? 'orchestrate' : 'buildPrompt';
+    await expect((orchestrator as any)[method]('')).rejects.toThrow();
+  });
 });

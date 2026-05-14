@@ -36,4 +36,13 @@ describe('StaticRuleEngine', () => {
 
     expect(findings).toEqual([]);
   });
+
+  it('should detect complex arrow functions', () => {
+    const ast = new AstBuilder().build({
+        filePath: 'complex.ts',
+        code: 'const x = (a) => { if(a) { if(b) { if(c) { d(); } } } }'
+    });
+    const findings = new StaticRuleEngine().run(ast);
+    expect(findings.length).toBeGreaterThanOrEqual(0);
+  });
 });

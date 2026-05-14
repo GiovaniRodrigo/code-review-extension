@@ -52,4 +52,11 @@ describe('FindingCard', () => {
     expect(screen.queryByText('Approve')).toBeNull();
     expect(screen.getByText('Status: approved')).toBeDefined();
   });
+
+  it('should render correct severity text color', () => {
+    render(<FindingCard finding={mockFinding} onApprove={onApprove} onReject={onReject} />);
+    const severityElement = screen.getByText('ERROR');
+    // Check style property instead of class
+    expect(severityElement.style.color).toBe('rgb(244, 67, 54)'); // #f44336
+  });
 });

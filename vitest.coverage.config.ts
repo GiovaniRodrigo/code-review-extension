@@ -18,7 +18,9 @@ const coverageConfig = mergeConfig(baseConfig, {
       exclude: [
         '**/*.spec.ts',
         '**/*.test.ts',
-        'apps/vscode/tests/**',
+        '**/*.test.tsx',
+        '**/*.test.js',
+        'apps/vscode/tests/e2e/**',
 
         '**/*.d.ts',
         '**/index.ts',
@@ -37,36 +39,9 @@ const coverageConfig = mergeConfig(baseConfig, {
         '**/.vscode-test/**',
         '**/node_modules/**',
         '**/*.config.ts',
+        '**/*.config.js',
         '**/.dependency-cruiser.cjs',
-        '**/extension.ts',
-
-        '**/commands/ai/**',
-        '**/commands/rag/**',
-        '**/commands/review/**',
-        '**/commands/vps/**',
-        '**/application/rag/**',
-        '**/application/ai/**',
-        '**/rag/providers/**',
-        '**/rag/chunkers/**',
-        '**/rag/context/**',
-        '**/rag/search/**',
-        '**/rag/loaders/**',
-        '**/rag/indexers/**',
-        '**/rag/vector-stores/**',
-        '**/rag/embeddings/**',
-        'apps/eclipse/**',
-        'apps/emacs/**',
-        'apps/fleet/**',
-        'apps/jetbrains/**',
-        'apps/neovim/**',
-        'apps/sublime/**',
-        'apps/vim/**',
-        'apps/visualstudio/**',
-        'apps/zed/**',
-        '**/PinoLogger.ts',
-        '**/CommandTestTool.ts',
-        '**/createDefaultTestTools.ts',
-        '**/NodeCommandRunner.ts'
+        '**/extension.ts'
       ]
     }
   }
@@ -74,10 +49,10 @@ const coverageConfig = mergeConfig(baseConfig, {
 
 coverageConfig.test!.coverage!.thresholds = {
   global: {
-    statements: 50,
-    branches: 70,
-    functions: 53,
-    lines: 50
+    statements: 75,
+    branches: 75,
+    functions: 70,
+    lines: 75
   },
 
   'packages/domain/**': {

@@ -1,12 +1,30 @@
-const vscode = acquireVsCodeApi();
-const app = document.getElementById('app');
+let vscode;
+function acquireApi() {
+    try {
+        vscode = acquireVsCodeApi();
+    } catch {
+        // For tests
+    }
+}
 
-window.addEventListener('message', event => {
-    renderState(event.data);
-});
+const reviewView = {
+    renderState,
+    renderFinding,
+    bindEvents,
+    escapeHtml,
+    initialize,
+    setApi: (api) => { vscode = api; }
+};
+
+function initialize() {
+    window.addEventListener('message', event => {
+        renderState(event.data);
+    });
+}
 
 function renderState(message) {
-    if (message.type !== 'state') return;
+    const app = document.getElementById('app');
+    if (!app || message.type !== 'state') return;
 
     const findings = message.findings || [];
 
@@ -118,10 +136,12 @@ function bindEvents() {
         button.addEventListener('click', event => {
             event.preventDefault();
 
-            vscode.postMessage({
-                type: button.dataset.action,
-                id: button.dataset.id
-            });
+            if (vscode) {
+                vscode.postMessage({
+                    type: button.dataset.action,
+                    id: button.dataset.id
+                });
+            }
         });
     });
 }
@@ -147,4 +167,12 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
     return escapeHtml(value);
+}
+
+// Export for tests or attach to window for browser
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = reviewView;
+} else {
+    window.reviewView = reviewView;
+    initialize();
 }

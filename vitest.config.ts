@@ -250,6 +250,11 @@ export default defineConfig({
       '@code-review/infra': path.resolve(
         __dirname,
         'packages/infra/src/index.ts'
+      ),
+
+      '@apps': path.resolve(
+        __dirname,
+        'apps'
       )
     }
   }
