@@ -17,6 +17,7 @@ const reviewView = {
 };
 
 function initialize() {
+    acquireApi();
     window.addEventListener('message', event => {
         renderState(event.data);
     });

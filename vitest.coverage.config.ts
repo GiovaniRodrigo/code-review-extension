@@ -40,8 +40,7 @@ const coverageConfig = mergeConfig(baseConfig, {
         '**/node_modules/**',
         '**/*.config.ts',
         '**/*.config.js',
-        '**/.dependency-cruiser.cjs',
-        '**/extension.ts'
+        '**/.dependency-cruiser.cjs'
       ]
     }
   }

@@ -27,7 +27,7 @@ export default defineConfig({
       vscode: path.resolve(__dirname, 'apps/vscode/tests/mocks/vscode.ts'),
       '@code-review/core': path.resolve(__dirname, 'packages/core/src/index.ts'),
       '@code-review/domain': path.resolve(__dirname, 'packages/domain/src/index.ts'),
-      '@code-review/infra': path.resolve(__dirname, 'packages/infra/src/index.ts')
+      '@code-review/infra': path.resolve(__dirname, 'packages/infra/src/index.ts'), '@apps': path.resolve(__dirname, 'apps')
     }
   }
 });
