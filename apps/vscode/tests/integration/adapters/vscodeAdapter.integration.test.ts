@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as vscode from 'vscode';
+import { execFile } from 'node:child_process';
 import { VSCodeAdapter } from '../../../src/adapters/ide/VSCodeAdapter';
+
+vi.mock('node:child_process', () => ({
+  execFile: vi.fn()
+}));
 
 describe('VSCodeAdapter Integration', () => {
   let adapter: VSCodeAdapter;
@@ -174,5 +179,70 @@ describe('VSCodeAdapter Integration', () => {
     await adapter.applyFix(mockFinding);
 
     expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+  });
+
+  it('should handle missing workspace folder gracefully', async () => {
+    (vscode.workspace.workspaceFolders as any) = [];
+    await expect(adapter.getPullRequests()).rejects.toThrow('No workspace folder');
+  });
+
+  it('should handle git show with renamed files', async () => {
+    // This is essentially testing _parseChangedFile through getCommitChangedFiles
+    const mockHash = 'abc1234';
+    vi.mocked(execFile).mockImplementation((_cmd, _args, _opts, callback) => {
+        (callback as any)(null, { stdout: 'R090\told_file.ts\tnew_file.ts\n' });
+        return {} as any;
+    });
+
+    const files = await adapter.getCommitChangedFiles(mockHash);
+    expect(files[0].path).toBe('new_file.ts');
+    expect(files[0].status).toBe('renamed');
+  });
+
+  it('should handle git show with unknown status', async () => {
+    const mockHash = 'abc1234';
+    vi.mocked(execFile).mockImplementation((_cmd, _args, _opts, callback) => {
+        (callback as any)(null, { stdout: 'X\tfile.ts\n' });
+        return {} as any;
+    });
+
+    const files = await adapter.getCommitChangedFiles(mockHash);
+    expect(files[0].status).toBe('unknown');
+  });
+
+  it('should return commit diff', async () => {
+    const mockHash = 'abc1234';
+    const mockDiff = 'diff --git a/test.ts b/test.ts...';
+    vi.mocked(execFile).mockImplementation((_cmd, _args, _opts, callback) => {
+        (callback as any)(null, { stdout: mockDiff });
+        return {} as any;
+    });
+
+    const diff = await adapter.getCommitDiff(mockHash);
+    expect(diff).toBe(mockDiff);
+  });
+
+  it('should return branch commits', async () => {
+    const mockCommits = 'hash1\tauthor1\tdate1\tmsg1\nhash2\tauthor2\tdate2\tmsg2\n';
+    vi.mocked(execFile).mockImplementation((_cmd, _args, _opts, callback) => {
+        (callback as any)(null, { stdout: mockCommits });
+        return {} as any;
+    });
+
+    const commits = await adapter.getBranchCommits('main');
+    expect(commits).toHaveLength(2);
+    expect(commits[0].hash).toBe('hash1');
+  });
+
+  it('should return pull requests', async () => {
+    const mockPrs = JSON.stringify([{ number: 1, title: 'PR 1' }]);
+    vi.mocked(execFile).mockImplementation((_cmd, _args, _opts, callback) => {
+        (callback as any)(null, { stdout: mockPrs });
+        return {} as any;
+    });
+
+    const prs = await adapter.getPullRequests();
+    expect(prs).toHaveLength(1);
+    expect(prs[0].number).toBe(1);
   });
 });

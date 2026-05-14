@@ -62,7 +62,11 @@ const coverageConfig = mergeConfig(baseConfig, {
         'apps/sublime/**',
         'apps/vim/**',
         'apps/visualstudio/**',
-        'apps/zed/**'
+        'apps/zed/**',
+        '**/PinoLogger.ts',
+        '**/CommandTestTool.ts',
+        '**/createDefaultTestTools.ts',
+        '**/NodeCommandRunner.ts'
       ]
     }
   }

@@ -12,7 +12,9 @@
 
   "mutate": [
     "packages/domain/src/**/*.ts",
-    "packages/application/src/**/*.ts",
+    "packages/core/src/application/use-cases/**/*.ts",
+    "packages/core/src/application/services/ai/*.ts",
+    "packages/core/src/shared/**/*.ts",
     "packages/analyzers/src/**/*.ts",
 
     "!**/*.test.ts",
@@ -25,7 +27,7 @@
   "thresholds": {
     "high": 80,
     "low": 60,
-    "break": 50
+    "break": 60
   },
 
   "vitest": {

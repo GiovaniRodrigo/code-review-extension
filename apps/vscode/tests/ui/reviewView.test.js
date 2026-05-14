@@ -11,7 +11,7 @@ describe('reviewView.js', () => {
   beforeEach(() => {
     // Setup DOM
     document.body.innerHTML = '<div id="app"></div>';
-
+    
     // Mock VSCode API
     vscodeMock = {
       postMessage: vi.fn()
@@ -19,20 +19,14 @@ describe('reviewView.js', () => {
     globalThis.acquireVsCodeApi = () => vscodeMock;
 
     // Load the script
-    const scriptPath = path.resolve(
-      'apps/vscode/src/ui/js/reviewView.js'
-    );
+    const scriptPath = path.resolve(__dirname, '../../src/ui/js/reviewView.js');
     const scriptContent = fs.readFileSync(scriptPath, 'utf8');
-
-    // We need to execute the script content in the current context
-    // Since it's a simple JS file that assumes browser globals, we can eval it or use a script tag
-    // For simplicity in Vitest, we'll wrap it in a function or just eval it.
+    
     try {
       const fn = new Function('acquireVsCodeApi', 'document', 'window', scriptContent);
       fn(globalThis.acquireVsCodeApi, document, window);
     } catch {
-      // If eval fails due to existing constants, we might need a more isolated approach
-      // but let's try this first.
+      // Ignore if eval fails due to existing constants
     }
   });
 
