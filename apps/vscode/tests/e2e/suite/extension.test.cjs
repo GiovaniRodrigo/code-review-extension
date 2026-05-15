@@ -7,7 +7,7 @@ suite('Extension E2E', function () {
   test('should activate extension', async () => {
     const extension =
       vscode.extensions.getExtension(
-        'code-review.vscode-code-review'
+        'CodeReviewExtension.git-code-review'
       );
 
     assert.ok(extension, 'Extension should be found');
@@ -93,7 +93,7 @@ suite('Extension E2E', function () {
   test('should keep extension active after UI command', async () => {
     const extension =
       vscode.extensions.getExtension(
-        'code-review.vscode-code-review'
+        'CodeReviewExtension.git-code-review'
       );
 
     assert.ok(extension, 'Extension should be found');

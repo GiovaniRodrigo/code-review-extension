@@ -13,7 +13,7 @@
     "lint:eslint": "eslint .",
     "arch:depcruise": "depcruise packages apps/vscode/src --config .dependency-cruiser.cjs",
     "arch:madge": "madge packages apps/vscode/src --circular --extensions ts",
-    "test": "vitest run --exclude \"apps/vscode/tests/e2e/**\"",
+    "test": "vitest run --exclude \"apps/vscode/tests/e2e/**\" --coverage.enabled=false",
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --config vitest.coverage.config.ts --coverage",
@@ -24,7 +24,7 @@
     "build": "turbo build",
     "package:vscode": "cd apps/vscode && npm run package",
     "test:full": "npm run test:all && npm run test:mutation",
-    "quality": "npm run lint && npm run build && npm run test && npm run test:e2e && npm run test:runtime && npm run test:mutation",
+    "quality": "rm -rf .stryker-tmp coverage mutation-report && npm run lint && npm run build && npm run test && npm run test:coverage && npm run test:e2e && npm run test:runtime && npm run test:mutation",
     "test:ui": "vitest run apps/vscode/tests/unit/views apps/vscode/tests/unit/providers apps/vscode/tests/unit/webview",
     "test:ui:integration": "vitest run apps/vscode/tests/integration/views apps/vscode/tests/integration/webview",
     "audit:critical": "npm audit --audit-level=critical"
