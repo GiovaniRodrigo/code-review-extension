@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import {
@@ -130,7 +131,7 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async showFinding(finding: Finding): Promise<void> {
-    const uri = vscode.Uri.file(finding.file);
+    const uri = this._resolveUri(finding.file);
     const line = Math.max((finding.line || 1) - 1, 0);
     const column = Math.max((finding.column || 1) - 1, 0);
     const range = new vscode.Range(line, column, line, column);
@@ -153,7 +154,7 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   async focusFinding(finding: Finding): Promise<void> {
-    const uri = vscode.Uri.file(finding.file);
+    const uri = this._resolveUri(finding.file);
     const line = Math.max((finding.line || 1) - 1, 0);
     const column = Math.max((finding.column || 1) - 1, 0);
     const range = new vscode.Range(line, column, line, column);
@@ -179,7 +180,7 @@ export class VSCodeAdapter implements IDEAdapter {
       return;
     }
 
-    const uri = vscode.Uri.file(finding.file);
+    const uri = this._resolveUri(finding.file);
     const document = await vscode.workspace.openTextDocument(uri);
     const editor = await vscode.window.showTextDocument(document);
     const lineIndex = Math.max((finding.line || 1) - 1, 0);
@@ -268,7 +269,7 @@ export class VSCodeAdapter implements IDEAdapter {
     }, {} as Record<string, Finding[]>);
 
     for (const file in byFile) {
-        const uri = vscode.Uri.file(file);
+        const uri = this._resolveUri(file);
         const diagnostics = byFile[file].map(f => {
             const line = Math.max((f.line || 1) - 1, 0);
             const column = Math.max((f.column || 1) - 1, 0);
@@ -329,6 +330,19 @@ export class VSCodeAdapter implements IDEAdapter {
       path: secondPath || firstPath,
       status: statusMap[statusKey] || 'unknown'
     };
+  }
+
+  private _resolveUri(filePath: string): vscode.Uri {
+    if (path.isAbsolute(filePath)) {
+        return vscode.Uri.file(filePath);
+    }
+    
+    try {
+        const workspacePath = this._getWorkspacePath();
+        return vscode.Uri.file(path.resolve(workspacePath, filePath));
+    } catch {
+        return vscode.Uri.file(filePath);
+    }
   }
 
   private _toDiagnosticSeverity(severity: Finding['severity']): vscode.DiagnosticSeverity {

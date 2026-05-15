@@ -10,6 +10,28 @@ import {
 
 export class TypeScriptAstBuilder implements AstBuilderPort {
   async build(input: AstBuildInput): Promise<AstBuildResult> {
+    const ext = input.filePath.split('.').pop()?.toLowerCase();
+    const isSupported = ['ts', 'tsx', 'js', 'jsx'].includes(ext || '');
+
+    if (!isSupported) {
+      return {
+        filePath: input.filePath,
+        language: input.language || 'unknown',
+        root: {
+          kind: 'sourceFile',
+          name: input.filePath,
+          startLine: 1,
+          endLine: input.code.split('\n').length,
+          children: []
+        },
+        metrics: {
+          imports: 0, exports: 0, classes: 0, interfaces: 0,
+          functions: 0, methods: 0, properties: 0, variables: 0,
+          maxDepth: 1
+        }
+      };
+    }
+
     const project = new Project({ useInMemoryFileSystem: true });
     const sourceFile = project.createSourceFile(input.filePath, input.code);
 
