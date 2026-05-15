@@ -20,19 +20,30 @@ export class OllamaProvider implements AIProvider {
     input: AIAnalysisInput
   ): Promise<AIAnalysisResult> {
 
+    const code =
+      input.code.length > 12000
+        ? input.code.slice(0, 12000)
+        : input.code;
     const prompt = `
-You MUST return ONLY valid JSON.
+You are a senior software engineer performing CODE REVIEW.
+
+You MUST analyze the code and return ONLY valid JSON.
+
+Do NOT summarize what the code does.
+Do NOT return success messages.
+Do NOT return {"error": false}.
+Do NOT say the services were registered successfully.
 
 Rules:
 - No markdown
-- No explanation
+- No explanation outside JSON
 - No comments
 - No trailing commas
 - Use double quotes in all properties
 - Output must start with {
 - Output must end with }
 
-Schema:
+Required schema:
 {
   "findings": [
     {
@@ -46,10 +57,26 @@ Schema:
 }
 
 Allowed severity values:
-info, warning, critical
+- info
+- warning
+- critical
+
+Review checklist:
+- duplicated bindings
+- duplicated service registrations
+- unused imports
+- excessive responsibility in one class
+- unsafe global configuration
+- misleading feature flags
+- inconsistent dependency injection patterns
+- hardcoded environment behavior
+- maintainability issues
+
+Important:
+If the code has duplicated bindings or duplicated service registrations, findings MUST NOT be empty.
 
 Code:
-${input.code}
+${code}
 `;
 
     try {
@@ -62,13 +89,19 @@ ${input.code}
             stream: false,
             format: 'json',
             options: {
-              temperature: 0
+              temperature: 0,
+              num_ctx: 8192
             }
           },
           {
             signal: (input as any).signal
           }
         );
+
+      console.log(
+        '[OLLAMA RAW RESPONSE]',
+        JSON.stringify(response.data, null, 2)
+      );
 
       const content =
         response.data?.response;
@@ -77,13 +110,16 @@ ${input.code}
         throw new Error('Invalid Ollama response');
       }
 
+      console.log('[OLLAMA CONTENT]', content);
+
       const jsonContent =
         this.extractJson(content);
 
       let parsed: any;
 
       try {
-        parsed = JSON.parse(jsonContent);
+        parsed =
+          JSON.parse(jsonContent);
       } catch {
         return {
           findings: [
@@ -92,7 +128,22 @@ ${input.code}
               severity: 'warning',
               message: content.slice(0, 500),
               suggestedFix:
-                'A IA local retornou JSON inválido. Revise o prompt ou use outro modelo.'
+                'A IA local retornou JSON inválido.'
+            }
+          ],
+          confidenceScore: 0
+        };
+      }
+
+      if (!Array.isArray(parsed.findings)) {
+        return {
+          findings: [
+            {
+              line: 1,
+              severity: 'warning',
+              message: content.slice(0, 500),
+              suggestedFix:
+                'A IA retornou JSON válido, mas fora do schema esperado para code review.'
             }
           ],
           confidenceScore: 0
@@ -100,10 +151,7 @@ ${input.code}
       }
 
       return {
-        findings:
-          Array.isArray(parsed.findings)
-            ? parsed.findings
-            : [],
+        findings: parsed.findings,
 
         confidenceScore:
           typeof parsed.confidenceScore === 'number'
