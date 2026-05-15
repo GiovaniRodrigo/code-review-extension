@@ -12,7 +12,8 @@ export default [
       '**/.next/**',
       '**/.vscode-test/**',
       '**/out/**',
-      '**/tests/e2e/**/*.cjs'
+      '**/tests/e2e/**/*.cjs',
+      '**/tests/runtime/**/*.cjs'
     ]
   },
   js.configs.recommended,

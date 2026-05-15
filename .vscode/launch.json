@@ -7,12 +7,40 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode"
+                "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
+                "--disable-extensions"
             ],
             "outFiles": [
                 "${workspaceFolder}/apps/vscode/dist/**/*.js"
             ],
-            "preLaunchTask": "build:vscode"
+            "preLaunchTask": "build:vscode",
+            "smartStep": true,
+            "sourceMaps": true
+        },
+        {
+            "name": "Extension E2E Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
+                "--extensionTestsPath=${workspaceFolder}/apps/vscode/tests/e2e/suite/index.cjs",
+                "--disable-extensions"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/apps/vscode/dist/**/*.js"
+            ],
+            "preLaunchTask": "build:vscode",
+            "smartStep": true,
+            "sourceMaps": true
+        },
+        {
+            "name": "Attach to Extension Host",
+            "type": "node",
+            "request": "attach",
+            "port": 5870,
+            "restart": true,
+            "timeout": 30000
         }
     ]
 }

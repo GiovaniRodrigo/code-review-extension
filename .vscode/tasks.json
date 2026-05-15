@@ -8,6 +8,16 @@
             "options": {
                 "cwd": "${workspaceFolder}/apps/vscode"
             },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "test:runtime",
+            "type": "shell",
+            "command": "npm run test:runtime",
             "problemMatcher": []
         }
     ]

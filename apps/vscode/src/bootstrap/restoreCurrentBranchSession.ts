@@ -9,6 +9,6 @@ export async function restoreCurrentBranchSession(context: vscode.ExtensionConte
     // We'll just log and notify for this refactor phase.
     console.log(`[BOOTSTRAP] Restoring session for branch: ${branch}`);
   } catch (error: any) {
-    console.warn(`[BOOTSTRAP] Could not restore review session: ${error.message}`);
+    console.debug(`[BOOTSTRAP] Could not restore review session: ${error.message}`);
   }
 }

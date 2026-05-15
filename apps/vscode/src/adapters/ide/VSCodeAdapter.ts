@@ -42,7 +42,8 @@ export class VSCodeAdapter implements IDEAdapter {
       const branch = repository?.state?.HEAD?.name;
 
       return branch || this._getWorkspaceFallbackBranch();
-    } catch {
+    } catch (error) {
+      console.debug('[VSCodeAdapter] Git extension activation failed or unavailable:', error);
       return this._getWorkspaceFallbackBranch();
     }
   }
