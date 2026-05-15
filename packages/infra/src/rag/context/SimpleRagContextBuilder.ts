@@ -1,13 +1,16 @@
 import type { RagChunkDTO } from '../../../../core/src/application/dto/rag/RagDTO';
 import type { RagContextBuilderPort } from '../../../../core/src/ports/rag/RagContextBuilderPort';
+import type { RagVectorStorePort } from '../../../../core/src/ports/rag/RagVectorStorePort';
+import type { RagEmbeddingProviderPort } from '../../../../core/src/ports/rag/RagEmbeddingProviderPort';
 
 export class SimpleRagContextBuilder implements RagContextBuilderPort {
-  constructor(private readonly chunks: RagChunkDTO[] = []) {}
+  constructor(
+    private readonly vectorStore: RagVectorStorePort,
+    private readonly embeddingProvider: RagEmbeddingProviderPort
+  ) {}
 
   async buildContext(query: string): Promise<RagChunkDTO[]> {
-    const normalized = query.toLowerCase();
-    return this.chunks
-      .filter(chunk => chunk.content.toLowerCase().includes(normalized))
-      .slice(0, 5);
+    const vector = await this.embeddingProvider.generateEmbedding(query);
+    return this.vectorStore.search(vector, 5);
   }
 }

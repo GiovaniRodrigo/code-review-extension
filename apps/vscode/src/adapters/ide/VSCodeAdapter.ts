@@ -140,7 +140,12 @@ export class VSCodeAdapter implements IDEAdapter {
     diagnostic.source = 'AI Code Review';
     diagnostic.code = finding.id;
 
-    this.diagnosticCollection?.set(uri, [diagnostic]);
+    const currentDiagnostics = Array.from(this.diagnosticCollection?.get(uri) || []);
+    
+    // Avoid duplicates
+    if (!currentDiagnostics.some(d => d.code === finding.id)) {
+        this.diagnosticCollection?.set(uri, [...currentDiagnostics, diagnostic]);
+    }
 
     vscode.window.showInformationMessage(
       `Finding approved: ${finding.message} at line ${finding.line}`
@@ -220,6 +225,29 @@ export class VSCodeAdapter implements IDEAdapter {
     }
 
     vscode.window.showInformationMessage(message);
+  }
+
+  onBranchChange(callback: (branch: string) => void): void {
+    try {
+      const gitExtension = vscode.extensions.getExtension('vscode.git');
+      if (!gitExtension) return;
+
+      const git = gitExtension.exports?.getAPI?.(1);
+      const repository = git?.repositories?.[0];
+
+      if (repository) {
+        repository.state.onDidChange(() => {
+          const branch = repository.state.HEAD?.name;
+          if (branch) callback(branch);
+        });
+      }
+    } catch (error) {
+      console.debug('[VSCodeAdapter] Failed to register branch change listener:', error);
+    }
+  }
+
+  clearDiagnostics(): void {
+    this.diagnosticCollection?.clear();
   }
 
   private async _getCommitMetadata(commitHash: string): Promise<BranchCommit> {

@@ -18,4 +18,13 @@ export class CodeReviewService {
     await this.repository.saveSession(session);
     return session;
   }
+
+  async getByBranch(branch: string): Promise<ReviewSession | null> {
+    return this.repository.getSessionByBranch(branch);
+  }
+
+  async update(session: ReviewSession): Promise<void> {
+    session.updatedAt = new Date();
+    await this.repository.saveSession(session);
+  }
 }

@@ -33,12 +33,38 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     }
   });
 
+  container.commands.register('code-review.indexRepositoryRag', async () => {
+    try {
+      const workspacePath = container.workspace.getWorkspacePath();
+      if (!workspacePath) throw new Error('No workspace folder opened.');
+      
+      await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: 'Indexing repository for RAG...',
+        cancellable: false
+      }, async () => {
+        await container.indexRepositoryRagUseCase.execute(workspacePath);
+      });
+      
+      await container.notifications.info('Repository indexed successfully.');
+    } catch (e: any) {
+      await container.notifications.error(`Failed to index: ${e.message}`);
+    }
+  });
+
+  container.commands.register('code-review.clearRepositoryRag', async () => {
+    try {
+      await container.clearRepositoryRagUseCase.execute();
+      await container.notifications.info('RAG index cleared.');
+    } catch (e: any) {
+      await container.notifications.error(`Failed to clear RAG: ${e.message}`);
+    }
+  });
+
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
     'code-review.analyzeBranchCommits',
     'code-review.analyzePr',
-    'code-review.clearRepositoryRag',
-    'code-review.indexRepositoryRag',
     'code-review.publishPrReview',
     'code-review.searchRepositoryContext',
     'code-review.setGitLabCredentials',

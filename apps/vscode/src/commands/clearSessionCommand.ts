@@ -6,6 +6,7 @@ export const clearSessionCommand = {
     try {
       const branch = await container.ide.getActiveBranch();
       await container.deleteCodeReviewUseCase.execute(branch);
+      container.ide.clearDiagnostics();
       await container.reviewPanelProvider.refresh();
       await container.notifications.info(`Review session cleared for branch ${branch}.`);
     } catch (e: any) {

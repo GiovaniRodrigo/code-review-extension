@@ -4,12 +4,22 @@ import {
   AnalyzeCodeWithAIUseCase,
   CodeReviewService,
   CreateCodeReviewUseCase,
+  GetCodeReviewUseCase,
+  RevalidateCodeReviewUseCase,
   ApproveFindingUseCase,
-  DeleteCodeReviewUseCase
+  DeleteCodeReviewUseCase,
+  IndexRepositoryRagUseCase,
+  ClearRepositoryRagUseCase,
+  RagIndexingService
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
-  FileReviewRepository 
+  FileReviewRepository,
+  SimpleRagContextBuilder,
+  MemoryRagVectorStore,
+  SimpleEmbeddingProvider,
+  SimpleRagIndexer,
+  TypeScriptAstBuilder 
 } from '@code-review/infra';
 import { VSCodeIdeAdapter } from '../adapters/ide/VSCodeIdeAdapter';
 import { VSCodeWorkspaceAdapter } from '../adapters/ide/VSCodeWorkspaceAdapter';
@@ -29,8 +39,12 @@ export interface VSCodeContainer {
   storage: VSCodeStorageAdapter;
   analyzeCodeWithAIUseCase: AnalyzeCodeWithAIUseCase;
   createCodeReviewUseCase: CreateCodeReviewUseCase;
+  getCodeReviewUseCase: GetCodeReviewUseCase;
+  revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
   approveFindingUseCase: ApproveFindingUseCase;
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
+  indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
+  clearRepositoryRagUseCase: ClearRepositoryRagUseCase;
   dashboardProvider: DashboardProvider;
   ragStatusProvider: RagStatusProvider;
   reviewPanelProvider: ReviewPanelProvider;
@@ -45,6 +59,12 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
 
   const repository = new FileReviewRepository(storageDir);
   
+  const vectorStore = new MemoryRagVectorStore();
+  const embeddingProvider = new SimpleEmbeddingProvider();
+  const astBuilder = new TypeScriptAstBuilder();
+  const contextBuilder = new SimpleRagContextBuilder(vectorStore, embeddingProvider);
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder);
+
   const aiProvider = AIProviderFactory.create({
     provider: config.get<'mock' | 'ollama' | 'openai'>('provider', 'mock'),
     ollama: {
@@ -57,8 +77,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     }
   });
 
-  const aiAnalysisService = new AIAnalysisService(aiProvider as any);
+  const aiAnalysisService = new AIAnalysisService(aiProvider as any, contextBuilder);
   const codeReviewService = new CodeReviewService(repository);
+  const ragIndexingService = new RagIndexingService(ragIndexer);
   
   const ide = new VSCodeIdeAdapter();
   const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
@@ -72,8 +93,12 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     storage: new VSCodeStorageAdapter(context),
     analyzeCodeWithAIUseCase: new AnalyzeCodeWithAIUseCase(aiAnalysisService),
     createCodeReviewUseCase: new CreateCodeReviewUseCase(codeReviewService),
+    getCodeReviewUseCase: new GetCodeReviewUseCase(codeReviewService),
+    revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
     approveFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
+    indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
+    clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(),
     ragStatusProvider: new RagStatusProvider(),
     reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase)

@@ -17,6 +17,8 @@ export interface IDEAdapter {
     message: string,
     type: 'info' | 'warning' | 'error'
   ): Promise<void>;
+  onBranchChange(callback: (branch: string) => void): void;
+  clearDiagnostics(): void;
 }
 
 export interface AIAnalysisInput {

@@ -42,6 +42,9 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             await this.ide.focusFinding(finding);
           }
           break;
+        case 'revalidate':
+          await vscode.commands.executeCommand('code-review.analyze');
+          break;
       }
     });
 
@@ -62,19 +65,41 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
       return '<html><body><p>No findings for this branch.</p></body></html>';
     }
 
-    const findingsHtml = session.findings.map((f: any) => `
-      <div style="border: 1px solid #ccc; padding: 5px; margin-bottom: 5px;">
-        <strong>${f.severity.toUpperCase()}</strong>: ${f.message}<br/>
-        <small>${f.file}:${f.line}</small><br/>
-        Status: ${f.status}<br/>
-        <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
-        <button onclick="focus('${session.id}', '${f.id}')">Focus</button>
-      </div>
-    `).join('');
+    const findingsByFile = session.findings.reduce((acc: any, f: any) => {
+        if (!acc[f.file]) acc[f.file] = [];
+        acc[f.file].push(f);
+        return acc;
+    }, {});
+
+    const sectionsHtml = Object.keys(findingsByFile).map(file => {
+        const fileFindings = findingsByFile[file];
+        const itemsHtml = fileFindings.map((f: any) => `
+            <div style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px;">
+                <strong>${f.severity.toUpperCase()}</strong>: ${f.message}<br/>
+                <small>Line ${f.line}</small> | <em>${f.status}</em><br/>
+                <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
+                <button onclick="focus('${session.id}', '${f.id}')">Focus</button>
+            </div>
+        `).join('');
+
+        return `
+            <details open>
+                <summary style="font-weight: bold; cursor: pointer; padding: 5px; background: #333;">${file} (${fileFindings.length})</summary>
+                <div style="padding: 5px;">${itemsHtml}</div>
+            </details>
+        `;
+    }).join('');
 
     return `
       <html>
-        <body>
+        <body style="font-family: var(--vscode-font-family); color: var(--vscode-foreground);">
+          <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong>Branch:</strong> ${session.branch}<br/>
+                <small><strong>Approved:</strong> ${session.findings.filter((f: any) => f.status === 'approved').length}/${session.findings.length}</small>
+            </div>
+            <button onclick="revalidate()">Revalidate</button>
+          </div>
           <script>
             const vscode = acquireVsCodeApi();
             function approve(sessionId, findingId) {
@@ -83,10 +108,22 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             function focus(sessionId, findingId) {
               vscode.postMessage({ command: 'focus', sessionId, findingId });
             }
+            function revalidate() {
+              vscode.postMessage({ command: 'revalidate' });
+            }
           </script>
-          ${findingsHtml}
+          ${sectionsHtml}
         </body>
       </html>
     `;
+  }
+
+  private _getSeverityColor(severity: string): string {
+    switch (severity) {
+        case 'critical':
+        case 'error': return '#f44336';
+        case 'warning': return '#ff9800';
+        default: return '#2196f3';
+    }
   }
 }

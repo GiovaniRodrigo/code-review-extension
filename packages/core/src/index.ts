@@ -28,6 +28,8 @@ export * from './application/use-cases/rag/ClearRepositoryRagUseCase';
 export * from './application/use-cases/rag/SearchRagContextUseCase';
 export * from './application/use-cases/rag/BuildRagContextUseCase';
 export * from './application/use-cases/review/CreateCodeReviewUseCase';
+export * from './application/use-cases/review/GetCodeReviewUseCase';
+export * from './application/use-cases/review/RevalidateCodeReviewUseCase';
 export * from './application/use-cases/review/PublishCodeReviewUseCase';
 export * from './application/use-cases/review/ApproveFindingUseCase';
 export * from './application/use-cases/review/DeleteCodeReviewUseCase';
