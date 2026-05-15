@@ -2,251 +2,125 @@
 
 # Objetivo
 
-Definir a estratégia oficial de análise AST do sistema.
+Definir a estratégia oficial de análise AST da plataforma.
 
-O AST NÃO deve ser utilizado apenas para:
+O objetivo NÃO é:
 
 ```txt
-parsing de código
+parsear arquivos
 ```
 
-O AST deve funcionar como:
+O objetivo é:
 
 ```txt
-motor de inteligência estrutural
-```
-
-para o code review.
-
----
-
-# Objetivo do AST
-
-O sistema deve compreender:
-
-- estrutura do código;
-- dependências;
-- boundaries;
-- arquitetura;
-- fluxo de chamadas;
-- responsabilidades;
-- acoplamento;
-- violações arquiteturais.
-
----
-
-# Objetivo Principal
-
-A análise AST deve permitir:
-
-```txt
-Code Review Estrutural Inteligente
-```
-
-e NÃO apenas:
-
-```txt
-linting avançado
+entender estrutura, comportamento e impacto arquitetural do código
 ```
 
 ---
 
-# Capacidades Esperadas
+# Princípio Principal
 
-# 1. Estrutura do Código
+AST deve funcionar como:
 
-## O sistema deve identificar
+```txt
+camada estrutural inteligente do review
+```
 
-| Estrutura | Obrigatória |
+---
+
+# Objetivos da AST Analysis
+
+Permitir:
+
+- análise estrutural;
+- análise arquitetural;
+- análise contextual;
+- identificação de dependências;
+- governança contínua;
+- heurísticas determinísticas.
+
+---
+
+# O sistema deve analisar
+
+| Área | Obrigatória |
 |---|---|
-| classes | ✅ |
-| interfaces | ✅ |
-| funções | ✅ |
-| métodos | ✅ |
 | imports | ✅ |
-| exports | ✅ |
-| decorators | ✅ |
-| namespaces | ✅ |
-| modules | ✅ |
+| dependências | ✅ |
+| métodos | ✅ |
+| classes | ✅ |
+| módulos | ✅ |
+| boundaries | ✅ |
 
 ---
 
-# 2. Dependências
+# Objetivo
 
-## O sistema deve identificar
+Permitir:
 
-| Tipo | Obrigatório |
-|---|---|
-| dependências internas | ✅ |
-| dependências externas | ✅ |
-| dependências circulares | ✅ |
-| dependências proibidas | ✅ |
-| acoplamento excessivo | ✅ |
+```txt
+review estrutural real
+```
 
 ---
 
-# 3. Arquitetura
+# Capacidades Obrigatórias
 
-## O sistema deve identificar
-
-| Violação | Obrigatória |
-|---|---|
-| layer violation | ✅ |
-| infra leakage | ✅ |
-| IDE leakage | ✅ |
-| domain leakage | ✅ |
-| cross-module violation | ✅ |
-| forbidden imports | ✅ |
-
----
-
-# 4. Qualidade Estrutural
-
-## O sistema deve identificar
-
-| Problema | Obrigatório |
-|---|---|
-| God Class | ✅ |
-| método complexo | ✅ |
-| classe muito grande | ✅ |
-| função longa | ✅ |
-| alta complexidade | ✅ |
-| duplicação estrutural | ✅ |
-| dead code | ✅ |
-
----
-
-# 5. Inteligência Semântica
-
-## O sistema deve identificar
+# O sistema deve identificar
 
 | Capacidade | Obrigatória |
 |---|---|
-| fluxo de chamadas | ✅ |
-| ownership de responsabilidade | ✅ |
-| contexto arquitetural | ✅ |
-| padrões estruturais | ✅ |
-| comportamento estrutural | ✅ |
+| cyclic dependency | ✅ |
+| layer violation | ✅ |
+| infra leakage | ✅ |
+| acoplamento excessivo | ✅ |
+| dependência inválida | ✅ |
 
 ---
 
-# Objetivo Arquitetural
+# Estratégia Arquitetural
 
-A AST deve atuar como:
+# AST deve ajudar a validar
 
-```txt
-camada estrutural da IA
-```
-
-fornecendo contexto para:
-
-- RAG;
-- heurísticas;
-- AI findings;
-- architecture review;
-- dependency validation;
-- quality analysis.
-
----
-
-# Integração com IA
-
-## A IA deve utilizar AST para
-
-- contextualizar findings;
-- identificar arquitetura;
-- validar boundaries;
-- detectar riscos;
-- entender estrutura;
-- reduzir falsos positivos.
-
----
-
-# Integração com RAG
-
-## O AST deve enriquecer o RAG com
-
-- ownership estrutural;
-- módulos;
-- boundaries;
-- dependências;
-- relacionamentos;
-- arquitetura.
-
----
-
-# Estratégia Multi-Linguagem
-
-## O sistema deve suportar
-
-| Linguagem | Prioridade |
+| Regra | Obrigatória |
 |---|---|
-| TypeScript | Alta |
-| JavaScript | Alta |
-| PHP | Alta |
-| C# | Média |
-| Java | Média |
-| Python | Média |
-| Go | Média |
+| domínio isolado | ✅ |
+| infra desacoplada | ✅ |
+| boundaries respeitados | ✅ |
+| módulos independentes | ✅ |
 
 ---
 
-# Estratégia Inicial
+# Estratégia de Heurísticas
 
-## Prioridade inicial
+# AST deve alimentar
+
+| Camada | Obrigatória |
+|---|---|
+| heurísticas | ✅ |
+| findings | ✅ |
+| analytics | ✅ |
+| revalidação | ✅ |
+
+---
+
+# Objetivo
+
+Garantir:
 
 ```txt
-TypeScript / JavaScript
+governança determinística
 ```
 
 ---
 
-# Providers AST
+# Estratégia Incremental
 
-## O sistema deve permitir
+# O sistema deve analisar
 
-| Provider | Obrigatório |
-|---|---|
-| ts-morph | ✅ |
-| Babel Parser | ✅ |
-| Tree-sitter | ⚪ |
-| Custom AST | ⚪ |
-
----
-
-# Estratégia de Runtime
-
-## O AST NÃO pode
-
-- bloquear IDE;
-- congelar runtime;
-- consumir CPU excessivamente;
-- reprocessar infinitamente;
-- gerar leaks de memória.
-
----
-
-# Runtime deve possuir
-
-| Recurso | Obrigatório |
-|---|---|
-| cache | ✅ |
-| incremental parsing | ✅ |
-| lazy loading | ✅ |
-| cancelamento | ✅ |
-| debounce | ✅ |
-| timeout | ✅ |
-
----
-
-# Estratégia de Incremental Analysis
-
-## O sistema deve analisar apenas
-
-- arquivos alterados;
-- módulos impactados;
-- dependências relacionadas;
-- branches afetadas.
+- apenas arquivos alterados;
+- apenas módulos impactados;
+- apenas dependências relacionadas.
 
 ---
 
@@ -255,76 +129,89 @@ TypeScript / JavaScript
 Evitar:
 
 ```txt
-reanálise completa desnecessária
+reanálise estrutural completa
 ```
 
 ---
 
-# Heurísticas Estruturais
+# Estratégia de Runtime
 
-## O sistema deve permitir regras como
+# AST analysis NÃO pode
 
-| Regra | Obrigatória |
-|---|---|
-| domínio não acessa infra | ✅ |
-| UI não acessa database | ✅ |
-| adapters não acessam domínio diretamente | ✅ |
-| módulos não podem cruzar boundaries | ✅ |
-| dependências proibidas | ✅ |
+- travar IDE;
+- congelar runtime;
+- monopolizar CPU.
 
 ---
 
-# AST Findings
+# Runtime deve possuir
 
-## Findings estruturais devem possuir
+| Recurso | Obrigatório |
+|---|---|
+| cache | ✅ |
+| debounce | ✅ |
+| incremental analysis | ✅ |
+| timeout | ✅ |
+
+---
+
+# Estratégia de Findings
+
+# Findings AST devem possuir
 
 | Campo | Obrigatório |
 |---|---|
-| tipo estrutural | ✅ |
-| módulo | ✅ |
-| boundary afetado | ✅ |
-| dependência envolvida | ✅ |
+| módulo afetado | ✅ |
+| boundary | ✅ |
+| dependência | ✅ |
 | severidade | ✅ |
-| explicação | ✅ |
-| sugestão | ✅ |
+| categoria | ✅ |
 
 ---
 
-# Categorias AST
+# Estratégia de Revalidação
 
-| Categoria | Descrição |
+# AST deve ajudar a detectar
+
+| Situação | Obrigatória |
 |---|---|
-| ARCHITECTURE | violação arquitetural |
-| STRUCTURE | problema estrutural |
-| DEPENDENCY | problema de dependência |
-| COMPLEXITY | complexidade excessiva |
-| COUPLING | acoplamento |
-| DEAD_CODE | código morto |
+| problema persistente | ✅ |
+| problema corrigido | ✅ |
+| regressão | ✅ |
+| impacto estrutural | ✅ |
 
 ---
 
-# Integração com Dependency Validation
+# Estratégia Offline
 
-## O AST deve complementar
+# AST deve funcionar
 
-- dependency-cruiser;
-- madge;
-- architecture rules;
-- boundaries;
-- layering.
+- localmente;
+- offline;
+- sem cloud.
+
+---
+
+# Estratégia Cloud
+
+# Cloud pode adicionar
+
+- histórico estrutural;
+- analytics arquiteturais;
+- inteligência organizacional.
 
 ---
 
 # Objetivo Final
 
-O AST deve evoluir como:
+A AST analysis deve evoluir como:
 
 ```txt
-Motor Estrutural Inteligente de Code Review
+Motor Estrutural Inteligente de Governança Técnica
 ```
 
 e NÃO apenas:
 
 ```txt
-parser sintático
+parser simples de código
 ```
