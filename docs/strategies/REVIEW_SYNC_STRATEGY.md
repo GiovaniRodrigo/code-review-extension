@@ -2,70 +2,76 @@
 
 # Objetivo
 
-Definir a estratégia oficial de sincronização de reviews.
+Definir a estratégia oficial de sincronização da plataforma.
 
-O objetivo NÃO é apenas:
+O objetivo NÃO é:
 
 ```txt
-enviar comentários para o servidor
+copiar dados entre dispositivos
 ```
 
 O objetivo é:
 
 ```txt
-sincronizar comunicação técnica iterativa
+preservar continuidade colaborativa e consistência do workflow técnico
 ```
 
 ---
 
 # Princípio Principal
 
-O sync deve preservar:
+Sincronização representa:
 
-- contexto;
-- histórico;
-- lifecycle;
-- rastreabilidade;
+- continuidade;
 - colaboração;
-- incrementalidade.
+- rastreabilidade;
+- governança;
+- consistência contextual.
 
 ---
 
-# Sync é Opcional
-
-# O sistema deve funcionar
-
-- localmente;
-- offline;
-- sem cloud;
-- sem conta.
-
----
-
-# Objetivo do Sync
+# Objetivos da Sincronização
 
 Permitir:
 
-- colaboração;
-- persistência;
-- continuidade;
-- revalidação;
-- workflows organizacionais.
+- continuidade entre reviewers;
+- compartilhamento de findings;
+- histórico compartilhado;
+- colaboração incremental;
+- persistência organizacional.
 
 ---
 
-# Entidades Sincronizadas
+# Estratégia Offline-First
 
-# O sistema deve sincronizar
+# O sistema deve funcionar
 
-| Entidade | Obrigatória |
+- totalmente offline;
+- totalmente local;
+- sem sync obrigatória.
+
+---
+
+# Objetivo
+
+Garantir:
+
+```txt
+autonomia operacional
+```
+
+---
+
+# Estratégia Cloud
+
+# Sync cloud deve adicionar
+
+| Recurso | Obrigatório |
 |---|---|
-| Review Session | ✅ |
-| Findings | ✅ |
-| Comentários | ✅ |
-| Status | ✅ |
-| Reviewer Decisions | ✅ |
-| Histórico | ✅ |
+| findings compartilhados | ✅ |
+| comentários compartilhados | ✅ |
+| histórico compartilhado | ✅ |
+| restore compartilhado | ⚪ |
 
 ---
 
@@ -76,7 +82,7 @@ Permitir:
 - apenas alterações;
 - apenas findings modificados;
 - apenas comentários novos;
-- apenas estados alterados.
+- apenas estado relevante.
 
 ---
 
@@ -85,108 +91,17 @@ Permitir:
 Evitar:
 
 ```txt
-sync completo desnecessário
+sincronização pesada constante
 ```
 
 ---
 
-# Workflow de Sync
+# Estratégia de Runtime
 
-```txt
-Reviewer cria review
- ↓
-Sessão salva localmente
- ↓
-Sync opcional
- ↓
-Developer recebe atualização
- ↓
-Developer responde
- ↓
-Reviewer revalida
-```
+# Sync NÃO pode
 
----
-
-# Revalidação Incremental
-
-# O sistema deve detectar
-
-| Situação | Obrigatória |
-|---|---|
-| finding corrigido | ✅ |
-| finding persistente | ✅ |
-| novo finding | ✅ |
-| regressão | ✅ |
-| conflito | ✅ |
-
----
-
-# Estratégia de Conflitos
-
-# O sistema deve permitir
-
-| Recurso | Obrigatório |
-|---|---|
-| merge | ✅ |
-| retry | ✅ |
-| resolução manual | ✅ |
-| restore | ✅ |
-
----
-
-# Objetivo
-
-Evitar:
-
-```txt
-perda de review
-```
-
----
-
-# Histórico
-
-# O sistema deve preservar
-
-| Histórico | Obrigatório |
-|---|---|
-| findings | ✅ |
-| comentários | ✅ |
-| respostas | ✅ |
-| reaberturas | ✅ |
-| aprovações | ✅ |
-
----
-
-# Objetivo do Histórico
-
-Permitir:
-
-- auditoria;
-- rastreabilidade;
-- analytics;
-- inteligência organizacional.
-
----
-
-# Estratégia Offline
-
-# O sistema deve permitir
-
-- review local;
-- sync posterior;
-- queue local;
-- restore local.
-
----
-
-# Runtime Offline
-
-# O sistema NÃO pode
-
-- perder sessão;
-- perder findings;
+- travar IDE;
+- congelar editor;
 - bloquear review.
 
 ---
@@ -195,23 +110,22 @@ Permitir:
 
 | Recurso | Obrigatório |
 |---|---|
-| autosave | ✅ |
-| restore session | ✅ |
 | retry | ✅ |
-| offline cache | ✅ |
+| reconnect | ✅ |
+| debounce | ✅ |
+| background sync | ✅ |
 
 ---
 
-# Estratégia Cloud
+# Estratégia de Conflito
 
-# Cloud deve adicionar
+# O sistema deve detectar
 
-| Recurso | Obrigatório |
+| Situação | Obrigatória |
 |---|---|
-| colaboração | ✅ |
-| sessões compartilhadas | ✅ |
-| histórico compartilhado | ✅ |
-| analytics | ⚪ |
+| conflito de comentário | ⚪ |
+| conflito de finding | ⚪ |
+| conflito de sessão | ⚪ |
 
 ---
 
@@ -221,52 +135,56 @@ Permitir:
 
 | Área | Obrigatória |
 |---|---|
+| embeddings | ✅ |
 | findings | ✅ |
 | comentários | ✅ |
-| contexto | ✅ |
-| embeddings | ⚪ |
+| documentação | ✅ |
 
 ---
 
 # O sistema NÃO pode
 
 - sincronizar automaticamente sem autorização;
-- enviar código sem consentimento;
-- expor contexto organizacional.
+- expor contexto organizacional;
+- enviar código sem consentimento.
 
 ---
 
-# Estratégia de Runtime
+# Estratégia Organizacional
 
-# O sync NÃO pode
-
-- travar IDE;
-- congelar editor;
-- bloquear reviewer.
-
----
-
-# Runtime deve possuir
+# Enterprise pode permitir
 
 | Recurso | Obrigatório |
 |---|---|
-| background sync | ✅ |
+| sync organizacional | ⚪ |
+| workspaces compartilhados | ⚪ |
+| colaboração corporativa | ⚪ |
+
+---
+
+# Estratégia de UX
+
+# O reviewer deve visualizar
+
+| Informação | Obrigatória |
+|---|---|
+| status de sync | ✅ |
 | reconnect | ✅ |
-| timeout | ✅ |
-| fallback | ✅ |
+| retry ativo | ✅ |
+| sync concluído | ✅ |
 
 ---
 
 # Objetivo Final
 
-O sync deve evoluir como:
+A sincronização deve evoluir como:
 
 ```txt
-Camada Incremental de Comunicação Técnica
+Camada Incremental de Continuidade Colaborativa
 ```
 
 e NÃO apenas:
 
 ```txt
-persistência remota simples
+replicação simples de dados
 ```
