@@ -7,41 +7,37 @@ const coverageConfig = mergeConfig(baseConfig, {
       provider: 'v8',
       enabled: true,
 
-      reporter: [
-        'text',
-        'json-summary',
-        'html'
+      include: [
+        'packages/core/src/**/*.ts',
+        'packages/domain/src/**/*.ts',
+        'packages/infra/src/**/*.ts',
+        'packages/testing/src/**/*.ts',
+        'apps/vscode/src/**/*.ts'
       ],
 
-      reportsDirectory: './coverage',
-
       exclude: [
-        '**/*.spec.ts',
-        '**/*.test.ts',
-        '**/*.test.tsx',
-        '**/*.test.js',
-        'apps/vscode/tests/e2e/**',
-
         '**/*.d.ts',
+        '**/*.config.*',
         '**/index.ts',
-        '**/dto/**',
-        '**/contracts/**',
-        '**/ports/**',
-        '**/types/**',
-
-        '**/mocks/**',
-        '**/fixtures/**',
-
         '**/dist/**',
         '**/build/**',
-        '**/out/**',
         '**/coverage/**',
+        '**/.stryker-tmp/**',
         '**/.vscode-test/**',
-        '**/node_modules/**',
-        '**/*.config.ts',
-        '**/*.config.js',
-        '**/.dependency-cruiser.cjs'
-      ]
+        '**/mutation-report/**',
+        '**/tests/**',
+        '**/mocks/**',
+        '**/fixtures/**',
+        '**/generated/**',
+        '**/bootstrap/**'
+      ],
+
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 70,
+        statements: 80
+      }
     }
   }
 });

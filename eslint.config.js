@@ -13,7 +13,9 @@ export default [
       '**/.vscode-test/**',
       '**/out/**',
       '**/tests/e2e/**/*.cjs',
-      '**/tests/runtime/**/*.cjs'
+      '**/tests/runtime/**/*.cjs',
+      '**/.stryker-tmp/**',
+      '.stryker-tmp/**'
     ]
   },
   js.configs.recommended,
