@@ -74,7 +74,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
   });
 
   const aiProvider = AIProviderFactory.create({
-    provider: config.get<'mock' | 'ollama' | 'openai'>('provider', 'mock'),
+    provider: config.get<'mock' | 'ollama' | 'openai' | 'gemini'>('provider', 'mock'),
     ollama: {
         baseUrl: config.get<string>('ollama.baseUrl', 'http://localhost:11434'),
         model: config.get<string>('ollama.model', 'llama3')
@@ -82,6 +82,10 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     openai: {
         apiKey: () => context.secrets.get('openai-api-key').then(k => k || ''),
         model: config.get<string>('openai.model', 'gpt-4o-mini')
+    },
+    gemini: {
+        apiKey: () => context.secrets.get('gemini-api-key').then(k => k || ''),
+        model: config.get<string>('gemini.model', 'gemini-flash-latest')
     }
   });
 

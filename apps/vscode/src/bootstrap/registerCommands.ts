@@ -28,6 +28,17 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
         await container.notifications.info('OpenAI API Key stored securely.');
     }
   });
+
+  container.commands.register('code-review.setGeminiApiKey', async () => {
+    const key = await vscode.window.showInputBox({ 
+        prompt: 'Enter Gemini API Key',
+        password: true 
+    });
+    if (key) {
+        await context.secrets.store('gemini-api-key', key);
+        await container.notifications.info('Gemini API Key stored securely.');
+    }
+  });
   
   container.commands.register('code-review.approveFinding', async (sessionId: string, findingId: string) => {
     try {

@@ -2,14 +2,19 @@ import { AIProvider } from './interfaces';
 import { MockAIProvider } from './MockAIProvider';
 import { OllamaProvider } from './OllamaProvider';
 import { OpenAIProvider } from './OpenAIProvider';
+import { GeminiProvider } from './GeminiProvider';
 
 export interface AIProviderConfig {
-  provider: 'mock' | 'ollama' | 'openai';
+  provider: 'mock' | 'ollama' | 'openai' | 'gemini';
   ollama?: {
     baseUrl: string;
     model: string;
   };
   openai?: {
+    apiKey: string | (() => Promise<string>);
+    model: string;
+  };
+  gemini?: {
     apiKey: string | (() => Promise<string>);
     model: string;
   };
@@ -27,6 +32,11 @@ export class AIProviderFactory {
         );
       case 'openai':
         return new OpenAIProvider(config.openai?.apiKey || '');
+      case 'gemini':
+        return new GeminiProvider(
+          config.gemini?.apiKey || '',
+          config.gemini?.model || 'gemini-flash-latest'
+        );
       default:
         return new MockAIProvider();
     }

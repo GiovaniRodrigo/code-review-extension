@@ -18,6 +18,11 @@ By default, the extension uses a `mock` provider for testing. To use real AI:
 2. Enter your key.
 3. In VS Code Settings, set `codeReview.provider` to `openai`.
 
+### Using Gemini (Cloud)
+1. In VS Code, run command (`Ctrl+Shift+P`): `Code Review: Set Gemini API Key`.
+2. Enter your key.
+3. In VS Code Settings, set `codeReview.provider` to `gemini`.
+
 ## 3. Index Your Project (Optional)
 To provide the AI with project context (RAG):
 - Run command: `Code Review: Index Repository RAG`.

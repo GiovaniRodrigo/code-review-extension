@@ -82,6 +82,10 @@
         "title": "Code Review: Set OpenAI API Key"
       },
       {
+        "command": "code-review.setGeminiApiKey",
+        "title": "Code Review: Set Gemini API Key"
+      },
+      {
         "command": "code-review.setProvider",
         "title": "Code Review: Set AI Provider"
       },
@@ -152,7 +156,8 @@
           "enum": [
             "mock",
             "ollama",
-            "openai"
+            "openai",
+            "gemini"
           ],
           "description": "AI provider used to analyze code."
         },
@@ -170,6 +175,11 @@
           "type": "string",
           "default": "gpt-4o-mini",
           "description": "OpenAI model used for code review."
+        },
+        "codeReview.gemini.model": {
+          "type": "string",
+          "default": "gemini-flash-latest",
+          "description": "Gemini model used for code review."
         },
         "codeReview.ai.timeout": {
           "type": "number",
