@@ -10,7 +10,12 @@ import {
   DeleteCodeReviewUseCase,
   IndexRepositoryRagUseCase,
   ClearRepositoryRagUseCase,
-  RagIndexingService
+  RagIndexingService,
+  AIProviderRegistry,
+  AIProviderDiscoveryService,
+  DiscoverAIProvidersUseCase,
+  SelectAIProviderUseCase,
+  AIProviderConfig
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
@@ -48,6 +53,44 @@ export interface VSCodeContainer {
   dashboardProvider: DashboardProvider;
   ragStatusProvider: RagStatusProvider;
   reviewPanelProvider: ReviewPanelProvider;
+  discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
+  selectAIProviderUseCase: SelectAIProviderUseCase;
+  aiProviderRegistry: AIProviderRegistry;
+}
+
+export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
+  const config = vscode.workspace.getConfiguration('codeReview');
+  let providerConfigs = config.get<AIProviderConfig[]>('ai.providers', []);
+
+  // Fallback / Migration logic
+  if (providerConfigs.length === 0) {
+    const legacyProviderType = config.get<string>('provider', 'mock');
+    const legacyConfig: AIProviderConfig = {
+        id: 'default',
+        type: legacyProviderType as any,
+        label: `Default ${legacyProviderType}`,
+        enabled: true,
+        model: config.get<string>(`${legacyProviderType}.model`, ''),
+        baseUrl: legacyProviderType === 'ollama' ? config.get<string>('ollama.baseUrl') : undefined,
+        apiKey: legacyProviderType === 'openai' 
+            ? async () => (await context.secrets.get('openai-api-key')) || ''
+            : legacyProviderType === 'gemini'
+            ? async () => (await context.secrets.get('gemini-api-key')) || ''
+            : undefined
+    };
+    providerConfigs = [legacyConfig];
+  }
+
+  // Bind secrets
+  providerConfigs.forEach(pc => {
+    if (pc.type === 'openai' && !pc.apiKey) {
+        pc.apiKey = async () => (await context.secrets.get('openai-api-key')) || '';
+    } else if (pc.type === 'gemini' && !pc.apiKey) {
+        pc.apiKey = async () => (await context.secrets.get('gemini-api-key')) || '';
+    }
+  });
+
+  return providerConfigs;
 }
 
 export function buildContainer(context: vscode.ExtensionContext): VSCodeContainer {
@@ -73,23 +116,50 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     ignoredFolders: config.get<string[]>('rag.ignoredFolders', ['node_modules', '.git', 'dist', '.turbo'])
   });
 
-  const aiProvider = AIProviderFactory.create({
-    provider: config.get<'mock' | 'ollama' | 'openai' | 'gemini'>('provider', 'mock'),
-    ollama: {
-        baseUrl: config.get<string>('ollama.baseUrl', 'http://localhost:11434'),
-        model: config.get<string>('ollama.model', 'llama3')
-    },
-    openai: {
-        apiKey: () => context.secrets.get('openai-api-key').then(k => k || ''),
-        model: config.get<string>('openai.model', 'gpt-4o-mini')
-    },
-    gemini: {
-        apiKey: () => context.secrets.get('gemini-api-key').then(k => k || ''),
-        model: config.get<string>('gemini.model', 'gemini-flash-latest')
+  // Multi-provider logic
+  const providerRegistry = new AIProviderRegistry();
+  const discoveryService = new AIProviderDiscoveryService();
+  
+  const providerConfigsRaw = config.get<AIProviderConfig[]>('ai.providers', []);
+  let activeProviderId = config.get<string>('ai.activeProviderId');
+
+  // Sync initialization for buildContainer
+  let initialConfigs = providerConfigsRaw;
+  if (initialConfigs.length === 0) {
+      const legacyProviderType = config.get<string>('provider', 'mock');
+      initialConfigs = [{
+          id: 'default',
+          type: legacyProviderType as any,
+          label: `Default ${legacyProviderType}`,
+          enabled: true,
+          model: config.get<string>(`${legacyProviderType}.model`, ''),
+          baseUrl: legacyProviderType === 'ollama' ? config.get<string>('ollama.baseUrl') : undefined,
+          apiKey: legacyProviderType === 'openai' 
+            ? async () => (await context.secrets.get('openai-api-key')) || ''
+            : legacyProviderType === 'gemini'
+            ? async () => (await context.secrets.get('gemini-api-key')) || ''
+            : undefined
+      }];
+      activeProviderId = 'default';
+  }
+
+  initialConfigs.forEach(pc => {
+    // Re-bind secrets if necessary
+    if (pc.type === 'openai' && !pc.apiKey) {
+        pc.apiKey = async () => (await context.secrets.get('openai-api-key')) || '';
+    } else if (pc.type === 'gemini' && !pc.apiKey) {
+        pc.apiKey = async () => (await context.secrets.get('gemini-api-key')) || '';
     }
+    providerRegistry.register(pc.id, AIProviderFactory.create(pc) as any);
   });
 
-  const aiAnalysisService = new AIAnalysisService(aiProvider as any, contextBuilder, {
+  if (activeProviderId && initialConfigs.some(p => p.id === activeProviderId)) {
+    providerRegistry.setActiveProvider(activeProviderId);
+  } else if (initialConfigs.length > 0) {
+    providerRegistry.setActiveProvider(initialConfigs[0].id);
+  }
+
+  const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, {
     timeout: config.get<number>('ai.timeout', 30000),
     maxRetries: config.get<number>('ai.retries', 2)
   });
@@ -117,6 +187,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(),
     ragStatusProvider: new RagStatusProvider(),
-    reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context)
+    reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
+    discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
+    selectAIProviderUseCase: new SelectAIProviderUseCase(),
+    aiProviderRegistry: providerRegistry
   };
 }

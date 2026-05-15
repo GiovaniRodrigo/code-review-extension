@@ -1,4 +1,4 @@
-import { VectorChunk } from "../services/rag/types/VectorChunk";
+import { VectorChunk } from "../VectorChunk";
 
 export interface IVectorStore {
 

@@ -29,4 +29,5 @@ export interface AIAnalysisFindingDTO {
 
 export interface AIAnalysisResponseDTO {
   findings: AIAnalysisFindingDTO[];
+  confidenceScore: number;
 }

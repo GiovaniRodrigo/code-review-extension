@@ -5,7 +5,8 @@ import axios, {
 import {
   AIAnalysisInput,
   AIAnalysisResult,
-  AIProvider
+  AIProvider,
+  HealthStatus
 } from './interfaces';
 
 export class OllamaProvider implements AIProvider {
@@ -15,6 +16,25 @@ export class OllamaProvider implements AIProvider {
     public readonly model: string,
     private readonly httpClient: AxiosInstance = axios
   ) { }
+
+  async checkHealth(): Promise<HealthStatus> {
+    try {
+      const response = await this.httpClient.get(`${this.baseUrl}/api/tags`, { timeout: 5000 });
+      const models = response.data?.models || [];
+      const modelExists = models.some((m: any) => m.name === this.model || m.name.split(':')[0] === this.model);
+
+      if (!modelExists) {
+        return { status: 'model_not_found', message: `Model ${this.model} not found in Ollama` };
+      }
+
+      return { status: 'available' };
+    } catch (error: any) {
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        return { status: 'timeout', message: 'Ollama health check timed out' };
+      }
+      return { status: 'unavailable', message: error.message };
+    }
+  }
 
   async analyzeCode(
     input: AIAnalysisInput

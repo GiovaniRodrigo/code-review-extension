@@ -61,7 +61,7 @@ export class AIAnalysisService {
             if (!validated.success) {
                 console.error('[AI] Validation failed', validated.error.format());
                 // In production, we try to return what's valid or empty to avoid crashing
-                return { findings: [] };
+                return { findings: [], confidenceScore: 0 };
             }
 
             const data = validated.data as AIAnalysisResponseDTO;

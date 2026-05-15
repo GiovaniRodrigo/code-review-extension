@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
-import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
+import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
 
 export class GeminiProvider implements AIProvider {
   constructor(
@@ -10,6 +10,37 @@ export class GeminiProvider implements AIProvider {
 
   private getApiUrl(model: string): string {
     return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  }
+
+  async checkHealth(): Promise<HealthStatus> {
+    try {
+      const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
+      if (!key) {
+        return { status: 'unauthorized', message: 'Gemini API Key is missing' };
+      }
+
+      const response = await this.httpClient.get('https://generativelanguage.googleapis.com/v1beta/models', {
+        params: { key },
+        timeout: 5000
+      });
+
+      const models = response.data?.models || [];
+      const modelExists = models.some((m: any) => m.name === `models/${this.model}` || m.name === this.model);
+
+      if (!modelExists) {
+        return { status: 'model_not_found', message: `Model ${this.model} not found in Gemini` };
+      }
+
+      return { status: 'available' };
+    } catch (error: any) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        return { status: 'unauthorized', message: 'Invalid Gemini API Key' };
+      }
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        return { status: 'timeout', message: 'Gemini health check timed out' };
+      }
+      return { status: 'unavailable', message: error.message };
+    }
   }
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {

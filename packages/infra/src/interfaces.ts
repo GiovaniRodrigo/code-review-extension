@@ -35,8 +35,16 @@ export interface AIAnalysisResult {
   confidenceScore: number;
 }
 
+export type AIProviderStatus = 'available' | 'unavailable' | 'unauthorized' | 'timeout' | 'model_not_found';
+
+export interface HealthStatus {
+  status: AIProviderStatus;
+  message?: string;
+}
+
 export interface AIProvider {
   analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult>;
+  checkHealth(): Promise<HealthStatus>;
 }
 
 export interface ReviewRepository {

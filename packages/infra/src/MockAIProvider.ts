@@ -1,5 +1,5 @@
 import { Finding } from '@code-review/domain';
-import { AIProvider, AIAnalysisInput, AIAnalysisResult } from './interfaces';
+import { AIProvider, AIAnalysisInput, AIAnalysisResult, HealthStatus } from './interfaces';
 
 export class MockAIProvider implements AIProvider {
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
@@ -15,16 +15,24 @@ export class MockAIProvider implements AIProvider {
           line: 5,
           message: '[Mock] Use const instead of let for immutable variables.',
           severity: 'info',
+          category: 'code_smell',
+          confidence: 0.9,
           suggestedFix: 'const x = 1;'
         },
         {
           file: input.filePath,
           line: 12,
           message: '[Mock] Potential security risk: user input not sanitized.',
-          severity: 'error'
+          severity: 'error',
+          category: 'security',
+          confidence: 0.8
         }
       ],
       confidenceScore: 0.99
     };
+  }
+
+  async checkHealth(): Promise<HealthStatus> {
+    return { status: 'available' };
   }
 }

@@ -2,7 +2,17 @@
 ../../**
 src/**
 tests/**
+out/**
+.turbo/**
+.vscode-test/**
 node_modules/**
 *.vsix
 *.map
 tsconfig.json
+tsconfig.test.json
+jest.config.ts
+jest.e2e.config.ts
+jest.integration.config.ts
+vitest.config.ts
+vitest.config.mjs
+scripts-test.sh

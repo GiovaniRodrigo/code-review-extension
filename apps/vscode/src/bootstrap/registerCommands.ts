@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { VSCodeContainer } from '../dependencies/buildContainer';
+import { AIProviderFactory } from '@code-review/infra';
 
 import { analyzeCommand } from '../commands/analyzeCommand';
 import { clearSessionCommand } from '../commands/clearSessionCommand';
@@ -40,7 +41,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     }
   });
   
-  container.commands.register('code-review.approveFinding', async (sessionId: string, findingId: string) => {
+  container.commands.register('code-review.approveFinding', async (sessionId: any, findingId: any) => {
     try {
       await container.approveFindingUseCase.execute(sessionId, findingId);
       await container.reviewPanelProvider.refresh();
@@ -78,6 +79,65 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     }
   });
 
+  container.commands.register('code-review.setProvider', async () => {
+    try {
+      const { getAIProviderConfigs } = await import('../dependencies/buildContainer');
+      const providers = await getAIProviderConfigs(context);
+      const config = vscode.workspace.getConfiguration('codeReview');
+
+      if (providers.length === 0) {
+        await container.notifications.warning('No AI providers configured in settings.');
+        return;
+      }
+
+      await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: 'Checking AI Providers health...',
+        cancellable: false
+      }, async () => {
+        const results = await container.discoverAIProvidersUseCase.execute(
+            providers,
+            (pc) => AIProviderFactory.create(pc) as any
+        );
+
+        const available = results.filter(r => r.status.status === 'available');
+
+        if (available.length === 0) {
+            const firstError = results.find(r => r.status.status !== 'available');
+            throw new Error(`No providers available. First error: ${firstError?.status.message || 'Unknown'}`);
+        }
+
+        if (available.length === 1) {
+            const selected = available[0];
+            await config.update('ai.activeProviderId', selected.config.id, vscode.ConfigurationTarget.Global);
+            container.aiProviderRegistry.setActiveProvider(selected.config.id);
+            await container.notifications.info(`AI Provider "${selected.config.label}" selected automatically.`);
+            return;
+        }
+
+        const items = available.map(r => ({
+            label: r.config.label,
+            description: r.config.model,
+            detail: r.config.type,
+            id: r.config.id
+        }));
+
+        const picked = await vscode.window.showQuickPick(items, {
+            placeHolder: 'Select an AI Provider'
+        });
+
+        if (picked && typeof picked === 'object') {
+            const pickedItem = picked as any;
+            await config.update('ai.activeProviderId', pickedItem.id, vscode.ConfigurationTarget.Global);
+            container.aiProviderRegistry.setActiveProvider(pickedItem.id);
+            await container.notifications.info(`AI Provider "${pickedItem.label}" selected.`);
+        }
+      });
+    } catch (e: any) {
+      await container.notifications.error(`Failed to discover providers: ${e.message}`);
+    }
+  });
+
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
     'code-review.analyzeBranchCommits',
@@ -87,7 +147,6 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     'code-review.setGitLabCredentials',
     'code-review.setGitLabToken',
     'code-review.setGitLabUrl',
-    'code-review.setProvider',
     'code-review.syncRemotePR',
     'code-review.setupRag',
     'code-review.syncWithVps'

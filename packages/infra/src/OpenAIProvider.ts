@@ -1,4 +1,4 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
+import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
 
 import axios, {
   type AxiosInstance
@@ -7,10 +7,43 @@ import axios, {
 export class OpenAIProvider implements AIProvider {
   constructor(
     private readonly apiKey: string | (() => Promise<string>),
+    private readonly model: string = 'gpt-4o-mini',
     private readonly httpClient: AxiosInstance = axios
   ) { }
 
   private apiUrl = 'https://api.openai.com/v1/chat/completions';
+  private modelsUrl = 'https://api.openai.com/v1/models';
+
+  async checkHealth(): Promise<HealthStatus> {
+    try {
+      const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
+      if (!key) {
+        return { status: 'unauthorized', message: 'OpenAI API Key is missing' };
+      }
+
+      const response = await this.httpClient.get(this.modelsUrl, {
+        headers: { 'Authorization': `Bearer ${key}` },
+        timeout: 5000
+      });
+
+      const models = response.data?.data || [];
+      const modelExists = models.some((m: any) => m.id === this.model);
+
+      if (!modelExists) {
+        return { status: 'model_not_found', message: `Model ${this.model} not found in OpenAI` };
+      }
+
+      return { status: 'available' };
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        return { status: 'unauthorized', message: 'Invalid OpenAI API Key' };
+      }
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        return { status: 'timeout', message: 'OpenAI health check timed out' };
+      }
+      return { status: 'unavailable', message: error.message };
+    }
+  }
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
     const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
@@ -62,7 +95,7 @@ ${input.code}
       const response = await this.httpClient.post(
         this.apiUrl,
         {
-          model: (input as any).model || 'gpt-4o-mini',
+          model: this.model,
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' }
         },
@@ -77,8 +110,20 @@ ${input.code}
 
       const content = JSON.parse(response.data.choices[0].message.content);
 
+      const findings = (content.findings || []).map((f: any) => ({
+        file: f.file || input.filePath,
+        line: typeof f.line === 'number' ? f.line : 1,
+        severity: ['info', 'warning', 'error', 'critical'].includes(f.severity) ? f.severity : 'info',
+        category: [
+          'architecture', 'solid', 'security', 'code_smell', 'test', 'dependency', 'rag'
+        ].includes(f.category) ? f.category : 'code_smell',
+        message: f.message || '',
+        suggestedFix: f.suggestedFix,
+        confidence: typeof f.confidence === 'number' ? f.confidence : 0.8
+      }));
+
       return {
-        findings: content.findings || [],
+        findings,
         confidenceScore: content.confidenceScore || 0
       };
     } catch (error: any) {

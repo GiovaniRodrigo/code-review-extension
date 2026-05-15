@@ -1,4 +1,4 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider } from './interfaces';
+import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
 
 export class FallbackAIProvider implements AIProvider {
   constructor(
@@ -6,6 +6,14 @@ export class FallbackAIProvider implements AIProvider {
     private secondary: AIProvider,
     private onFallback?: (error: Error) => void
   ) {}
+
+  async checkHealth(): Promise<HealthStatus> {
+    const primaryHealth = await this.primary.checkHealth();
+    if (primaryHealth.status === 'available') {
+        return primaryHealth;
+    }
+    return this.secondary.checkHealth();
+  }
 
   async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
     try {

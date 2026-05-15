@@ -157,7 +157,8 @@
             "mock",
             "ollama",
             "openai",
-            "gemini"
+            "gemini",
+            "claude"
           ],
           "description": "AI provider used to analyze code."
         },
@@ -180,6 +181,16 @@
           "type": "string",
           "default": "gemini-flash-latest",
           "description": "Gemini model used for code review."
+        },
+        "codeReview.ai.providers": {
+          "type": "array",
+          "default": [],
+          "description": "List of configured AI providers."
+        },
+        "codeReview.ai.activeProviderId": {
+          "type": "string",
+          "default": "",
+          "description": "ID of the currently active AI provider."
         },
         "codeReview.ai.timeout": {
           "type": "number",
