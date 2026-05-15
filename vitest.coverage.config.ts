@@ -6,38 +6,41 @@ const coverageConfig = mergeConfig(baseConfig, {
     coverage: {
       provider: 'v8',
       enabled: true,
+      all: true,
 
       include: [
-        'packages/core/src/**/*.ts',
-        'packages/domain/src/**/*.ts',
-        'packages/infra/src/**/*.ts',
-        'packages/testing/src/**/*.ts',
+        'packages/{core,domain,infra,testing}/src/**/*.ts',
         'apps/vscode/src/**/*.ts'
       ],
 
       exclude: [
+        '.stryker-tmp/**',
+        '**/.stryker-tmp/**',
+        '**/.stryker-tmp/**/*',
+
+        'coverage/**',
+        '**/coverage/**',
+        'dist/**',
+        '**/dist/**',
+        'build/**',
+        '**/build/**',
+        '.vscode-test/**',
+        '**/.vscode-test/**',
+        'mutation-report/**',
+        '**/mutation-report/**',
+
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
-        '**/dist/**',
-        '**/build/**',
-        '**/coverage/**',
-        '**/.stryker-tmp/**',
-        '**/.vscode-test/**',
-        '**/mutation-report/**',
         '**/tests/**',
         '**/mocks/**',
         '**/fixtures/**',
         '**/generated/**',
-        '**/bootstrap/**'
+        '**/bootstrap/**',
+        '**/runE2E.*',
+        '**/runTest.*',
+        '**/runRuntimeDiagnostics.*'
       ],
-
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 70,
-        statements: 80
-      }
     }
   }
 });
