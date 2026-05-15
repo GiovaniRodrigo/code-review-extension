@@ -1,4 +1,4 @@
-import { ReviewRepository } from '@code-review/infra';
+import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
 import { FindingSeverity } from '@code-review/domain';
 
 export interface FileHeat {
@@ -9,7 +9,7 @@ export interface FileHeat {
 }
 
 export class HeatmapService {
-  constructor(private readonly repository: ReviewRepository) {}
+  constructor(private readonly repository: CodeReviewRepositoryPort) {}
 
   async calculateHeatmap(): Promise<FileHeat[]> {
     const sessions = await this.repository.getAllSessions();

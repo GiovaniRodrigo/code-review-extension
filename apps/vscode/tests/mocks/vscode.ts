@@ -58,6 +58,12 @@ export enum TextEditorRevealType {
   AtTop = 3
 }
 
+export enum ProgressLocation {
+  SourceControl = 1,
+  Window = 10,
+  Notification = 15
+}
+
 export const Uri = {
   file: vi.fn((fsPath: string) => ({ fsPath, path: fsPath, scheme: 'file' }))
 };
@@ -66,7 +72,8 @@ export const languages = {
   createDiagnosticCollection: vi.fn(() => ({
     set: vi.fn(),
     clear: vi.fn(),
-    dispose: vi.fn()
+    dispose: vi.fn(),
+    get: vi.fn(() => [])
   }))
 };
 
@@ -78,7 +85,8 @@ export const workspace = {
     update: vi.fn().mockResolvedValue(undefined)
   })),
 
-  openTextDocument: vi.fn()
+  openTextDocument: vi.fn(),
+  onDidSaveTextDocument: vi.fn(() => ({ dispose: vi.fn() }))
 };
 
 export const commands = {
@@ -99,7 +107,8 @@ export const window = {
 
   showTextDocument: vi.fn(),
   createWebviewPanel: vi.fn(),
-  registerWebviewViewProvider: vi.fn(() => ({ dispose: vi.fn() }))
+  registerWebviewViewProvider: vi.fn(() => ({ dispose: vi.fn() })),
+  withProgress: vi.fn(async (_options, task) => await task({}, { onCancellationRequested: vi.fn() }))
 };
 
 export const extensions = {
@@ -107,7 +116,14 @@ export const extensions = {
     activate: vi.fn(),
     isActive: true,
     exports: {
-      getAPI: () => ({ repositories: [] })
+      getAPI: () => ({ 
+        repositories: [{ 
+            state: { 
+                HEAD: { name: 'main' },
+                onDidChange: vi.fn(() => ({ dispose: vi.fn() }))
+            } 
+        }] 
+      })
     }
   }))
 };

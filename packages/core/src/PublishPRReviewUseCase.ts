@@ -1,5 +1,6 @@
-import { ReviewRepository, GitProvider } from '@code-review/infra';
 import { Finding } from '@code-review/domain';
+import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
+import { GitProviderPort } from './ports/git/GitProviderPort';
 
 export interface PublishPRReviewInput {
   sessionId: string;
@@ -10,8 +11,8 @@ export interface PublishPRReviewInput {
 
 export class PublishPRReviewUseCase {
   constructor(
-    private repository: ReviewRepository,
-    private gitProvider: GitProvider
+    private repository: CodeReviewRepositoryPort,
+    private gitProvider: GitProviderPort
   ) {}
 
   async execute(input: PublishPRReviewInput): Promise<void> {

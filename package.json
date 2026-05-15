@@ -22,6 +22,7 @@
     "test:runtime": "node apps/vscode/tests/runtime/runRuntimeDiagnostics.cjs",
     "test:all": "npm run lint && npm run test:unit && npm run test:integration && npm run test:coverage && npm run build",
     "build": "turbo build",
+    "package:vscode": "cd apps/vscode && npm run package",
     "test:full": "npm run test:all && npm run test:mutation",
     "quality": "npm run lint && npm run build && npm run test && npm run test:e2e && npm run test:runtime && npm run test:mutation",
     "test:ui": "vitest run apps/vscode/tests/unit/views apps/vscode/tests/unit/providers apps/vscode/tests/unit/webview",

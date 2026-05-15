@@ -77,6 +77,7 @@ export * from './ports/vps/AccessControlProviderPort';
 export * from './ports/vps/AuthProviderPort';
 export * from './ports/vps/VpsCodeReviewPublisherPort';
 export * from './ports/vps/VpsSyncPort';
+export * from './ports/git/GitProviderPort';
 export * from './ports/ast/AstBuilderPort';
 export * from './ports/ast/DependencyGraphPort';
 export * from './shared/constants/aiDefaults';

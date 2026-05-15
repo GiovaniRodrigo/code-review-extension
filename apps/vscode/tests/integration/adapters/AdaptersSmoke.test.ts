@@ -17,7 +17,6 @@ describe('Adapters Smoke Tests', () => {
   it('VSCodeProgressAdapter should be instantiable and call vscode.window.withProgress', async () => {
     const adapter = new VSCodeProgressAdapter();
     (vscode.window as any).withProgress = vi.fn().mockResolvedValue('result' as any);
-    (vscode as any).ProgressLocation = { Notification: 15 };
     
     const result = await adapter.run('test', async () => 'result');
     expect(result).toBe('result');

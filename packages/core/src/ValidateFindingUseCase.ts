@@ -1,10 +1,11 @@
 import { ReviewSession, TechnicalComment } from '@code-review/domain';
-import { IDEAdapter, ReviewRepository } from '@code-review/infra';
+import { IdeAdapterPort } from './ports/ide/IdeAdapterPort';
+import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
 
 export class ValidateFindingUseCase {
   constructor(
-    private repository: ReviewRepository,
-    private ideAdapter?: IDEAdapter
+    private repository: CodeReviewRepositoryPort,
+    private ideAdapter?: IdeAdapterPort
   ) {}
 
   async execute(sessionId: string, findingId: string, status: 'approved' | 'rejected'): Promise<ReviewSession> {

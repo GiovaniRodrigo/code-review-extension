@@ -1,4 +1,4 @@
-import { AIProvider } from '@code-review/infra';
+import { AIProvider } from './interfaces';
 import { MockAIProvider } from './MockAIProvider';
 import { OllamaProvider } from './OllamaProvider';
 import { OpenAIProvider } from './OpenAIProvider';

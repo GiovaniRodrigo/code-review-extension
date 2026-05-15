@@ -1,7 +1,7 @@
-import { ReviewRepository } from '@code-review/infra';
+import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
 
 export class ContextEngine {
-  constructor(private readonly repository: ReviewRepository) {}
+  constructor(private readonly repository: CodeReviewRepositoryPort) {}
 
   async buildContext(filePath: string): Promise<string> {
     const sessions = await this.repository.getAllSessions();

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { 
-  CodeReviewRepositoryPort, 
+import {
+  CodeReviewRepositoryPort,
   IdeAdapterPort,
-  ApproveFindingUseCase 
+  ApproveFindingUseCase
 } from '@code-review/core';
 
 export class ReviewPanelProvider implements vscode.WebviewViewProvider {
@@ -15,7 +15,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     private readonly ide: IdeAdapterPort,
     private readonly approveFindingUseCase: ApproveFindingUseCase,
     private readonly context: vscode.ExtensionContext
-  ) {}
+  ) { }
 
   async resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -36,10 +36,12 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           await this.refresh();
           break;
         case 'focus':
-          const session = await this.repository.getSessionById(message.sessionId);
-          const finding = session?.findings.find(f => f.id === message.findingId);
-          if (finding) {
-            await this.ide.focusFinding(finding);
+          {
+            const session = await this.repository.getSessionById(message.sessionId);
+            const finding = session?.findings.find(f => f.id === message.findingId);
+            if (finding) {
+              await this.ide.focusFinding(finding);
+            }
           }
           break;
         case 'revalidate':
@@ -56,7 +58,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     });
 
     webviewView.onDidDispose(() => {
-        this._view = undefined;
+      this._view = undefined;
     });
 
     await this.refresh();
@@ -80,15 +82,15 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     }
 
     const findingsByFile = session.findings.reduce((acc: any, f: any) => {
-        if (!acc[f.file]) acc[f.file] = [];
-        acc[f.file].push(f);
-        return acc;
+      if (!acc[f.file]) acc[f.file] = [];
+      acc[f.file].push(f);
+      return acc;
     }, {});
 
     const sectionsHtml = Object.keys(findingsByFile).map(file => {
-        const fileFindings = findingsByFile[file];
-        const isCollapsed = state.collapsed?.includes(file);
-        const itemsHtml = fileFindings.map((f: any) => `
+      const fileFindings = findingsByFile[file];
+      const isCollapsed = state.collapsed?.includes(file);
+      const itemsHtml = fileFindings.map((f: any) => `
             <div class="finding-item" id="item-${f.id}" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
                 <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
                 <strong>${f.severity.toUpperCase()}</strong>: ${f.message}<br/>
@@ -101,7 +103,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             </div>
         `).join('');
 
-        return `
+      return `
             <details class="file-section" ${isCollapsed ? '' : 'open'} ontoggle="saveCurrentState()">
                 <summary style="font-weight: bold; cursor: pointer; padding: 5px; background: #333; margin-bottom: 5px;" data-file="${file}">${file} (${fileFindings.length})</summary>
                 <div style="padding: 5px;">${itemsHtml}</div>
@@ -197,10 +199,10 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
 
   private _getSeverityColor(severity: string): string {
     switch (severity) {
-        case 'critical':
-        case 'error': return '#f44336';
-        case 'warning': return '#ff9800';
-        default: return '#2196f3';
+      case 'critical':
+      case 'error': return '#f44336';
+      case 'warning': return '#ff9800';
+      default: return '#2196f3';
     }
   }
 }

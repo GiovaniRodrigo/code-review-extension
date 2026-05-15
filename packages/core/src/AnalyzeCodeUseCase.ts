@@ -1,13 +1,15 @@
 import { Finding, ReviewSession } from '@code-review/domain';
-import { AIProvider, IDEAdapter, ReviewRepository } from '@code-review/infra';
+import { AIProviderPort } from './ports/ai/AIProviderPort';
+import { IdeAdapterPort } from './ports/ide/IdeAdapterPort';
+import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
 import { SeverityEngine } from './SeverityEngine';
 import { ContextEngine } from './ContextEngine';
 
 export class AnalyzeCodeUseCase {
   constructor(
-    private aiProvider: AIProvider,
-    private ideAdapter: IDEAdapter,
-    private repository: ReviewRepository,
+    private aiProvider: AIProviderPort,
+    private ideAdapter: IdeAdapterPort,
+    private repository: CodeReviewRepositoryPort,
     private contextEngine: ContextEngine,
     private severityEngine = new SeverityEngine()
   ) {}
