@@ -25,7 +25,6 @@ export * from './rag/chunkers/SimpleRagChunker';
 export * from './rag/context/SimpleRagContextBuilder';
 export * from './rag/embeddings/MockRagEmbeddingProvider';
 export * from './rag/embeddings/SimpleEmbeddingProvider';
-export * from './rag/indexers/NoopRagIndexer';
 export * from './rag/indexers/SimpleRagIndexer';
 export * from './rag/search/SimpleRagSearch';
 export * from './rag/vector-stores/MemoryRagVectorStore';

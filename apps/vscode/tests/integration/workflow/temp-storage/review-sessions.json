@@ -1,0 +1,19 @@
+[
+  {
+    "id": "s1",
+    "branch": "main",
+    "findings": [
+      {
+        "id": "f1",
+        "file": "/path/a.ts",
+        "line": 1,
+        "message": "m1",
+        "severity": "info",
+        "status": "approved"
+      }
+    ],
+    "comments": [],
+    "createdAt": "2026-05-15T03:27:56.996Z",
+    "updatedAt": "2026-05-15T03:27:56.996Z"
+  }
+]
