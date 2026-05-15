@@ -7,13 +7,13 @@ Definir a estratégia oficial de analytics da plataforma.
 O objetivo NÃO é:
 
 ```txt
-mostrar gráficos
+mostrar gráficos de métricas
 ```
 
 O objetivo é:
 
 ```txt
-fornecer inteligência contínua sobre qualidade e evolução técnica
+fornecer inteligência contínua sobre evolução técnica e governança
 ```
 
 ---
@@ -22,85 +22,65 @@ fornecer inteligência contínua sobre qualidade e evolução técnica
 
 Analytics representam:
 
+- visibilidade;
 - governança;
+- rastreabilidade;
 - evolução técnica;
-- hotspots;
-- regressões;
 - inteligência organizacional.
 
 ---
 
-# Objetivos dos Analytics
+# Objetivos da Estratégia
 
 Permitir:
 
-- identificar padrões;
+- identificar hotspots;
 - detectar regressões;
-- medir qualidade;
-- medir debt;
-- apoiar decisões técnicas.
+- medir evolução;
+- detectar dívida técnica;
+- suportar governança contínua.
 
 ---
 
-# Métricas Obrigatórias
+# Analytics Devem Medir
 
-# O sistema deve medir
-
-| Métrica | Obrigatória |
+| Área | Obrigatória |
 |---|---|
-| findings por severidade | ✅ |
-| findings por categoria | ✅ |
+| findings | ✅ |
+| severidade | ✅ |
 | regressões | ✅ |
-| findings recorrentes | ✅ |
-| debt por módulo | ⚪ |
-
----
-
-# Métricas Futuras
-
-| Métrica | Futuro |
-|---|---|
-| hotspots arquiteturais | ⚪ |
-| qualidade por equipe | ⚪ |
-| tempo médio de revalidação | ⚪ |
-| tempo médio de aprovação | ⚪ |
+| categorias | ✅ |
+| tempo de revalidação | ⚪ |
 
 ---
 
 # Objetivo
 
-Permitir:
+Transformar review em:
 
 ```txt
-governança baseada em evidência técnica
+fonte contínua de inteligência técnica
 ```
 
 ---
 
-# Estratégia de Contexto
+# Estratégia Incremental
 
-# Analytics devem considerar
+# O sistema deve analisar
 
-| Contexto | Obrigatório |
-|---|---|
-| severidade | ✅ |
-| categoria | ✅ |
-| histórico | ✅ |
-| reaberturas | ✅ |
-| regressões | ✅ |
+- apenas alterações relevantes;
+- apenas findings impactados;
+- apenas contexto relacionado.
 
 ---
 
-# Estratégia de Timeline
+# Objetivo
 
-# O sistema deve permitir análise de
+Evitar:
 
-| Timeline | Obrigatória |
-|---|---|
-| evolução de findings | ⚪ |
-| evolução de debt | ⚪ |
-| regressões recorrentes | ⚪ |
-| qualidade incremental | ⚪ |
+```txt
+processamento analítico excessivo
+```
 
 ---
 
@@ -109,7 +89,7 @@ governança baseada em evidência técnica
 # Analytics NÃO podem
 
 - travar IDE;
-- bloquear review;
+- bloquear workflow;
 - monopolizar CPU.
 
 ---
@@ -118,10 +98,10 @@ governança baseada em evidência técnica
 
 | Recurso | Obrigatório |
 |---|---|
-| background processing | ✅ |
-| incremental aggregation | ✅ |
-| cache | ✅ |
-| lazy loading | ✅ |
+| background aggregation | ✅ |
+| debounce | ✅ |
+| cache incremental | ✅ |
+| lazy processing | ✅ |
 
 ---
 
@@ -139,12 +119,9 @@ governança baseada em evidência técnica
 
 # Cloud pode adicionar
 
-| Recurso | Obrigatório |
-|---|---|
-| analytics organizacionais | ⚪ |
-| dashboards corporativos | ⚪ |
-| inteligência organizacional | ⚪ |
-| benchmarks internos | ⚪ |
+- analytics compartilhados;
+- inteligência organizacional;
+- governança corporativa.
 
 ---
 
@@ -154,19 +131,31 @@ governança baseada em evidência técnica
 
 | Recurso | Obrigatório |
 |---|---|
-| analytics por equipe | ⚪ |
-| analytics por projeto | ⚪ |
-| analytics corporativos | ⚪ |
+| analytics organizacionais | ⚪ |
+| métricas por equipe | ⚪ |
+| debt organizacional | ⚪ |
+| hotspots arquiteturais | ⚪ |
 
 ---
 
 # Estratégia de Segurança
 
-# Analytics NÃO podem
+# O sistema deve proteger
 
-- expor código;
-- expor embeddings;
-- expor documentação privada.
+| Área | Obrigatória |
+|---|---|
+| embeddings | ✅ |
+| histórico | ✅ |
+| comentários | ✅ |
+| contexto organizacional | ✅ |
+
+---
+
+# O sistema NÃO pode
+
+- compartilhar analytics implicitamente;
+- expor dados organizacionais;
+- sincronizar sem autorização.
 
 ---
 
@@ -176,23 +165,29 @@ governança baseada em evidência técnica
 
 | Informação | Obrigatória |
 |---|---|
-| findings críticos | ✅ |
-| regressões recentes | ✅ |
-| debt recorrente | ⚪ |
+| regressões | ✅ |
+| findings recorrentes | ⚪ |
 | hotspots | ⚪ |
+| evolução técnica | ⚪ |
+
+---
+
+# Estratégia HITL
+
+# Analytics NÃO substituem validação humana.
 
 ---
 
 # Objetivo Final
 
-Os analytics devem evoluir como:
+Analytics devem evoluir como:
 
 ```txt
-Camada Inteligente de Governança e Evolução Técnica
+camada contínua de inteligência e governança técnica
 ```
 
 e NÃO apenas:
 
 ```txt
-gráficos estáticos de métricas
+dashboard de métricas isoladas
 ```

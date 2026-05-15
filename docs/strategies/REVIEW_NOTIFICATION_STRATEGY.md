@@ -7,141 +7,104 @@ Definir a estratégia oficial de notificações da plataforma.
 O objetivo NÃO é:
 
 ```txt
-mostrar alertas constantemente
+mostrar alerts ao usuário
 ```
 
 O objetivo é:
 
 ```txt
-informar mudanças relevantes sem interromper o workflow técnico
+preservar continuidade contextual sem interromper o workflow técnico
 ```
 
 ---
 
 # Princípio Principal
 
-Notificações devem ser:
+Notificações representam:
 
-- discretas;
-- contextuais;
-- relevantes;
-- acionáveis;
-- não intrusivas.
+- continuidade;
+- colaboração;
+- rastreabilidade;
+- atualização contextual;
+- fluidez operacional.
 
 ---
 
-# Objetivos das Notificações
+# Objetivos da Estratégia
 
 Permitir:
 
-- continuidade;
-- rastreabilidade;
-- awareness;
-- colaboração;
-- revalidação eficiente.
+- informar eventos relevantes;
+- preservar contexto;
+- evitar interrupções;
+- suportar colaboração;
+- suportar revalidação.
 
 ---
-
-# Eventos Notificáveis
 
 # O sistema deve notificar
 
 | Evento | Obrigatório |
 |---|---|
-| finding atualizado | ✅ |
-| finding corrigido | ✅ |
-| nova resposta | ✅ |
+| novo comentário | ✅ |
+| finding reaberto | ✅ |
 | regressão detectada | ✅ |
-| revalidação concluída | ✅ |
-
----
-
-# Estratégia de UX
-
-# Notificações NÃO podem
-
-- travar IDE;
-- bloquear editor;
-- abrir modal excessivo;
-- interromper typing.
-
----
-
-# Estratégia Correta
-
-## Utilizar
-
-- status indicators;
-- badges;
-- notificações discretas;
-- sidebar updates;
-- runtime indicators.
-
----
-
-# Estratégia Incorreta
-
-## NÃO utilizar
-
-- popup infinito;
-- modal bloqueante;
-- spam visual;
-- alerta repetitivo.
+| sync falhou | ✅ |
+| fallback ativado | ✅ |
 
 ---
 
 # Objetivo
 
-Preservar:
+Garantir:
 
 ```txt
-fluxo natural do reviewer
+continuidade contextual do workflow
 ```
+
+---
+
+# Estratégia de UX
+
+# Notificações devem ser
+
+| Característica | Obrigatória |
+|---|---|
+| discretas | ✅ |
+| contextuais | ✅ |
+| não intrusivas | ✅ |
+| rastreáveis | ✅ |
 
 ---
 
 # Estratégia de Runtime
 
-# Notificações devem possuir
+# Notificações NÃO podem
+
+- travar IDE;
+- congelar runtime;
+- bloquear editor.
+
+---
+
+# Runtime deve possuir
 
 | Recurso | Obrigatório |
 |---|---|
 | debounce | ✅ |
-| agrupamento | ✅ |
-| prioridade | ✅ |
-| dismiss | ✅ |
+| agrupamento incremental | ✅ |
+| retry | ✅ |
+| reconnect | ✅ |
 
 ---
 
-# Estratégia de Prioridade
-
-# O sistema deve priorizar
-
-| Tipo | Obrigatório |
-|---|---|
-| blocker | ✅ |
-| critical | ✅ |
-| regressão | ✅ |
-| runtime failure | ✅ |
-
----
-
-# Estratégia de Colaboração
+# Estratégia Incremental
 
 # O sistema deve notificar
 
-| Situação | Obrigatória |
-|---|---|
-| developer respondeu | ✅ |
-| reviewer reabriu | ✅ |
-| review aprovado | ✅ |
-| nova correção enviada | ✅ |
-
----
-
-# Estratégia de Runtime Diagnostics
-
-# Runtime diagnostics devem possuir notificações separadas.
+- apenas eventos relevantes;
+- apenas mudanças impactantes;
+- apenas contexto relacionado.
 
 ---
 
@@ -150,7 +113,7 @@ fluxo natural do reviewer
 Evitar:
 
 ```txt
-mistura entre runtime e findings funcionais
+ruído operacional excessivo
 ```
 
 ---
@@ -167,11 +130,11 @@ mistura entre runtime e findings funcionais
 
 # Estratégia Cloud
 
-# Cloud deve adicionar
+# Cloud pode adicionar
 
 - notificações compartilhadas;
-- notificações organizacionais;
-- workflows colaborativos.
+- colaboração organizacional;
+- workflows corporativos.
 
 ---
 
@@ -181,9 +144,29 @@ mistura entre runtime e findings funcionais
 
 | Recurso | Obrigatório |
 |---|---|
-| notificações por equipe | ⚪ |
-| notificações organizacionais | ⚪ |
-| políticas de prioridade | ⚪ |
+| workflows organizacionais | ⚪ |
+| notificações corporativas | ⚪ |
+| roteamento organizacional | ⚪ |
+
+---
+
+# Estratégia de Segurança
+
+# O sistema NÃO pode
+
+- expor contexto organizacional;
+- enviar notificações inseguras;
+- sincronizar implicitamente.
+
+---
+
+# Estratégia HITL
+
+# Notificações NÃO podem
+
+- aprovar automaticamente;
+- alterar workflow automaticamente;
+- substituir decisões humanas.
 
 ---
 
@@ -192,11 +175,11 @@ mistura entre runtime e findings funcionais
 As notificações devem evoluir como:
 
 ```txt
-Camada Contextual de Awareness Técnico
+camada incremental de continuidade contextual e colaboração técnica
 ```
 
 e NÃO apenas:
 
 ```txt
-sistema simples de alertas
+sistema genérico de alerts
 ```

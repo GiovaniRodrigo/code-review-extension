@@ -2,29 +2,31 @@
 
 # Objetivo
 
-Definir a estratégia oficial de navegação do sistema.
+Definir a estratégia oficial de navegação da plataforma.
 
 O objetivo NÃO é:
 
 ```txt
-abrir arquivos aleatoriamente
+abrir arquivos rapidamente
 ```
 
 O objetivo é:
 
 ```txt
-permitir navegação contextual rápida durante o review
+permitir navegação contextual fluida durante o workflow técnico
 ```
 
 ---
 
 # Princípio Principal
 
-O reviewer deve conseguir:
+A navegação representa:
 
-```txt
-navegar instantaneamente entre contexto e finding
-```
+- produtividade;
+- continuidade;
+- contexto;
+- rastreabilidade;
+- fluidez operacional.
 
 ---
 
@@ -32,110 +34,59 @@ navegar instantaneamente entre contexto e finding
 
 Permitir:
 
-- velocidade;
-- contexto;
-- continuidade;
-- foco;
-- produtividade.
+- navegação contextual;
+- redução de atrito;
+- foco incremental;
+- continuidade do review;
+- recuperação rápida de contexto.
 
 ---
-
-# Navegação Principal
 
 # O reviewer deve conseguir
 
 | Ação | Obrigatória |
 |---|---|
+| abrir finding | ✅ |
 | abrir arquivo | ✅ |
-| navegar para linha | ✅ |
-| navegar para diff | ✅ |
-| alternar findings | ✅ |
-| voltar contexto anterior | ✅ |
-
----
-
-# Navegação de Findings
-
-# Todo finding deve permitir
-
-| Recurso | Obrigatório |
-|---|---|
-| abrir arquivo | ✅ |
-| highlight de linha | ✅ |
-| contexto expandido | ✅ |
-| navegação rápida | ✅ |
+| abrir linha específica | ✅ |
+| navegar entre findings | ✅ |
+| navegar por severidade | ✅ |
 
 ---
 
 # Objetivo
 
-Evitar:
+Garantir:
 
 ```txt
-perda de contexto técnico
+review contínuo sem perda de contexto
 ```
 
 ---
 
-# Navegação Incremental
+# Estratégia Incremental
 
 # O sistema deve permitir
 
-| Recurso | Obrigatório |
+| Navegação | Obrigatória |
 |---|---|
 | próximo finding | ✅ |
 | finding anterior | ✅ |
 | próximo crítico | ✅ |
-| próximo aberto | ✅ |
+| próximo regressão | ⚪ |
 
 ---
 
-# Estratégia de Agrupamento
+# Estratégia de Contexto
 
-# O reviewer deve conseguir navegar por
+# O reviewer deve visualizar
 
-| Agrupamento | Obrigatório |
+| Informação | Obrigatória |
 |---|---|
+| arquivo atual | ✅ |
+| linha atual | ✅ |
 | severidade | ✅ |
 | categoria | ✅ |
-| arquivo | ✅ |
-| status | ✅ |
-
----
-
-# Navegação de Diff
-
-# O sistema deve permitir
-
-| Recurso | Obrigatório |
-|---|---|
-| visualizar alterações | ✅ |
-| visualizar contexto anterior | ✅ |
-| navegar entre blocos | ✅ |
-| comparar mudanças | ✅ |
-
----
-
-# Objetivo
-
-Permitir:
-
-```txt
-review contextual incremental
-```
-
----
-
-# Navegação Arquitetural
-
-# O sistema deve permitir
-
-| Recurso | Obrigatório |
-|---|---|
-| visualizar dependências | ⚪ |
-| visualizar boundaries | ⚪ |
-| visualizar módulos relacionados | ⚪ |
-| visualizar hotspots | ⚪ |
 
 ---
 
@@ -143,10 +94,9 @@ review contextual incremental
 
 # Navegação NÃO pode
 
-- travar IDE;
-- congelar editor;
-- perder scroll;
-- perder contexto.
+- travar editor;
+- bloquear UI;
+- congelar webview.
 
 ---
 
@@ -155,28 +105,15 @@ review contextual incremental
 | Recurso | Obrigatório |
 |---|---|
 | lazy loading | ✅ |
+| debounce | ✅ |
+| incremental rendering | ✅ |
 | cache | ✅ |
-| restore scroll | ✅ |
-| background loading | ✅ |
-
----
-
-# Estratégia de Webview
-
-# Webviews devem
-
-| Recurso | Obrigatório |
-|---|---|
-| preservar estado | ✅ |
-| restaurar navegação | ✅ |
-| sobreviver reload | ✅ |
-| restaurar filtros | ✅ |
 
 ---
 
 # Estratégia de UX
 
-# A navegação deve ser
+# Navegação deve ser
 
 | Característica | Obrigatória |
 |---|---|
@@ -184,6 +121,19 @@ review contextual incremental
 | contextual | ✅ |
 | previsível | ✅ |
 | incremental | ✅ |
+
+---
+
+# Estratégia de Webview
+
+# Webviews devem preservar
+
+| Estado | Obrigatório |
+|---|---|
+| scroll | ✅ |
+| filtros | ✅ |
+| agrupamentos | ✅ |
+| seleção atual | ✅ |
 
 ---
 
@@ -201,9 +151,31 @@ review contextual incremental
 
 # Cloud pode adicionar
 
-- links compartilhados;
-- contexto compartilhado;
-- histórico compartilhado.
+- navegação compartilhada;
+- contexto colaborativo;
+- sessões compartilhadas.
+
+---
+
+# Estratégia de Segurança
+
+# Navegação NÃO pode
+
+- expor contexto inseguro;
+- abrir conteúdo sem autorização;
+- sincronizar automaticamente sem autorização.
+
+---
+
+# Estratégia de Performance
+
+# Navegação deve suportar
+
+| Situação | Obrigatória |
+|---|---|
+| centenas de findings | ✅ |
+| múltiplos módulos | ✅ |
+| múltiplos agrupamentos | ✅ |
 
 ---
 
@@ -212,11 +184,11 @@ review contextual incremental
 A navegação deve evoluir como:
 
 ```txt
-Fluxo Contextual Contínuo de Revisão Técnica
+Camada Fluida de Contextualização e Continuidade Técnica
 ```
 
 e NÃO apenas:
 
 ```txt
-abertura simples de arquivos
+atalhos simples para arquivos
 ```
