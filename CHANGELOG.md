@@ -2,7 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.9.0] - 2026-05-14 (Beta Release)
+## [2.1.0] - 2026-05-15
+
+### Added
+- **Gemini AI Provider**: Support for Google Gemini (Flash/Pro) with secure API key storage.
+- **Hardened AI Parsers**: Improved JSON extraction and validation for Ollama and Gemini responses.
+- **Relative Path Support**: Enhanced file resolution in VS Code for complex project structures.
+
+### Improved
+- **Ollama Integration**: Optimized local analysis with larger context window and refined prompts.
+- **AST Performance**: Implementation of file-type filtering in the TypeScript AST builder to reduce overhead.
+- **Testing Infrastructure**: Hardened mutation testing configuration and increased test coverage for AI providers.
+
+### Fixed
+- Duplicate event registration in VS Code view providers.
+- Absolute vs Relative path handling in IDE adapters.
+
+## [2.0.0] - 2026-05-14 (Stable Release)
 
 ### Added
 - **Workflow HITL (Human-in-the-Loop)**: Reviewers must approve findings before they appear as diagnostics in the editor.
