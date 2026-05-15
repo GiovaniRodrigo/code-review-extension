@@ -1,9 +1,9 @@
 {
   "name": "vscode-code-review",
   "publisher": "code-review",
-  "displayName": "AI Code Review",
-  "description": "AI-assisted Code Review Extension",
-  "version": "2.0.0",
+  "displayName": "AI Code Review (Beta)",
+  "description": "Intelligent Code Review with Human-in-the-Loop, RAG support, and multi-provider IA (Ollama/OpenAI).",
+  "version": "0.9.0",
   "scripts": {
     "compile": "tsc -p .",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --sourcemap --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --outfile=dist/extension.js",
