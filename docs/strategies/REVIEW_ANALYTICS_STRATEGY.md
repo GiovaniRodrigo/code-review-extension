@@ -2,122 +2,105 @@
 
 # Objetivo
 
-Definir a estratégia oficial de analytics de review.
+Definir a estratégia oficial de analytics da plataforma.
 
-O objetivo NÃO é apenas:
+O objetivo NÃO é:
 
 ```txt
-mostrar números
+mostrar gráficos
 ```
 
 O objetivo é:
 
 ```txt
-gerar inteligência operacional de revisão técnica
+fornecer inteligência contínua sobre qualidade e evolução técnica
 ```
+
+---
+
+# Princípio Principal
+
+Analytics representam:
+
+- governança;
+- evolução técnica;
+- hotspots;
+- regressões;
+- inteligência organizacional.
 
 ---
 
 # Objetivos dos Analytics
 
-Os analytics devem permitir:
+Permitir:
 
-- entender fluxo de review;
-- identificar gargalos;
-- identificar padrões técnicos;
-- identificar riscos recorrentes;
-- medir eficiência da IA;
-- medir eficiência do workflow.
+- identificar padrões;
+- detectar regressões;
+- medir qualidade;
+- medir debt;
+- apoiar decisões técnicas.
 
 ---
 
-# Analytics de Findings
+# Métricas Obrigatórias
 
 # O sistema deve medir
 
 | Métrica | Obrigatória |
 |---|---|
-| findings abertos | ✅ |
-| findings aprovados | ✅ |
-| findings reabertos | ✅ |
 | findings por severidade | ✅ |
 | findings por categoria | ✅ |
+| regressões | ✅ |
+| findings recorrentes | ✅ |
+| debt por módulo | ⚪ |
 
 ---
 
-# Analytics de Workflow
+# Métricas Futuras
 
-# O sistema deve medir
-
-| Métrica | Obrigatória |
+| Métrica | Futuro |
 |---|---|
-| tempo médio de review | ✅ |
-| tempo médio de correção | ✅ |
-| tempo médio de revalidação | ✅ |
-| throughput de review | ⚪ |
-
----
-
-# Analytics de IA
-
-# O sistema deve medir
-
-| Métrica | Obrigatória |
-|---|---|
-| findings IA aceitos | ✅ |
-| findings IA rejeitados | ✅ |
-| confidence média | ✅ |
-| tempo médio IA | ✅ |
-| false positives | ⚪ |
+| hotspots arquiteturais | ⚪ |
+| qualidade por equipe | ⚪ |
+| tempo médio de revalidação | ⚪ |
+| tempo médio de aprovação | ⚪ |
 
 ---
 
 # Objetivo
 
-Avaliar:
+Permitir:
 
 ```txt
-qualidade real da IA
+governança baseada em evidência técnica
 ```
 
 ---
 
-# Analytics Arquitetural
+# Estratégia de Contexto
 
-# O sistema deve identificar
+# Analytics devem considerar
 
-| Métrica | Obrigatória |
+| Contexto | Obrigatório |
 |---|---|
-| cyclic dependencies | ✅ |
-| layer violations | ✅ |
-| hotspots arquiteturais | ✅ |
-| debt trend | ⚪ |
+| severidade | ✅ |
+| categoria | ✅ |
+| histórico | ✅ |
+| reaberturas | ✅ |
+| regressões | ✅ |
 
 ---
 
-# Analytics de Runtime
+# Estratégia de Timeline
 
-# O sistema deve medir
+# O sistema deve permitir análise de
 
-| Métrica | Obrigatória |
+| Timeline | Obrigatória |
 |---|---|
-| provider failures | ✅ |
-| runtime diagnostics | ✅ |
-| sync failures | ✅ |
-| crashes | ✅ |
-
----
-
-# Analytics Organizacional
-
-# Cloud pode adicionar
-
-| Métrica | Obrigatória |
-|---|---|
-| reviews por reviewer | ⚪ |
-| backlog técnico | ⚪ |
-| debt organizacional | ⚪ |
-| tendências | ⚪ |
+| evolução de findings | ⚪ |
+| evolução de debt | ⚪ |
+| regressões recorrentes | ⚪ |
+| qualidade incremental | ⚪ |
 
 ---
 
@@ -126,8 +109,8 @@ qualidade real da IA
 # Analytics NÃO podem
 
 - travar IDE;
-- bloquear runtime;
-- executar polling infinito.
+- bloquear review;
+- monopolizar CPU.
 
 ---
 
@@ -135,10 +118,10 @@ qualidade real da IA
 
 | Recurso | Obrigatório |
 |---|---|
-| lazy loading | ✅ |
-| background updates | ✅ |
-| incremental refresh | ✅ |
+| background processing | ✅ |
+| incremental aggregation | ✅ |
 | cache | ✅ |
+| lazy loading | ✅ |
 
 ---
 
@@ -154,12 +137,49 @@ qualidade real da IA
 
 # Estratégia Cloud
 
-# Cloud deve adicionar
+# Cloud pode adicionar
 
-- dashboards compartilhados;
-- métricas organizacionais;
-- histórico consolidado;
-- inteligência organizacional.
+| Recurso | Obrigatório |
+|---|---|
+| analytics organizacionais | ⚪ |
+| dashboards corporativos | ⚪ |
+| inteligência organizacional | ⚪ |
+| benchmarks internos | ⚪ |
+
+---
+
+# Estratégia Organizacional
+
+# Enterprise pode permitir
+
+| Recurso | Obrigatório |
+|---|---|
+| analytics por equipe | ⚪ |
+| analytics por projeto | ⚪ |
+| analytics corporativos | ⚪ |
+
+---
+
+# Estratégia de Segurança
+
+# Analytics NÃO podem
+
+- expor código;
+- expor embeddings;
+- expor documentação privada.
+
+---
+
+# Estratégia de UX
+
+# O reviewer deve visualizar
+
+| Informação | Obrigatória |
+|---|---|
+| findings críticos | ✅ |
+| regressões recentes | ✅ |
+| debt recorrente | ⚪ |
+| hotspots | ⚪ |
 
 ---
 
@@ -168,11 +188,11 @@ qualidade real da IA
 Os analytics devem evoluir como:
 
 ```txt
-Camada de Inteligência Operacional de Review
+Camada Inteligente de Governança e Evolução Técnica
 ```
 
 e NÃO apenas:
 
 ```txt
-estatísticas básicas
+gráficos estáticos de métricas
 ```
