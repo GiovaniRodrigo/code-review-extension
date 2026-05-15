@@ -4,16 +4,23 @@ import {
   AIAnalysisRequestDTO,
   AIAnalysisResponseDTO
 } from '../../dto/ai/AIAnalysisDTO';
+import { AIAnalysisResponseSchema } from '../../dto/ai/AIAnalysisSchema';
+
+export interface AIAnalysisConfig {
+    timeout?: number;
+    maxRetries?: number;
+}
 
 export class AIAnalysisService {
   constructor(
     private readonly aiProvider: AIProviderPort,
-    private readonly contextBuilder?: RagContextBuilderPort
+    private readonly contextBuilder?: RagContextBuilderPort,
+    private readonly config: AIAnalysisConfig = {}
   ) {}
 
   async analyze(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
-    const timeout = 30000; // 30s
-    const maxRetries = 2;
+    const timeout = this.config.timeout ?? 30000; // default 30s
+    const maxRetries = this.config.maxRetries ?? 2;
     let lastError: any;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -34,16 +41,26 @@ export class AIAnalysisService {
                 context = chunks.map(c => `FILE: ${c.source}\n${c.content}`).join('\n\n');
             }
 
-            return await this.aiProvider.analyzeCode({
+            const rawResult = await this.aiProvider.analyzeCode({
               ...input,
               context,
               mode: input.mode ?? 'fast',
               signal
             });
+
+            // Phase 18: Response Validation
+            const validated = AIAnalysisResponseSchema.safeParse(rawResult);
+            if (!validated.success) {
+                console.error('[AI] Validation failed', validated.error.format());
+                // In production, we try to return what's valid or empty to avoid crashing
+                return { findings: [] };
+            }
+
+            return validated.data as AIAnalysisResponseDTO;
         } catch (e: any) {
             lastError = e;
             if (e.name === 'AbortError' || signal.aborted) {
-                throw e; // Don't retry if manually cancelled or timed out
+                throw e; 
             }
             console.error(`[AI] Attempt ${attempt} failed: ${e.message}`);
         } finally {

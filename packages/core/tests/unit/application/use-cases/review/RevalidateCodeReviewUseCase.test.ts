@@ -14,8 +14,8 @@ describe('RevalidateCodeReviewUseCase', () => {
     mockAiProvider = {
       analyzeCode: vi.fn().mockResolvedValue({
         findings: [
-          { file: 'a.ts', line: 1, message: 'old error', severity: 'error', confidence: 1.0 },
-          { file: 'a.ts', line: 2, message: 'new error', severity: 'warning', confidence: 0.8 }
+          { file: 'a.ts', line: 1, message: 'old error', severity: 'error', confidence: 1.0, category: 'code_smell' },
+          { file: 'a.ts', line: 2, message: 'new error', severity: 'warning', confidence: 0.8, category: 'code_smell' }
         ],
         confidenceScore: 0.9
       })

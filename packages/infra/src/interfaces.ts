@@ -19,6 +19,7 @@ export interface IDEAdapter {
   ): Promise<void>;
   onBranchChange(callback: (branch: string) => void): void;
   clearDiagnostics(): void;
+  dispose(): void;
 }
 
 export interface AIAnalysisInput {

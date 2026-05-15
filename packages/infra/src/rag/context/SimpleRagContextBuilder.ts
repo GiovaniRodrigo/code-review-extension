@@ -6,11 +6,13 @@ import type { RagEmbeddingProviderPort } from '../../../../core/src/ports/rag/Ra
 export class SimpleRagContextBuilder implements RagContextBuilderPort {
   constructor(
     private readonly vectorStore: RagVectorStorePort,
-    private readonly embeddingProvider: RagEmbeddingProviderPort
+    private readonly embeddingProvider: RagEmbeddingProviderPort,
+    private readonly config: { maxChunks?: number } = {}
   ) {}
 
   async buildContext(query: string): Promise<RagChunkDTO[]> {
     const vector = await this.embeddingProvider.generateEmbedding(query);
-    return this.vectorStore.search(vector, 5);
+    const limit = this.config.maxChunks ?? 5;
+    return this.vectorStore.search(vector, limit);
   }
 }

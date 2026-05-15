@@ -28,6 +28,7 @@
 - 🟢 Chunking semântico.
 - 🟢 Indexação de repositório local incremental.
 - 🟢 Busca contextual para IA com ranking simples.
+- 🟢 Ativar/Desativar RAG via configurações.
 - Recuperação híbrida (Semântica + Keyword).
 - Contexto organizacional (padrões do time).
 - Memória de IA (contexto persistente do projeto).
@@ -36,5 +37,8 @@
 - 🟢 IA multi-provedor (Hybrid Cloud/Local).
 - 🟢 Sidebar operacional com agrupamento e filtros por severidade.
 - 🟢 Resiliência de IA (Retries, Timeouts, Cancelamento).
+- 🟢 Segurança: Chaves de API via SecretStorage.
+- 🟢 Validação de Resposta: Schema validation com Zod.
+- 🟢 Configurações avançadas de usuário (Timeout, Retries, Ignored Folders).
 - Publicação automática de PRs no GitHub/GitLab.
 - Workflows corporativos e auditoria.

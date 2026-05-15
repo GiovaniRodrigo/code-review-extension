@@ -157,6 +157,42 @@
           "default": "gpt-4o-mini",
           "description": "OpenAI model used for code review."
         },
+        "codeReview.ai.timeout": {
+          "type": "number",
+          "default": 30000,
+          "description": "AI Analysis timeout in milliseconds."
+        },
+        "codeReview.ai.retries": {
+          "type": "number",
+          "default": 2,
+          "description": "Maximum number of retries for AI analysis."
+        },
+        "codeReview.rag.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Retrieval Augmented Generation for context enrichment."
+        },
+        "codeReview.rag.maxChunks": {
+          "type": "number",
+          "default": 5,
+          "description": "Maximum number of code chunks to send as context."
+        },
+        "codeReview.rag.ignoredFolders": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["node_modules", ".git", "dist", ".turbo"],
+          "description": "Folders to ignore during RAG indexing."
+        },
+        "codeReview.autoRestoreSession": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically restore previous review session when switching branches."
+        },
+        "codeReview.autoRevalidate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically revalidate code after file save."
+        },
         "codeReview.github.token": {
           "type": "string",
           "default": "",

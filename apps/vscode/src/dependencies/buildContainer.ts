@@ -62,8 +62,16 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
   const vectorStore = new MemoryRagVectorStore();
   const embeddingProvider = new SimpleEmbeddingProvider();
   const astBuilder = new TypeScriptAstBuilder();
-  const contextBuilder = new SimpleRagContextBuilder(vectorStore, embeddingProvider);
-  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, storageDir);
+  
+  const ragEnabled = config.get<boolean>('rag.enabled', true);
+  const contextBuilder = ragEnabled 
+    ? new SimpleRagContextBuilder(vectorStore, embeddingProvider, { maxChunks: config.get<number>('rag.maxChunks', 5) })
+    : undefined;
+
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, { 
+    storageDir,
+    ignoredFolders: config.get<string[]>('rag.ignoredFolders', ['node_modules', '.git', 'dist', '.turbo'])
+  });
 
   const aiProvider = AIProviderFactory.create({
     provider: config.get<'mock' | 'ollama' | 'openai'>('provider', 'mock'),
@@ -72,12 +80,16 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
         model: config.get<string>('ollama.model', 'llama3')
     },
     openai: {
-        apiKey: context.globalState.get<string>('openai-key', ''),
+        apiKey: () => context.secrets.get('openai-api-key').then(k => k || ''),
         model: config.get<string>('openai.model', 'gpt-4o-mini')
     }
   });
 
-  const aiAnalysisService = new AIAnalysisService(aiProvider as any, contextBuilder);
+  const aiAnalysisService = new AIAnalysisService(aiProvider as any, contextBuilder, {
+    timeout: config.get<number>('ai.timeout', 30000),
+    maxRetries: config.get<number>('ai.retries', 2)
+  });
+
   const codeReviewService = new CodeReviewService(repository);
   const ragIndexingService = new RagIndexingService(ragIndexer);
   

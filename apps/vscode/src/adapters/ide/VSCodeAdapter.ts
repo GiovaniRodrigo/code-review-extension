@@ -250,6 +250,10 @@ export class VSCodeAdapter implements IDEAdapter {
     this.diagnosticCollection?.clear();
   }
 
+  dispose(): void {
+    this.diagnosticCollection?.dispose();
+  }
+
   private async _getCommitMetadata(commitHash: string): Promise<BranchCommit> {
     const cwd = this._getWorkspacePath();
 

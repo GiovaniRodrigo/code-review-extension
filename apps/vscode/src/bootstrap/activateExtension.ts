@@ -16,7 +16,12 @@ export function activateExtension(context: vscode.ExtensionContext): void {
     registerEvents(context, container);
     registerProviders(context, container);
     
-    void restoreCurrentBranchSession(context, container);
+    context.subscriptions.push(container.ide);
+
+    const config = vscode.workspace.getConfiguration('codeReview');
+    if (config.get<boolean>('autoRestoreSession', true)) {
+        void restoreCurrentBranchSession(context, container);
+    }
   } catch (error) {
     console.error('Critical failure during activation', error);
   }

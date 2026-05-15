@@ -6,6 +6,11 @@ import { AstBuilderPort } from '../../../../core/src/ports/ast/AstBuilderPort';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export interface RagIndexerConfig {
+    storageDir?: string;
+    ignoredFolders?: string[];
+}
+
 export class SimpleRagIndexer implements RagIndexerPort {
   private readonly manifestPath: string;
   private manifest: Record<string, { mtime: number, size: number }> = {};
@@ -14,9 +19,9 @@ export class SimpleRagIndexer implements RagIndexerPort {
     private readonly vectorStore: RagVectorStorePort,
     private readonly embeddingProvider: RagEmbeddingProviderPort,
     private readonly astBuilder: AstBuilderPort,
-    storageDir?: string
+    private readonly config: RagIndexerConfig = {}
   ) {
-    this.manifestPath = storageDir ? path.join(storageDir, 'rag-manifest.json') : '';
+    this.manifestPath = config.storageDir ? path.join(config.storageDir, 'rag-manifest.json') : '';
     this._loadManifest();
   }
 
@@ -98,13 +103,14 @@ export class SimpleRagIndexer implements RagIndexerPort {
     const results: string[] = [];
     if (!fs.existsSync(dir)) return results;
     
+    const ignored = this.config.ignoredFolders ?? ['node_modules', '.git', 'dist', '.turbo'];
     const list = fs.readdirSync(dir);
     for (const file of list) {
       const fullPath = path.join(dir, file);
       const stat = fs.statSync(fullPath);
       
       if (stat && stat.isDirectory()) {
-        if (file !== 'node_modules' && file !== '.git' && file !== 'dist' && file !== '.turbo') {
+        if (!ignored.includes(file)) {
           results.push(...this._getFiles(fullPath));
         }
       } else if (file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.js')) {

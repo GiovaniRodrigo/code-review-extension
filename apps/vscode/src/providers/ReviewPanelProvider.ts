@@ -35,7 +35,6 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           await this.refresh();
           break;
         case 'focus':
-          // We need a session to find the finding
           const session = await this.repository.getSessionById(message.sessionId);
           const finding = session?.findings.find(f => f.id === message.findingId);
           if (finding) {
@@ -45,7 +44,15 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
         case 'revalidate':
           await vscode.commands.executeCommand('code-review.analyze');
           break;
+        case 'copy':
+          await vscode.env.clipboard.writeText(message.text);
+          await vscode.window.showInformationMessage('Finding copied to clipboard.');
+          break;
       }
+    });
+
+    webviewView.onDidDispose(() => {
+        this._view = undefined;
     });
 
     await this.refresh();
@@ -76,11 +83,15 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     const sectionsHtml = Object.keys(findingsByFile).map(file => {
         const fileFindings = findingsByFile[file];
         const itemsHtml = fileFindings.map((f: any) => `
-            <div class="finding-item" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px;">
+            <div class="finding-item" id="item-${f.id}" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
+                <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
                 <strong>${f.severity.toUpperCase()}</strong>: ${f.message}<br/>
                 <small>Line ${f.line}</small> | <em>${f.status}</em><br/>
-                <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
-                <button onclick="focus('${session.id}', '${f.id}')">Focus</button>
+                <div style="margin-top: 5px; display: flex; gap: 5px;">
+                    <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
+                    <button onclick="focusItem('${session.id}', '${f.id}')">Focus</button>
+                    <button onclick="copyFinding('${f.message}')">Copy</button>
+                </div>
             </div>
         `).join('');
 
@@ -98,6 +109,8 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           <style>
             .filter-btn { background: none; border: 1px solid #555; color: #ccc; cursor: pointer; padding: 2px 5px; font-size: 10px; }
             .filter-btn.active { background: #555; color: white; }
+            .highlight { background: rgba(255, 255, 0, 0.1); }
+            button { cursor: pointer; font-size: 11px; }
           </style>
         </head>
         <body style="font-family: var(--vscode-font-family); color: var(--vscode-foreground);">
@@ -123,8 +136,13 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             function approve(sessionId, findingId) {
               vscode.postMessage({ command: 'approve', sessionId, findingId });
             }
-            function focus(sessionId, findingId) {
+            function focusItem(sessionId, findingId) {
+              document.querySelectorAll('.finding-item').forEach(i => i.classList.remove('highlight'));
+              document.getElementById('item-' + findingId).classList.add('highlight');
               vscode.postMessage({ command: 'focus', sessionId, findingId });
+            }
+            function copyFinding(text) {
+              vscode.postMessage({ command: 'copy', text });
             }
             function revalidate() {
               vscode.postMessage({ command: 'revalidate' });
@@ -141,7 +159,6 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
                 }
               });
 
-              // Hide empty sections
               document.querySelectorAll('.file-section').forEach(section => {
                 const visibleItems = Array.from(section.querySelectorAll('.finding-item')).filter(i => i.style.display !== 'none');
                 section.style.display = visibleItems.length > 0 ? 'block' : 'none';

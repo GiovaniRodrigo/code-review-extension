@@ -19,8 +19,14 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   }
 
   container.commands.register('code-review.setOpenAIApiKey', async () => {
-    const key = await vscode.window.showInputBox({ prompt: 'Enter OpenAI API Key' });
-    if (key) await container.storage.set('openai-key', key);
+    const key = await vscode.window.showInputBox({ 
+        prompt: 'Enter OpenAI API Key',
+        password: true 
+    });
+    if (key) {
+        await context.secrets.store('openai-api-key', key);
+        await container.notifications.info('OpenAI API Key stored securely.');
+    }
   });
   
   container.commands.register('code-review.approveFinding', async (sessionId: string, findingId: string) => {
