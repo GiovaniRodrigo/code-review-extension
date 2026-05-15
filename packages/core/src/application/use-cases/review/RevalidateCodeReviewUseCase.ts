@@ -61,7 +61,17 @@ export class RevalidateCodeReviewUseCase {
         return newF;
     });
 
-    existingSession.findings = mergedFindings;
+    // Deduplicate findings by message and line to avoid AI noise
+    const uniqueFindings = mergedFindings.filter((f, index, self) =>
+        index === self.findIndex((t) => (
+            t.file === f.file && t.line === f.line && t.message === f.message
+        ))
+    );
+
+    // Limit findings per session (Phase 2: Performance)
+    const MAX_FINDINGS = 100;
+    existingSession.findings = uniqueFindings.slice(0, MAX_FINDINGS);
+    
     await this.reviewService.update(existingSession);
     
     const duration = Date.now() - startTime;

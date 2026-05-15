@@ -4,6 +4,10 @@
   "displayName": "AI Code Review (Beta)",
   "description": "Intelligent Code Review with Human-in-the-Loop, RAG support, and multi-provider IA (Ollama/OpenAI).",
   "version": "0.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giovani/code-review-extension.git"
+  },
   "scripts": {
     "compile": "tsc -p .",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --sourcemap --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --outfile=dist/extension.js",
@@ -129,6 +133,19 @@
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "code-review.analyze",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "code-review.focus",
+        "key": "ctrl+alt+v",
+        "mac": "cmd+alt+v"
+      }
+    ],
     "configuration": {
       "title": "AI Code Review",
       "properties": {

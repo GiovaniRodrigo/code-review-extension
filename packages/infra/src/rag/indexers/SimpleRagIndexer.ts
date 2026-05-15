@@ -33,38 +33,49 @@ export class SimpleRagIndexer implements RagIndexerPort {
     let totalChunks = 0;
 
     for (const file of files) {
-      const stat = fs.statSync(file);
-      const lastIndexed = this.manifest[file];
+      try {
+        const stat = fs.statSync(file);
+        
+        // Phase 2: Performance - Skip large files (>1MB)
+        if (stat.size > 1024 * 1024) {
+          console.warn(`[RAG] Skipping large file: ${file} (${stat.size} bytes)`);
+          continue;
+        }
 
-      if (lastIndexed && lastIndexed.mtime === stat.mtimeMs && lastIndexed.size === stat.size) {
-        continue; 
+        const lastIndexed = this.manifest[file];
+
+        if (lastIndexed && lastIndexed.mtime === stat.mtimeMs && lastIndexed.size === stat.size) {
+          continue; 
+        }
+
+        console.log(`[RAG] Indexing ${file}...`);
+        const code = fs.readFileSync(file, 'utf8');
+        
+        if (lastIndexed) {
+            await this.vectorStore.deleteBySource(file);
+        }
+
+        const chunks = await chunker.chunk(file, code);
+        totalChunks += chunks.length;
+        for (const chunk of chunks) {
+          const vector = await this.embeddingProvider.generateEmbedding(chunk.content);
+          await this.vectorStore.add({
+            id: chunk.id,
+            content: chunk.content,
+            source: chunk.file,
+            metadata: {
+              startLine: chunk.startLine,
+              endLine: chunk.endLine,
+              language: chunk.language
+            }
+          }, vector);
+        }
+
+        this.manifest[file] = { mtime: stat.mtimeMs, size: stat.size };
+        updatedCount++;
+      } catch (e: any) {
+        console.error(`[RAG] Failed to index ${file}: ${e.message}`);
       }
-
-      console.log(`[RAG] Indexing ${file}...`);
-      const code = fs.readFileSync(file, 'utf8');
-      
-      if (lastIndexed) {
-          await this.vectorStore.deleteBySource(file);
-      }
-
-      const chunks = await chunker.chunk(file, code);
-      totalChunks += chunks.length;
-      for (const chunk of chunks) {
-        const vector = await this.embeddingProvider.generateEmbedding(chunk.content);
-        await this.vectorStore.add({
-          id: chunk.id,
-          content: chunk.content,
-          source: chunk.file,
-          metadata: {
-            startLine: chunk.startLine,
-            endLine: chunk.endLine,
-            language: chunk.language
-          }
-        }, vector);
-      }
-
-      this.manifest[file] = { mtime: stat.mtimeMs, size: stat.size };
-      updatedCount++;
     }
 
     if (updatedCount > 0) {
@@ -113,8 +124,12 @@ export class SimpleRagIndexer implements RagIndexerPort {
         if (!ignored.includes(file)) {
           results.push(...this._getFiles(fullPath));
         }
-      } else if (file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.js')) {
-        results.push(fullPath);
+      } else {
+          // Check extension
+          const ext = path.extname(file).toLowerCase();
+          if (['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs'].includes(ext)) {
+            results.push(fullPath);
+          }
       }
     }
     return results;

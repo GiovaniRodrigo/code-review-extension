@@ -227,7 +227,13 @@ export class VSCodeAdapter implements IDEAdapter {
     vscode.window.showInformationMessage(message);
   }
 
+  private _branchChangeListener?: vscode.Disposable;
+
   onBranchChange(callback: (branch: string) => void): void {
+    if (this._branchChangeListener) {
+        this._branchChangeListener.dispose();
+    }
+
     try {
       const gitExtension = vscode.extensions.getExtension('vscode.git');
       if (!gitExtension) return;
@@ -236,7 +242,7 @@ export class VSCodeAdapter implements IDEAdapter {
       const repository = git?.repositories?.[0];
 
       if (repository) {
-        repository.state.onDidChange(() => {
+        this._branchChangeListener = repository.state.onDidChange(() => {
           const branch = repository.state.HEAD?.name;
           if (branch) callback(branch);
         });
@@ -251,6 +257,7 @@ export class VSCodeAdapter implements IDEAdapter {
   }
 
   dispose(): void {
+    this._branchChangeListener?.dispose();
     this.diagnosticCollection?.dispose();
   }
 

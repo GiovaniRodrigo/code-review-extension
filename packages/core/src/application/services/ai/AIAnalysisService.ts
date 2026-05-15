@@ -19,6 +19,7 @@ export class AIAnalysisService {
   ) {}
 
   async analyze(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
+    const startTime = Date.now();
     const timeout = this.config.timeout ?? 30000; // default 30s
     const maxRetries = this.config.maxRetries ?? 2;
     let lastError: any;
@@ -41,6 +42,13 @@ export class AIAnalysisService {
                 context = chunks.map(c => `FILE: ${c.source}\n${c.content}`).join('\n\n');
             }
 
+            // Phase 2: Performance - Truncate excessive context (~10k chars limit)
+            const MAX_CONTEXT_CHARS = 10000;
+            if (context.length > MAX_CONTEXT_CHARS) {
+                console.warn(`[AI] Context too large (${context.length} chars). Truncating...`);
+                context = context.substring(0, MAX_CONTEXT_CHARS) + '\n... [truncated]';
+            }
+
             const rawResult = await this.aiProvider.analyzeCode({
               ...input,
               context,
@@ -56,7 +64,19 @@ export class AIAnalysisService {
                 return { findings: [] };
             }
 
-            return validated.data as AIAnalysisResponseDTO;
+            const data = validated.data as AIAnalysisResponseDTO;
+            
+            // Phase 4: Quality - Deduplicate findings from AI to reduce noise
+            data.findings = data.findings.filter((f, index, self) =>
+                index === self.findIndex((t) => (
+                    t.file === f.file && t.line === f.line && t.message === f.message
+                ))
+            );
+
+            const duration = Date.now() - startTime;
+            console.log(`[AI] Analysis completed in ${duration}ms. Findings: ${data.findings.length}`);
+
+            return data;
         } catch (e: any) {
             lastError = e;
             if (e.name === 'AbortError' || signal.aborted) {
