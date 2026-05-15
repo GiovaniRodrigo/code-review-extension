@@ -19,18 +19,12 @@
 
 | ID | Status | Módulo | Progresso | Responsável | Dependência |
 |---|---|---|---:|---|---|
-| EP-01 | ⚪ TODO | Fundação Arquitetural | 0% | - | - |
-| EP-02 | ⚪ TODO | Integração Multi-IDE | 0% | - | EP-01 |
-| EP-03 | ⚪ TODO | Core de Code Review | 0% | - | EP-01 |
-| EP-04 | ⚪ TODO | Providers de IA | 0% | - | EP-03 |
-| EP-05 | ⚪ TODO | Sistema RAG | 0% | - | EP-04 |
-| EP-06 | ⚪ TODO | AST Builder | 0% | - | EP-03 |
-| EP-07 | ⚪ TODO | Analyzers | 0% | - | EP-06 |
-| EP-08 | ⚪ TODO | Persistência Local | 0% | - | EP-03 |
-| EP-09 | ⚪ TODO | VPS / Git Sync | 0% | - | EP-03 |
-| EP-10 | ⚪ TODO | UI/UX | 0% | - | EP-02 |
-| EP-11 | ⚪ TODO | Testes | 0% | - | TODOS |
-| EP-12 | ⚪ TODO | Documentação | 0% | - | TODOS |
+| EP-01 | 🟢 DONE | Fundação Arquitetural | 100% | - | - |
+| EP-02 | 🔵 DEV | Integração Multi-IDE | 40% | - | EP-01 |
+| EP-03 | 🔵 DEV | Core de Code Review | 80% | - | EP-01 |
+| EP-04 | 🟢 DONE | Providers de IA | 100% | - | EP-03 |
+...
+| EP-10 | 🔵 DEV | UI/UX | 50% | - | EP-02 |
 
 ---
 
@@ -171,12 +165,12 @@ Interpretar semanticamente o código-fonte.
 
 | ID | Status | Task | Tipo | Prioridade | Progresso |
 |---|---|---|---|---|---:|
-| AST-001 | ⚪ TODO | Criar AstBuilderPort | Core | Alta | 0% |
-| AST-002 | ⚪ TODO | Implementar TypeScript AST | Infra | Alta | 0% |
-| AST-003 | ⚪ TODO | Implementar parser de imports | Infra | Alta | 0% |
-| AST-004 | ⚪ TODO | Criar dependency graph | Infra | Alta | 0% |
-| AST-005 | ⚪ TODO | Integrar AST ao RAG | Core | Alta | 0% |
-| AST-006 | ⚪ TODO | Integrar AST aos analyzers | Core | Alta | 0% |
+| AST-001 | 🟢 DONE | Criar AstBuilderPort | Core | Alta | 100% |
+| AST-002 | 🟢 DONE | Implementar TypeScript AST | Infra | Alta | 100% |
+| AST-003 | 🟢 DONE | Implementar parser de imports | Infra | Alta | 100% |
+| AST-004 | 🟢 DONE | Criar dependency graph | Infra | Alta | 100% |
+| AST-005 | 🟢 DONE | Integrar AST ao RAG | Core | Alta | 100% |
+| AST-006 | 🟢 DONE | Integrar AST aos analyzers | Core | Alta | 100% |
 
 ---
 

@@ -6,6 +6,7 @@ export * from './MockEmbeddingProvider';
 export * from './OpenAIProvider';
 export * from './OllamaProvider';
 export * from './AIProviderRegistry';
+export * from './AIProviderFactory';
 export * from './FallbackAIProvider';
 export * from './GitHubProvider';
 export * from './GitLabProvider';
