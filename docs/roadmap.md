@@ -26,14 +26,15 @@
 
 ## Fase 3: RAG e Contexto
 - 🟢 Chunking semântico.
-- 🟢 Indexação de repositório local.
-- 🟢 Busca contextual para IA.
+- 🟢 Indexação de repositório local incremental.
+- 🟢 Busca contextual para IA com ranking simples.
 - Recuperação híbrida (Semântica + Keyword).
 - Contexto organizacional (padrões do time).
 - Memória de IA (contexto persistente do projeto).
 
 ## Fase 4: Enterprise e Ecossistema
 - 🟢 IA multi-provedor (Hybrid Cloud/Local).
-- 🟢 Sidebar operacional com agrupamento e filtros.
+- 🟢 Sidebar operacional com agrupamento e filtros por severidade.
+- 🟢 Resiliência de IA (Retries, Timeouts, Cancelamento).
 - Publicação automática de PRs no GitHub/GitLab.
 - Workflows corporativos e auditoria.

@@ -1,23 +1,57 @@
+import * as vscode from 'vscode';
 import { VSCodeContainer } from '../dependencies/buildContainer';
+
+let activeAbortController: AbortController | null = null;
 
 export const analyzeCommand = {
   id: 'code-review.analyze',
   async execute(container: VSCodeContainer) {
+    if (activeAbortController) {
+        activeAbortController.abort();
+        activeAbortController = null;
+    }
+
+    activeAbortController = new AbortController();
+    const signal = activeAbortController.signal;
+
     try {
       const code = await container.ide.getActiveFileContent();
       const filePath = await container.ide.getActiveFilePath();
       const branch = await container.ide.getActiveBranch();
       
-      const result = await container.revalidateCodeReviewUseCase.execute({
-        code,
-        filePath,
-        branch
+      await container.reviewPanelProvider.refresh(true); // Set loading state
+
+      const result = await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: 'AI is analyzing your code...',
+        cancellable: true
+      }, async (progress, token) => {
+        token.onCancellationRequested(() => {
+            activeAbortController?.abort();
+        });
+
+        return await container.revalidateCodeReviewUseCase.execute({
+          code,
+          filePath,
+          branch,
+          signal
+        } as any);
       });
+
+      if (signal.aborted) return;
 
       await container.reviewPanelProvider.refresh();
       await container.notifications.info(`AI analysis completed: ${result.findings.length} finding(s) synced.`);
     } catch (e: any) {
+      if (e.name === 'AbortError' || e.message?.includes('aborted')) {
+          console.log('[ANALYZE] Analysis cancelled.');
+          return;
+      }
       await container.notifications.error(`Failed to analyze: ${e.message}`);
+    } finally {
+        if (activeAbortController?.signal === signal) {
+            activeAbortController = null;
+        }
     }
   }
 };

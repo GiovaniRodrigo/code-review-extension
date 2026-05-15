@@ -6,6 +6,7 @@ export interface AIAnalysisRequestDTO {
   language?: string;
   context?: string;
   mode?: AIExecutionMode;
+  signal?: AbortSignal;
 }
 
 export interface AIAnalysisFindingDTO {

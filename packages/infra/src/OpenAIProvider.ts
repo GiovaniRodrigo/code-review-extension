@@ -64,7 +64,8 @@ ${input.code}
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          signal: (input as any).signal
         }
       );
 

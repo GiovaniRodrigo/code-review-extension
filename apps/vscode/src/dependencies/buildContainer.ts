@@ -63,7 +63,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
   const embeddingProvider = new SimpleEmbeddingProvider();
   const astBuilder = new TypeScriptAstBuilder();
   const contextBuilder = new SimpleRagContextBuilder(vectorStore, embeddingProvider);
-  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder);
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, storageDir);
 
   const aiProvider = AIProviderFactory.create({
     provider: config.get<'mock' | 'ollama' | 'openai'>('provider', 'mock'),

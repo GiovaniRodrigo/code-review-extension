@@ -64,6 +64,9 @@ ${input.code}
             options: {
               temperature: 0
             }
+          },
+          {
+            signal: (input as any).signal
           }
         );
 

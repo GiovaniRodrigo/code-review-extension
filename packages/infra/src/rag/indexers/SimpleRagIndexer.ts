@@ -7,20 +7,43 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class SimpleRagIndexer implements RagIndexerPort {
+  private readonly manifestPath: string;
+  private manifest: Record<string, { mtime: number, size: number }> = {};
+
   constructor(
     private readonly vectorStore: RagVectorStorePort,
     private readonly embeddingProvider: RagEmbeddingProviderPort,
-    private readonly astBuilder: AstBuilderPort
-  ) {}
+    private readonly astBuilder: AstBuilderPort,
+    storageDir?: string
+  ) {
+    this.manifestPath = storageDir ? path.join(storageDir, 'rag-manifest.json') : '';
+    this._loadManifest();
+  }
 
   async indexRepository(rootPath: string): Promise<void> {
+    const startTime = Date.now();
     const chunker = new SemanticChunkerService(this.astBuilder);
     const files = this._getFiles(rootPath);
+    let updatedCount = 0;
+    let totalChunks = 0;
 
     for (const file of files) {
+      const stat = fs.statSync(file);
+      const lastIndexed = this.manifest[file];
+
+      if (lastIndexed && lastIndexed.mtime === stat.mtimeMs && lastIndexed.size === stat.size) {
+        continue; 
+      }
+
+      console.log(`[RAG] Indexing ${file}...`);
       const code = fs.readFileSync(file, 'utf8');
-      const chunks = await chunker.chunk(file, code);
       
+      if (lastIndexed) {
+          await this.vectorStore.deleteBySource(file);
+      }
+
+      const chunks = await chunker.chunk(file, code);
+      totalChunks += chunks.length;
       for (const chunk of chunks) {
         const vector = await this.embeddingProvider.generateEmbedding(chunk.content);
         await this.vectorStore.add({
@@ -34,11 +57,41 @@ export class SimpleRagIndexer implements RagIndexerPort {
           }
         }, vector);
       }
+
+      this.manifest[file] = { mtime: stat.mtimeMs, size: stat.size };
+      updatedCount++;
     }
+
+    if (updatedCount > 0) {
+        this._saveManifest();
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(`[RAG] Indexing completed in ${duration}ms. Files updated: ${updatedCount}. Total chunks: ${totalChunks}`);
   }
 
   async clear(): Promise<void> {
     await this.vectorStore.clear();
+    this.manifest = {};
+    this._saveManifest();
+  }
+
+  private _loadManifest() {
+    if (!this.manifestPath || !fs.existsSync(this.manifestPath)) return;
+    try {
+        this.manifest = JSON.parse(fs.readFileSync(this.manifestPath, 'utf8'));
+    } catch (e) {
+        this.manifest = {};
+    }
+  }
+
+  private _saveManifest() {
+    if (!this.manifestPath) return;
+    try {
+        fs.writeFileSync(this.manifestPath, JSON.stringify(this.manifest, null, 2));
+    } catch (e) {
+        console.error('[RAG] Failed to save manifest', e);
+    }
   }
 
   private _getFiles(dir: string): string[] {

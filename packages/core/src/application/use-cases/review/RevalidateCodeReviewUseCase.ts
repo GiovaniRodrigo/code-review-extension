@@ -6,6 +6,7 @@ export interface RevalidateInput {
     branch: string;
     code: string;
     filePath: string;
+    signal?: AbortSignal;
 }
 
 export class RevalidateCodeReviewUseCase {
@@ -23,7 +24,8 @@ export class RevalidateCodeReviewUseCase {
     const analysisResult = await this.analysisService.analyze({
         code: input.code,
         filePath: input.filePath,
-        mode: 'fast'
+        mode: 'fast',
+        signal: input.signal
     });
 
     const newFindings: Finding[] = analysisResult.findings.map((f, index) => ({
