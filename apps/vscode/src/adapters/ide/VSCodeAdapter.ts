@@ -256,6 +256,33 @@ export class VSCodeAdapter implements IDEAdapter {
     this.diagnosticCollection?.clear();
   }
 
+  async syncDiagnostics(findings: Finding[]): Promise<void> {
+    this.clearDiagnostics();
+    const approved = findings.filter(f => f.status === 'approved');
+    
+    // Group by file to set all diagnostics for a file at once
+    const byFile = approved.reduce((acc, f) => {
+        if (!acc[f.file]) acc[f.file] = [];
+        acc[f.file].push(f);
+        return acc;
+    }, {} as Record<string, Finding[]>);
+
+    for (const file in byFile) {
+        const uri = vscode.Uri.file(file);
+        const diagnostics = byFile[file].map(f => {
+            const line = Math.max((f.line || 1) - 1, 0);
+            const column = Math.max((f.column || 1) - 1, 0);
+            const range = new vscode.Range(line, column, line, column);
+            const severity = this._toDiagnosticSeverity(f.severity);
+            const diagnostic = new vscode.Diagnostic(range, f.message, severity);
+            diagnostic.source = 'AI Code Review';
+            diagnostic.code = f.id;
+            return diagnostic;
+        });
+        this.diagnosticCollection?.set(uri, diagnostics);
+    }
+  }
+
   dispose(): void {
     this._branchChangeListener?.dispose();
     this.diagnosticCollection?.dispose();

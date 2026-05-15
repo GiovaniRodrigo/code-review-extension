@@ -40,6 +40,7 @@ export const analyzeCommand = {
 
       if (signal.aborted) return;
 
+      await container.ide.syncDiagnostics(result.findings);
       await container.reviewPanelProvider.refresh();
       await container.notifications.info(`AI analysis completed: ${result.findings.length} finding(s) synced.`);
     } catch (e: any) {

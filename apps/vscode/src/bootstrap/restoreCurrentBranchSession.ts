@@ -15,11 +15,8 @@ export async function restoreCurrentBranchSession(context: vscode.ExtensionConte
         // Refresh UI
         await container.reviewPanelProvider.refresh();
         
-        // Restore approved diagnostics
-        const approvedFindings = session.findings.filter(f => f.status === 'approved');
-        for (const finding of approvedFindings) {
-            await container.ide.showFinding(finding);
-        }
+        // Sync diagnostics
+        await container.ide.syncDiagnostics(session.findings);
     }
   } catch (error: any) {
     console.debug(`[BOOTSTRAP] Could not restore review session: ${error.message}`);

@@ -113,6 +113,6 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(),
     ragStatusProvider: new RagStatusProvider(),
-    reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase)
+    reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context)
   };
 }

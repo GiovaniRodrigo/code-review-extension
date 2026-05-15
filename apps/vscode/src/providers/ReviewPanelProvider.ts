@@ -13,7 +13,8 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly repository: CodeReviewRepositoryPort,
     private readonly ide: IdeAdapterPort,
-    private readonly approveFindingUseCase: ApproveFindingUseCase
+    private readonly approveFindingUseCase: ApproveFindingUseCase,
+    private readonly context: vscode.ExtensionContext
   ) {}
 
   async resolveWebviewView(
@@ -48,6 +49,9 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           await vscode.env.clipboard.writeText(message.text);
           await vscode.window.showInformationMessage('Finding copied to clipboard.');
           break;
+        case 'saveState':
+          await this.context.workspaceState.update('review-panel-state', message.state);
+          break;
       }
     });
 
@@ -63,11 +67,12 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
 
     const branch = await this.ide.getActiveBranch();
     const session = await this.repository.getSessionByBranch(branch);
+    const savedState = this.context.workspaceState.get('review-panel-state', { filter: 'all', collapsed: [] as string[] });
 
-    this._view.webview.html = this._getHtml(session, isLoading);
+    this._view.webview.html = this._getHtml(session, isLoading, savedState);
   }
 
-  private _getHtml(session: any, isLoading = false): string {
+  private _getHtml(session: any, isLoading = false, state: any = {}): string {
     const loadingHtml = isLoading ? '<div style="background: #333; padding: 5px; text-align: center;">AI is analyzing...</div>' : '';
 
     if (!session || !session.findings.length) {
@@ -82,6 +87,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
 
     const sectionsHtml = Object.keys(findingsByFile).map(file => {
         const fileFindings = findingsByFile[file];
+        const isCollapsed = state.collapsed?.includes(file);
         const itemsHtml = fileFindings.map((f: any) => `
             <div class="finding-item" id="item-${f.id}" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
                 <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
@@ -96,8 +102,8 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
         `).join('');
 
         return `
-            <details class="file-section" open>
-                <summary style="font-weight: bold; cursor: pointer; padding: 5px; background: #333; margin-bottom: 5px;">${file} (${fileFindings.length})</summary>
+            <details class="file-section" ${isCollapsed ? '' : 'open'} ontoggle="saveCurrentState()">
+                <summary style="font-weight: bold; cursor: pointer; padding: 5px; background: #333; margin-bottom: 5px;" data-file="${file}">${file} (${fileFindings.length})</summary>
                 <div style="padding: 5px;">${itemsHtml}</div>
             </details>
         `;
@@ -122,10 +128,10 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             <button onclick="revalidate()">Revalidate</button>
           </div>
           <div style="margin-bottom: 10px; display: flex; gap: 5px;">
-            <button class="filter-btn active" onclick="filter('all', this)">All</button>
-            <button class="filter-btn" onclick="filter('error', this)">Errors</button>
-            <button class="filter-btn" onclick="filter('warning', this)">Warnings</button>
-            <button class="filter-btn" onclick="filter('info', this)">Info</button>
+            <button class="filter-btn ${state.filter === 'all' ? 'active' : ''}" data-type="all" onclick="filter('all', this)">All</button>
+            <button class="filter-btn ${state.filter === 'error' ? 'active' : ''}" data-type="error" onclick="filter('error', this)">Errors</button>
+            <button class="filter-btn ${state.filter === 'warning' ? 'active' : ''}" data-type="warning" onclick="filter('warning', this)">Warnings</button>
+            <button class="filter-btn ${state.filter === 'info' ? 'active' : ''}" data-type="info" onclick="filter('info', this)">Info</button>
           </div>
           ${loadingHtml}
           <div id="findings-container">
@@ -133,12 +139,22 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           </div>
           <script>
             const vscode = acquireVsCodeApi();
+            
+            // Apply initial filter if not 'all'
+            window.addEventListener('load', () => {
+                const activeFilter = document.querySelector('.filter-btn.active');
+                if (activeFilter && activeFilter.dataset.type !== 'all') {
+                    filter(activeFilter.dataset.type, activeFilter);
+                }
+            });
+
             function approve(sessionId, findingId) {
               vscode.postMessage({ command: 'approve', sessionId, findingId });
             }
             function focusItem(sessionId, findingId) {
               document.querySelectorAll('.finding-item').forEach(i => i.classList.remove('highlight'));
-              document.getElementById('item-' + findingId).classList.add('highlight');
+              const item = document.getElementById('item-' + findingId);
+              if (item) item.classList.add('highlight');
               vscode.postMessage({ command: 'focus', sessionId, findingId });
             }
             function copyFinding(text) {
@@ -163,6 +179,15 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
                 const visibleItems = Array.from(section.querySelectorAll('.finding-item')).filter(i => i.style.display !== 'none');
                 section.style.display = visibleItems.length > 0 ? 'block' : 'none';
               });
+              saveCurrentState();
+            }
+
+            function saveCurrentState() {
+                const state = {
+                    filter: document.querySelector('.filter-btn.active').dataset.type,
+                    collapsed: Array.from(document.querySelectorAll('.file-section:not([open]) summary')).map(s => s.dataset.file)
+                };
+                vscode.postMessage({ command: 'saveState', state });
             }
           </script>
         </body>

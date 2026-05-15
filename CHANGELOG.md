@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 - **Analysis Resilience**: Implemented automatic retries, timeouts (30s), and manual/automatic task cancellation.
 - **Interactive Features**: Focus finding in editor, Copy to clipboard, and Manual/Auto revalidation.
 - **Zod Validation**: Robust schema validation for all AI responses to prevent crashes.
+- **UI State Persistence**: Sidebar filters and section collapse states now persist across VS Code reloads.
+- **Diagnostics Sync**: Smart synchronization between findings and editor underlines to eliminate orphan diagnostics.
+- **Enhanced Hardening**: Protection against multiple event subscriptions and robust memory cleanup for all IDE listeners.
 
 ### Fixed
 - Improved memory management with proper resource disposal.
