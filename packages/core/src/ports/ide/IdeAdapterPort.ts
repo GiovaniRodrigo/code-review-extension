@@ -16,4 +16,5 @@ export interface IdeAdapterPort {
   focusFinding(finding: Finding): Promise<void>;
   applyFix(finding: Finding): Promise<void>;
   getPullRequestInfo?(): Promise<PullRequestInfo | null>;
+  getBranchDiff?(baseBranch: string): Promise<string>;
 }

@@ -4,6 +4,7 @@ import { AIProviderFactory } from '@code-review/infra';
 
 import { analyzeCommand } from '../commands/analyzeCommand';
 import { analyzeWorkspaceCommand } from '../commands/analyzeWorkspaceCommand';
+import { generatePRSummaryCommand } from '../commands/generatePRSummaryCommand';
 import { clearSessionCommand } from '../commands/clearSessionCommand';
 import { focusCommand } from '../commands/focusCommand';
 import { restoreSessionCommand } from '../commands/restoreSessionCommand';
@@ -13,6 +14,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   const commandsToRegister = [
     analyzeCommand,
     analyzeWorkspaceCommand,
+    generatePRSummaryCommand,
     clearSessionCommand,
     focusCommand,
     restoreSessionCommand,

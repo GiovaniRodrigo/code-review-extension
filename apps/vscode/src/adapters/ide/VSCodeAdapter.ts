@@ -497,4 +497,22 @@ export class VSCodeAdapter implements IDEAdapter {
 
     return stdout;
   }
+
+  async getBranchDiff(baseBranch: string): Promise<string> {
+    const cwd = this._getWorkspacePath();
+
+    const { stdout } = await execFileAsync(
+      'git',
+      [
+        'diff',
+        `${baseBranch}...HEAD`
+      ],
+      {
+        cwd,
+        maxBuffer: 1024 * 1024 * 20
+      }
+    );
+
+    return stdout;
+  }
 }

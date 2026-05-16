@@ -34,6 +34,10 @@
         title: "Code Review: Analyze Entire Workspace"
       },
       {
+        command: "code-review.generatePRSummary",
+        title: "Code Review: Generate AI PR Summary"
+      },
+      {
         command: "code-review.analyzeBranchCommits",
 
         "title": "Code Review: Analyze Branch Commits"
