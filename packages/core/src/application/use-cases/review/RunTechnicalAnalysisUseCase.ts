@@ -27,7 +27,7 @@ export class RunTechnicalAnalysisUseCase {
     }
 
     const ast = this.astBuilder.build({ filePath, code });
-    const staticFindings = this.ruleEngine.run(ast);
+    const staticFindings = await this.ruleEngine.run(ast);
     const risk = this.riskScorer.score(ast, staticFindings);
 
     return {

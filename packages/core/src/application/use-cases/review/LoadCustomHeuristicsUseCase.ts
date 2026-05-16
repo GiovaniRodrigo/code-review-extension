@@ -2,12 +2,14 @@ import { IdeWorkspacePort } from '../../../ports/ide/IdeWorkspacePort';
 import { IdeFileSystemPort } from '../../../ports/ide/IdeFileSystemPort';
 import { CustomRuleProvider, CustomRuleConfig } from '../../CustomRuleProvider';
 import { StaticRuleEngine } from '../../StaticRuleEngine';
+import { AIAnalysisService } from '../../services/ai/AIAnalysisService';
 
 export class LoadCustomHeuristicsUseCase {
   constructor(
     private readonly workspace: IdeWorkspacePort,
     private readonly fileSystem: IdeFileSystemPort,
-    private readonly ruleEngine: StaticRuleEngine
+    private readonly ruleEngine: StaticRuleEngine,
+    private readonly analysisService?: AIAnalysisService
   ) {}
 
   async execute(): Promise<void> {
@@ -21,7 +23,11 @@ export class LoadCustomHeuristicsUseCase {
       const config = JSON.parse(content) as { rules: CustomRuleConfig[] };
       
       if (config.rules && Array.isArray(config.rules)) {
-        const customRules = CustomRuleProvider.fromConfigs(config.rules);
+        const evaluator = this.analysisService 
+            ? (prompt: string, code: string) => this.analysisService!.evaluateRule(prompt, code)
+            : undefined;
+
+        const customRules = CustomRuleProvider.fromConfigs(config.rules, evaluator);
         this.ruleEngine.addRules(customRules);
         console.log(`[HEURISTICS] Loaded ${customRules.length} custom rules from ${configPath}`);
       }

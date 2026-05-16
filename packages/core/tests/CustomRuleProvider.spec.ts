@@ -3,7 +3,7 @@ import { AstBuilder } from '../src/AstBuilder';
 import { CustomRuleProvider, CustomRuleConfig } from '../src/CustomRuleProvider';
 
 describe('CustomRuleProvider', () => {
-  it('should create rules from forbiddenImport config', () => {
+  it('should create rules from forbiddenImport config', async () => {
     const configs: CustomRuleConfig[] = [
       {
         id: 'no-moment',
@@ -19,14 +19,14 @@ describe('CustomRuleProvider', () => {
     });
 
     const rules = CustomRuleProvider.fromConfigs(configs);
-    const findings = rules[0].run({ ast });
+    const findings = await rules[0].run({ ast });
 
     expect(findings).toHaveLength(1);
     expect(findings[0].ruleId).toBe('no-moment');
     expect(findings[0].severity).toBe('error');
   });
 
-  it('should create rules from pattern and kind config', () => {
+  it('should create rules from pattern and kind config', async () => {
     const configs: CustomRuleConfig[] = [
       {
         id: 'ui-naming-convention',
@@ -43,7 +43,7 @@ describe('CustomRuleProvider', () => {
     });
 
     const rules = CustomRuleProvider.fromConfigs(configs);
-    const findings = rules[0].run({ ast });
+    const findings = await rules[0].run({ ast });
 
     expect(findings).toHaveLength(1);
     expect(findings[0].ruleId).toBe('ui-naming-convention');

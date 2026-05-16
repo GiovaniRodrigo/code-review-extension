@@ -14,12 +14,11 @@ export interface StaticRuleFinding {
 export interface StaticRuleContext {
   ast: AstBuildResult;
 }
-
 export interface StaticRule {
   id: string;
   description: string;
   enabled: boolean;
-  run(context: StaticRuleContext): StaticRuleFinding[];
+  run(context: StaticRuleContext): Promise<StaticRuleFinding[]>;
 }
 
 export class StaticRuleEngine {
@@ -29,12 +28,16 @@ export class StaticRuleEngine {
     this.rules = [...this.rules, ...newRules];
   }
 
-  run(ast: AstBuildResult, enabledRuleIds?: string[]): StaticRuleFinding[] {
+  async run(ast: AstBuildResult, enabledRuleIds?: string[]): Promise<StaticRuleFinding[]> {
     const enabled = new Set(enabledRuleIds || this.rules.filter(rule => rule.enabled).map(rule => rule.id));
 
-    return this.rules
-      .filter(rule => enabled.has(rule.id))
-      .flatMap(rule => rule.run({ ast }));
+    const findings: StaticRuleFinding[][] = await Promise.all(
+      this.rules
+        .filter(rule => enabled.has(rule.id))
+        .map(rule => rule.run({ ast }))
+    );
+
+    return findings.flat();
   }
 }
 
@@ -44,7 +47,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'max-class-members',
       description: 'Warn when a class has too many members.',
       enabled: true,
-      run: ({ ast }) => ast.root.children
+      run: async ({ ast }) => ast.root.children
         .filter(node => node.kind === 'class' && node.children.length > 8)
         .map(node => ({
           ruleId: 'max-class-members',
@@ -59,7 +62,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'max-file-functions',
       description: 'Warn when a file exposes many top-level functions.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         const functions = ast.root.children.filter(node => node.kind === 'function');
         if (functions.length <= 10) {
           return [];
@@ -79,7 +82,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'long-method',
       description: 'Warn when a method or function is too long.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         const allNodes = flattenAstNodes(ast.root);
         return allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
@@ -98,7 +101,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'too-many-params',
       description: 'Warn when a method or function has too many parameters.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         const allNodes = flattenAstNodes(ast.root);
         return allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
@@ -117,7 +120,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'architectural-dip',
       description: 'Warn when application layer depends on infrastructure directly.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         if (!ast.filePath.includes('application')) return [];
 
         return ast.root.children
@@ -137,7 +140,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'max-interface-methods',
       description: 'Warn when an interface has too many methods (ISP violation).',
       enabled: true,
-      run: ({ ast }) => ast.root.children
+      run: async ({ ast }) => ast.root.children
         .filter(node => node.kind === 'interface' && node.children.length > 5)
         .map(node => ({
           ruleId: 'max-interface-methods',
@@ -152,7 +155,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'cyclomatic-complexity',
       description: 'Warn when a method or function is too complex.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         const allNodes = flattenAstNodes(ast.root);
         return allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
@@ -177,7 +180,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         if (ast.root.children.length > 0) {
           return [];
         }

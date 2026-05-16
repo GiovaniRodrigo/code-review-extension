@@ -24,7 +24,8 @@ export function activateExtension(context: vscode.ExtensionContext): void {
             const loadHeuristics = new LoadCustomHeuristicsUseCase(
                 container.workspace,
                 (container as any).fileSystem || (container as any).ide,
-                ruleEngine
+                ruleEngine,
+                container.analysisService
             );
             await loadHeuristics.execute();
             (container as any).ruleEngine = ruleEngine;

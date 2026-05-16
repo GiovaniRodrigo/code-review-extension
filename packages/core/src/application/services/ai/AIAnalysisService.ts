@@ -116,4 +116,28 @@ export class AIAnalysisService {
 
     throw lastError;
   }
+
+  async evaluateRule(prompt: string, code: string): Promise<any[]> {
+    const fullPrompt = `
+You are a code quality bot. 
+Verify the following rule against the provided code:
+RULE: ${prompt}
+
+CODE:
+${code}
+
+Return findings as JSON list: [{"line": number, "message": "string"}]
+If rule is followed, return [].
+`;
+    const result = await this.aiProvider.analyzeCode({
+        code: fullPrompt,
+        filePath: 'rule-evaluation',
+        mode: 'fast'
+    });
+
+    return result.findings.map(f => ({
+        line: f.line,
+        message: f.message
+    }));
+  }
 }

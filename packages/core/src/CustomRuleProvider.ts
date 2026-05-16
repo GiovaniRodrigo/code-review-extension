@@ -1,5 +1,4 @@
 import { StaticRule, StaticRuleFinding, flattenAstNodes } from './StaticRuleEngine';
-
 export interface CustomRuleConfig {
   id: string;
   description: string;
@@ -7,16 +6,28 @@ export interface CustomRuleConfig {
   pattern?: string; // Regex for node name
   kind?: string;    // AST node kind (class, function, etc)
   forbiddenImport?: string; // Regex for import source
+  prompt?: string;  // Natural language description for AI to verify
 }
 
 export class CustomRuleProvider {
-  static fromConfigs(configs: CustomRuleConfig[]): StaticRule[] {
+  static fromConfigs(configs: CustomRuleConfig[], llmEvaluator?: (prompt: string, code: string) => Promise<StaticRuleFinding[]>): StaticRule[] {
     return configs.map(config => ({
       id: config.id,
       description: config.description,
       enabled: true,
-      run: ({ ast }) => {
+      run: async ({ ast }) => {
         const findings: StaticRuleFinding[] = [];
+        
+        if (config.prompt && llmEvaluator) {
+            const llmFindings = await llmEvaluator(config.prompt, ast.code);
+            // Enrich with rule metadata
+            llmFindings.forEach(f => {
+                f.ruleId = config.id;
+                f.severity = config.severity;
+                findings.push(f);
+            });
+        }
+
         const allNodes = flattenAstNodes(ast.root);
 
         if (config.forbiddenImport) {
