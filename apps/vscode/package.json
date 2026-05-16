@@ -142,6 +142,11 @@
         },
         {
           "type": "webview",
+          "id": "code-review.chatView",
+          "name": "Project AI Chat"
+        },
+        {
+          "type": "webview",
           "id": "code-review.ragStatus",
           "name": "RAG Status"
         },

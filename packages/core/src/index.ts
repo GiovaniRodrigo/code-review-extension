@@ -25,6 +25,7 @@ export * from './application/services/vps/VpsAccessService';
 export * from './application/use-cases/ai/AnalyzeCodeWithAIUseCase';
 export * from './application/use-cases/ai/DiscoverAIProvidersUseCase';
 export * from './application/use-cases/ai/SelectAIProviderUseCase';
+export * from './application/use-cases/ai/ProjectChatUseCase';
 export * from './application/use-cases/rag/SetupRagUseCase';
 export * from './application/use-cases/rag/IndexRepositoryRagUseCase';
 export * from './application/use-cases/rag/ClearRepositoryRagUseCase';

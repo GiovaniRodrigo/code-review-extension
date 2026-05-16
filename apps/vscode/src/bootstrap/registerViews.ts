@@ -23,6 +23,10 @@ export function registerViews(
       container.reviewPanelProvider as any
     ),
     vscode.window.registerWebviewViewProvider(
+      'code-review.chatView',
+      container.chatProvider as any
+    ),
+    vscode.window.registerWebviewViewProvider(
       'code-review.ragStatus',
       container.ragStatusProvider as any
     ),

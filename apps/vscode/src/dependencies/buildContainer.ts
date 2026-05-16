@@ -38,6 +38,7 @@ import { DashboardProvider } from '../providers/DashboardProvider';
 import { RagStatusProvider } from '../providers/RagStatusProvider';
 import { ReviewPanelProvider } from '../providers/ReviewPanelProvider';
 import { DependencyGraphProvider } from '../providers/DependencyGraphProvider';
+import { ChatProvider } from '../providers/ChatProvider';
 
 export interface VSCodeContainer {
   context: vscode.ExtensionContext;
@@ -50,6 +51,7 @@ export interface VSCodeContainer {
   createCodeReviewUseCase: CreateCodeReviewUseCase;
   getCodeReviewUseCase: GetCodeReviewUseCase;
   revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
+  projectChatUseCase: ProjectChatUseCase;
   approveFindingUseCase: ApproveFindingUseCase;
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
   indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
@@ -58,6 +60,7 @@ export interface VSCodeContainer {
   ragStatusProvider: RagStatusProvider;
   reviewPanelProvider: ReviewPanelProvider;
   dependencyGraphProvider: DependencyGraphProvider;
+  chatProvider: ChatProvider;
   discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
   selectAIProviderUseCase: SelectAIProviderUseCase;
   aiProviderRegistry: AIProviderRegistry;
@@ -199,6 +202,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     createCodeReviewUseCase: new CreateCodeReviewUseCase(codeReviewService),
     getCodeReviewUseCase: new GetCodeReviewUseCase(codeReviewService),
     revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
+    projectChatUseCase,
     approveFindingUseCase: validateFindingUseCase as any,
     addCommentToFindingUseCase,
     refactorFindingUseCase,
@@ -214,6 +218,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
         new VSCodeFileSystemAdapter(),
         dependencyGraphBuilder
     ),
+    chatProvider: new ChatProvider(projectChatUseCase),
     reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
     selectAIProviderUseCase: new SelectAIProviderUseCase(),
