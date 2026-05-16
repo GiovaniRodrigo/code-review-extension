@@ -92,6 +92,12 @@ export class RiskScorer {
         methodReasons.push(`long ${node.kind} (${lineCount} lines)`);
       }
 
+      const cognitive = node.metadata?.cognitive || 0;
+      if (cognitive > 10) {
+          methodScore += cognitive * 2;
+          methodReasons.push(`high cognitive complexity (${cognitive})`);
+      }
+
       const normalized = Math.min(methodScore, 100);
       scores.push({
         name: node.name,

@@ -177,6 +177,31 @@ export function createDefaultStaticRules(): StaticRule[] {
       }
     },
     {
+      id: 'cognitive-complexity',
+      description: 'Warn when a method or function is cognitively too complex (high nesting/logic).',
+      enabled: true,
+      run: async ({ ast }) => {
+        const allNodes = flattenAstNodes(ast.root);
+        return allNodes
+          .filter(node => (node.kind === 'method' || node.kind === 'function'))
+          .map(node => {
+            const cognitive = node.metadata?.cognitive || 0;
+            if (cognitive > 15) {
+              return {
+                ruleId: 'cognitive-complexity',
+                message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has high cognitive complexity (${cognitive}). It is very hard to understand.`,
+                severity: 'warning' as const,
+                file: ast.filePath,
+                line: node.startLine,
+                target: node.name
+              };
+            }
+            return null;
+          })
+          .filter((f): f is StaticRuleFinding => f !== null);
+      }
+    },
+    {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
       enabled: true,

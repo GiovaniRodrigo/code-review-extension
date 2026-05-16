@@ -118,4 +118,25 @@ describe('AstBuilder', () => {
     const func = ast.root.children[0];
     expect(func.metadata?.complexity).toBe(4); // 1 base + 2 ifs + 1 for
   });
+
+  it('should calculate cognitive complexity focusing on nesting', () => {
+    const ast = new AstBuilder().build({
+      filePath: 'cognitive.ts',
+      code: `
+        function veryHard(a, b) {
+          if (a) {          // +1
+            if (b) {        // +2 (nesting)
+              while(true) { // +3 (nesting)
+                console.log('hi');
+              }
+            }
+          }
+          return false;
+        }
+      `
+    });
+
+    const func = ast.root.children[0];
+    expect(func.metadata?.cognitive).toBe(6); // 1 + 2 + 3
+  });
 });
