@@ -3,6 +3,7 @@ export * from './ValidateFindingUseCase';
 export * from './SeverityEngine';
 export * from './StaticRuleEngine';
 export * from './RiskScorer';
+export * from './TestabilityScorer';
 export * from './ContextEngine';
 export * from './HeatmapService';
 export * from './CustomRuleProvider';

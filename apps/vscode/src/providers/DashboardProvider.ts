@@ -26,10 +26,11 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
     this._view.webview.html = this._getHtml({
         coverage: 55,
         mutationScore: 97,
+        testability: { score: 85, level: 'easy' }, // Default value
         gatesPassed: true,
         buildStatus: 'success',
         heat,
-        logs: logs.reverse().slice(0, 10) // Show last 10 logs
+        logs: logs.reverse().slice(0, 10)
     });
   }
 
@@ -83,8 +84,8 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
                 <div class="score">${data.coverage}%</div>
             </div>
             <div class="card">
-                <div class="title">Mutation</div>
-                <div class="score">${data.mutationScore}%</div>
+                <div class="title">Testability</div>
+                <div class="score" style="color: ${this._getTestabilityColor(data.testability.level)}">${data.testability.score}</div>
             </div>
           </div>
 
@@ -103,5 +104,11 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
     if (score > 100) return '#f44336';
     if (score > 50) return '#ff9800';
     return '#4caf50';
+  }
+
+  private _getTestabilityColor(level: string): string {
+    if (level === 'easy') return '#4caf50';
+    if (level === 'moderate') return '#ff9800';
+    return '#f44336';
   }
 }
