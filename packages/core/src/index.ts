@@ -36,6 +36,7 @@ export * from './application/use-cases/review/RevalidateCodeReviewUseCase';
 export * from './application/use-cases/review/PublishCodeReviewUseCase';
 export * from './application/use-cases/review/ApproveFindingUseCase';
 export * from './application/use-cases/review/DeleteCodeReviewUseCase';
+export * from './application/use-cases/review/AddCommentToFindingUseCase';
 export * from './application/use-cases/review/LoadCustomHeuristicsUseCase';
 export * from './application/use-cases/review/AnalyzeWorkspaceUseCase';
 export * from './application/use-cases/review/RunTechnicalAnalysisUseCase';

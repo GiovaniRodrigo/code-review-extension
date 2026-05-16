@@ -51,6 +51,15 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           await vscode.env.clipboard.writeText(message.text);
           await vscode.window.showInformationMessage('Finding copied to clipboard.');
           break;
+        case 'addComment':
+          await (this as any).addCommentToFindingUseCase?.execute({
+            sessionId: message.sessionId,
+            findingId: message.findingId,
+            author: 'developer',
+            body: message.body
+          });
+          await this.refresh();
+          break;
         case 'saveState':
           await this.context.workspaceState.update('review-panel-state', message.state);
           break;
@@ -96,6 +105,12 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
       const confidenceColor = confidence >= 0.8 ? '#4caf50' : confidence >= 0.5 ? '#ff9800' : '#f44336';
       const confidenceLabel = confidence >= 0.8 ? 'High' : confidence >= 0.5 ? 'Medium' : 'Low';
 
+      const discussionHtml = (f.discussion || []).map((c: any) => `
+        <div style="font-size: 10px; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 3px; border-radius: 2px;">
+            <strong>${c.author === 'developer' ? 'You' : 'AI'}:</strong> ${c.body}
+        </div>
+      `).join('');
+
       return `
             <div class="finding-item" id="item-${f.id}" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
                 <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
@@ -105,9 +120,13 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
                     <span title="AI Confidence: ${confidencePercent}%" style="background: ${confidenceColor}; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
                     <span style="color: ${confidenceColor}; opacity: 0.8;">AI Confidence: ${confidenceLabel} (${confidencePercent}%)</span>
                 </div>
+                
+                <div class="discussion-thread">${discussionHtml}</div>
+
                 <div style="margin-top: 5px; display: flex; gap: 5px;">
                     <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
                     <button onclick="focusItem('${session.id}', '${f.id}')">Focus</button>
+                    <button onclick="addComment('${session.id}', '${f.id}')">Reply</button>
                     <button onclick="copyFinding('${f.message}')">Copy</button>
                 </div>
             </div>
@@ -175,6 +194,12 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
             }
             function revalidate() {
               vscode.postMessage({ command: 'revalidate' });
+            }
+            function addComment(sessionId, findingId) {
+              const body = prompt('Enter your reply:');
+              if (body) {
+                vscode.postMessage({ command: 'addComment', sessionId, findingId, body });
+              }
             }
             function filter(severity, btn) {
               document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));

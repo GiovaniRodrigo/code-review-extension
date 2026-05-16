@@ -1,6 +1,13 @@
 export type FindingSeverity = 'info' | 'warning' | 'error';
 export type FindingStatus = 'pending' | 'approved' | 'rejected' | 'fixed';
 
+export interface FindingComment {
+  id: string;
+  author: 'developer' | 'ai';
+  body: string;
+  createdAt: Date;
+}
+
 export interface Finding {
   id: string;
   file: string;
@@ -11,6 +18,7 @@ export interface Finding {
   suggestedFix?: string;
   status: FindingStatus;
   confidenceScore?: number;
+  discussion?: FindingComment[];
 }
 
 export interface TechnicalComment {

@@ -169,10 +169,12 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
 
   const heatmapService = new HeatmapService(repository);
   const codeReviewService = new CodeReviewService(repository);
-  const ragIndexingService = new RagIndexingService(ragIndexer);
-  
-  const ide = new VSCodeIdeAdapter();
+  approveFindingUseCase: ApproveFindingUseCase;
+  addCommentToFindingUseCase: AddCommentToFindingUseCase;
+  deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
+  ...
   const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
+  const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
 
   return {
     context,
@@ -186,7 +188,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     getCodeReviewUseCase: new GetCodeReviewUseCase(codeReviewService),
     revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
     approveFindingUseCase,
+    addCommentToFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
+
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(heatmapService),
