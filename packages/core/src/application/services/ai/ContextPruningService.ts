@@ -1,4 +1,4 @@
-import { AstBuildResult, AstNodeSummary } from '../../../AstBuilder';
+import type { AstBuildResult, AstNodeSummary } from '../../../AstBuilder';
 import { flattenAstNodes } from '../../../shared/astUtils';
 
 export interface PruningInput {

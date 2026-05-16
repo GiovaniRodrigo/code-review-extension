@@ -11,7 +11,7 @@ describe('activateExtension integration', () => {
       secrets: { get: vi.fn(), store: vi.fn() }
     } as unknown as vscode.ExtensionContext;
 
-    activateExtension(context);
+    await activateExtension(context);
 
     expect(vscode.window.registerWebviewViewProvider).toHaveBeenCalled();
   });

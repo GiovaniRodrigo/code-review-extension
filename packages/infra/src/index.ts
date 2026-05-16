@@ -23,6 +23,7 @@ export * from './git/GitDiffProvider';
 export * from './git/GitRepositoryProvider';
 export * from './git/GitProviderFactory';
 export * from './ast/TypeScriptAstBuilder';
+export * from './ast/TypeScriptDependencyGraphBuilder';
 export * from './rag/chunkers/SimpleRagChunker';
 export * from './rag/context/SimpleRagContextBuilder';
 export * from './rag/embeddings/MockRagEmbeddingProvider';

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ValidateFindingUseCase } from '../src/ValidateFindingUseCase';
+import { ValidateFindingUseCase } from '../../src/ValidateFindingUseCase';
 import { ReviewRepository } from '@code-review/infra';
 import { ReviewSession } from '@code-review/domain';
 

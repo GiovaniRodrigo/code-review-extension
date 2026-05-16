@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AstBuilder } from '../src/AstBuilder';
-import { StaticRuleEngine } from '../src/StaticRuleEngine';
+import { AstBuilder } from '../../src/AstBuilder';
+import { StaticRuleEngine } from '../../src/StaticRuleEngine';
 
 describe('StaticRuleEngine', () => {
   it('should run enabled default static rules against an AST', async () => {
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
       filePath: 'test.ts',
       code: [
         'class Big {',
@@ -27,7 +27,7 @@ describe('StaticRuleEngine', () => {
   });
 
   it('should run only selected rules', async () => {
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
       filePath: 'empty.ts',
       code: ''
     });
@@ -38,7 +38,7 @@ describe('StaticRuleEngine', () => {
   });
 
   it('should detect complex arrow functions', async () => {
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
         filePath: 'complex.ts',
         code: 'const x = (a) => { if(a) { if(b) { if(c) { d(); } } } }'
     });
@@ -47,7 +47,7 @@ describe('StaticRuleEngine', () => {
   });
 
   it('should detect architectural-dip violations', async () => {
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
       filePath: 'src/application/MyUseCase.ts',
       code: "import { MyInfra } from '../infra/MyInfra';"
     });

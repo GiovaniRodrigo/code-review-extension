@@ -30,4 +30,16 @@ describe('AddCommentToFindingUseCase', () => {
     expect(result.findings[0].discussion?.[0].body).toBe('I will fix this.');
     expect(mockRepo.saveSession).toHaveBeenCalled();
   });
+
+  it('should throw error if session not found', async () => {
+    const mockRepo = { getSessionById: vi.fn().mockResolvedValue(null) } as any;
+    const useCase = new AddCommentToFindingUseCase(mockRepo);
+    await expect(useCase.execute({ sessionId: '404', findingId: '1', author: 'ai', body: 'b' })).rejects.toThrow('not found');
+  });
+
+  it('should throw error if finding not found in session', async () => {
+    const mockRepo = { getSessionById: vi.fn().mockResolvedValue({ findings: [] }) } as any;
+    const useCase = new AddCommentToFindingUseCase(mockRepo);
+    await expect(useCase.execute({ sessionId: '1', findingId: '404', author: 'ai', body: 'b' })).rejects.toThrow('not found in session');
+  });
 });

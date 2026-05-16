@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { HeatmapService } from '../src/HeatmapService';
-import { InMemoryReviewRepository } from '../../infra/src/InMemoryReviewRepository';
+import { HeatmapService } from '../../src/HeatmapService';
+import { InMemoryReviewRepository } from '../../../infra/src/InMemoryReviewRepository';
 import { ReviewSession, Finding } from '@code-review/domain';
 
 describe('HeatmapService', () => {

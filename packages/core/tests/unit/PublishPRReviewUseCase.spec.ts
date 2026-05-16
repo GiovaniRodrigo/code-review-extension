@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PublishPRReviewUseCase } from '../src/PublishPRReviewUseCase';
+import { PublishPRReviewUseCase } from '../../src/PublishPRReviewUseCase';
 import { ReviewRepository, GitProvider } from '@code-review/infra';
 import { ReviewSession } from '@code-review/domain';
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AnalyzeCodeUseCase } from '../src/AnalyzeCodeUseCase';
+import { AnalyzeCodeUseCase } from '../../src/AnalyzeCodeUseCase';
 import { AIProvider, IDEAdapter, ReviewRepository } from '@code-review/infra';
-import { ContextEngine } from '../src/ContextEngine';
+import { ContextEngine } from '../../src/ContextEngine';
 
 describe('AnalyzeCodeUseCase', () => {
   let mockAI: AIProvider;

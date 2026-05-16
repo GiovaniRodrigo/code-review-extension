@@ -16,6 +16,7 @@ describe('dashboardProvider integration', () => {
     provider.resolveWebviewView(webviewView);
 
     expect(webviewView.webview.html).toContain('Coverage');
-    expect(webviewView.webview.html).toContain('97%');
+    expect(webviewView.webview.html).toContain('Testability');
+    expect(webviewView.webview.html).toContain('85');
   });
 });

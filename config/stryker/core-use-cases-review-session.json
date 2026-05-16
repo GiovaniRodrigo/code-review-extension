@@ -1,0 +1,45 @@
+{
+  "$schema": "../../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "reporters": [
+    "clear-text",
+    "html"
+  ],
+  "coverageAnalysis": "off",
+  "mutate": [
+    "packages/core/src/application/use-cases/review/AddCommentToFindingUseCase.ts",
+    "packages/core/src/application/use-cases/review/ApproveFindingUseCase.ts",
+    "packages/core/src/application/use-cases/review/CreateCodeReviewUseCase.ts",
+    "packages/core/src/application/use-cases/review/DeleteCodeReviewUseCase.ts",
+    "packages/core/src/application/use-cases/review/GetCodeReviewUseCase.ts",
+    "packages/core/src/application/use-cases/review/PublishCodeReviewUseCase.ts",
+    "packages/core/src/application/use-cases/review/RefactorFindingUseCase.ts",
+    "!**/*.test.ts",
+    "!**/*.spec.ts",
+    "!**/tests/**"
+  ],
+  "ignorePatterns": [
+    ".stryker-tmp/**",
+    "coverage/**",
+    "mutation-report/**",
+    "dist/**",
+    "build/**",
+    ".vscode-test/**",
+    "apps/vscode/.vscode-test/**",
+    "apps/vscode/dist/**",
+    "apps/vscode/out/**",
+    "apps/vscode/**/*.vsix",
+    "docs/**"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 60
+  },
+  "vitest": {
+    "configFile": "config/vitest/mutation.core-use-cases-review-session.config.ts"
+  },
+  "htmlReporter": {
+    "fileName": "mutation-report/core-use-cases-review-session/index.html"
+  }
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AstBuilder } from '../src/AstBuilder';
-import { CustomRuleProvider, CustomRuleConfig } from '../src/CustomRuleProvider';
+import { AstBuilder } from '../../src/AstBuilder';
+import { CustomRuleProvider, CustomRuleConfig } from '../../src/CustomRuleProvider';
 
 describe('CustomRuleProvider', () => {
   it('should create rules from forbiddenImport config', async () => {
@@ -13,7 +13,7 @@ describe('CustomRuleProvider', () => {
       }
     ];
 
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
       filePath: 'test.ts',
       code: "import moment from 'moment';"
     });
@@ -37,7 +37,7 @@ describe('CustomRuleProvider', () => {
       }
     ];
 
-    const ast = new AstBuilder().build({
+    const ast = await new AstBuilder().build({
       filePath: 'component.tsx',
       code: "function myComponent() { return null; }"
     });

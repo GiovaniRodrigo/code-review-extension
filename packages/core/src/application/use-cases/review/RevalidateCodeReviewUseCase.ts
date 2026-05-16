@@ -2,7 +2,10 @@ import { Finding, ReviewSession } from '@code-review/domain';
 import { AIAnalysisService } from '../../services/ai/AIAnalysisService';
 import { CodeReviewService } from '../../services/review/CodeReviewService';
 import { ContextPruningService } from '../../services/ai/ContextPruningService';
-import { AstBuilder } from '../../../AstBuilder';
+
+interface AstBuilderLike {
+  build(input: { filePath: string; code: string }): Promise<unknown>;
+}
 
 export interface RevalidateInput {
     branch: string;
@@ -18,7 +21,7 @@ export class RevalidateCodeReviewUseCase {
     private readonly analysisService: AIAnalysisService,
     private readonly reviewService: CodeReviewService,
     private readonly pruningService = new ContextPruningService(),
-    private readonly astBuilder = new AstBuilder()
+    private readonly astBuilder?: AstBuilderLike
   ) {}
 
   async execute(input: RevalidateInput): Promise<ReviewSession> {
@@ -33,9 +36,10 @@ export class RevalidateCodeReviewUseCase {
     if (input.targetLines && input.targetLines.length > 0) {
         console.log(`[REVALIDATE] Incremental mode for lines: ${input.targetLines.join(', ')}`);
         try {
-            const ast = await this.astBuilder.build({ filePath: input.filePath, code: input.code });
+            const astBuilder = this.astBuilder ?? await this.createAstBuilder();
+            const ast = await astBuilder.build({ filePath: input.filePath, code: input.code });
             codeToAnalyze = this.pruningService.prune({
-                ast,
+                ast: ast as any,
                 targetLines: input.targetLines
             });
         } catch (error) {
@@ -117,5 +121,10 @@ export class RevalidateCodeReviewUseCase {
     console.log(`[REVALIDATE] Completed in ${duration}ms. Findings: ${mergedFindings.length}`);
 
     return existingSession; 
+  }
+
+  private async createAstBuilder(): Promise<AstBuilderLike> {
+    const { AstBuilder } = await import('../../../AstBuilder');
+    return new AstBuilder();
   }
 }

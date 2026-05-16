@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ContextEngine } from '../src/ContextEngine';
-import { InMemoryReviewRepository } from '../../infra/src/InMemoryReviewRepository';
+import { ContextEngine } from '../../src/ContextEngine';
+import { InMemoryReviewRepository } from '../../../infra/src/InMemoryReviewRepository';
 import { ReviewSession } from '@code-review/domain';
 
 describe('ContextEngine', () => {

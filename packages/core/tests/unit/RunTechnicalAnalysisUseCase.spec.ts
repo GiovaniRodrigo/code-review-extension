@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { RunTechnicalAnalysisUseCase } from '../src/application/use-cases/review/RunTechnicalAnalysisUseCase';
-import { IdeAdapterPort } from '../src/ports/ide/IdeAdapterPort';
+import { RunTechnicalAnalysisUseCase } from '../../src/application/use-cases/review/RunTechnicalAnalysisUseCase';
+import { IdeAdapterPort } from '../../src/ports/ide/IdeAdapterPort';
 
 describe('RunTechnicalAnalysisUseCase', () => {
   it('should run technical analysis and return a report', async () => {

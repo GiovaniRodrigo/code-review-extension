@@ -44,4 +44,14 @@ describe('ApproveFindingUseCase', () => {
     await expect(useCase.execute('invalid', 'finding-1'))
       .rejects.toThrow('Review session not found: invalid');
   });
+
+  it('should throw error if finding not found', async () => {
+    const mockRepo = {
+      getSessionById: vi.fn().mockResolvedValue({ id: 's1', findings: [] })
+    } as any;
+
+    const useCase = new ApproveFindingUseCase(mockRepo, {} as any);
+    await expect(useCase.execute('s1', 'f1'))
+      .rejects.toThrow('Finding not found in session: f1');
+  });
 });

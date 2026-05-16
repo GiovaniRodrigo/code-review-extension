@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AstBuilder } from '../src/AstBuilder';
+import { AstBuilder } from '../../src/AstBuilder';
 
 describe('AstBuilder', () => {
   it('should build a serializable AST summary for TypeScript code', async () => {
@@ -81,6 +81,83 @@ describe('AstBuilder', () => {
       expect.objectContaining({ kind: 'property', name: 'name', startLine: 2, endLine: 2 }),
       expect.objectContaining({ kind: 'method', name: 'run', startLine: 3, endLine: 5 })
     ]);
+  });
+
+  it('should detect constructors and export modifiers', async () => {
+    const builder = new AstBuilder();
+    const result = await builder.build({
+      filePath: 'component.ts',
+      code: `
+        export class Component {
+            constructor(public id: string) {}
+        }
+        export const version = 1;
+      `
+    });
+
+    const classNode = result.root.children[0];
+    expect(classNode.name).toBe('Component');
+    expect(classNode.children[0].name).toBe('constructor');
+    expect(result.root.children.some(c => c.kind === 'variable' && c.name === 'version')).toBe(true);
+  });
+
+  it('should parse interfaces with properties and methods', async () => {
+    const builder = new AstBuilder();
+    const result = await builder.build({
+      filePath: 'types.ts',
+      code: `
+        interface IUser {
+            id: string;
+            getName(): string;
+        }
+      `
+    });
+
+    const node = result.root.children[0];
+    expect(node.kind).toBe('interface');
+    expect(node.children).toHaveLength(2);
+  });
+
+  it('should calculate cognitive complexity for switch and logical operators', async () => {
+    const ast = await new AstBuilder().build({
+      filePath: 'logic.ts',
+      code: `
+        function logic(a, b) {
+          switch(a) { // +1
+            case 1: break;
+          }
+          if (a || b) { // +1 (+1 operator) = 2
+            return a ?? b; // +1 operator
+          }
+          return null;
+        }
+      `
+    });
+
+    const func = ast.root.children[0];
+    // switch(1) + if(1) + ||(1) + ??(1) = 4
+    expect(func.metadata?.cognitive).toBeGreaterThanOrEqual(4);
+  });
+
+  it('should handle unknown languages and extensions gracefully', async () => {
+    const builder = new AstBuilder();
+    const result = await builder.build({
+      filePath: 'config.yaml',
+      code: 'key: value'
+    });
+
+    expect(result.language).toBe('text');
+    expect(result.root.children).toHaveLength(0);
+    expect(result.metrics.maxDepth).toBe(1);
+  });
+
+  it('should support TSX and JSX files', async () => {
+      const builder = new AstBuilder();
+      const tsx = await builder.build({ filePath: 'App.tsx', code: 'const App = () => <div />' });
+      const jsx = await builder.build({ filePath: 'App.jsx', code: 'const App = () => <div />' });
+      
+      expect(tsx.language).toBe('typescript');
+      expect(jsx.language).toBe('javascript');
   });
 
   it('should parse JavaScript files', async () => {
