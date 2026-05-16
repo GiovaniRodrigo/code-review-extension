@@ -23,7 +23,11 @@ export interface StaticRule {
 }
 
 export class StaticRuleEngine {
-  constructor(private readonly rules: StaticRule[] = createDefaultStaticRules()) {}
+  constructor(private rules: StaticRule[] = createDefaultStaticRules()) {}
+
+  addRules(newRules: StaticRule[]): void {
+    this.rules = [...this.rules, ...newRules];
+  }
 
   run(ast: AstBuildResult, enabledRuleIds?: string[]): StaticRuleFinding[] {
     const enabled = new Set(enabledRuleIds || this.rules.filter(rule => rule.enabled).map(rule => rule.id));

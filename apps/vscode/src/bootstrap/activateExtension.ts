@@ -16,6 +16,23 @@ export function activateExtension(context: vscode.ExtensionContext): void {
     registerEvents(context, container);
     registerProviders(context, container);
     
+    // Load custom heuristics for the workspace
+    void (async () => {
+        try {
+            const { StaticRuleEngine, LoadCustomHeuristicsUseCase } = await import('@code-review/core');
+            const ruleEngine = (container as any).ruleEngine || new StaticRuleEngine();
+            const loadHeuristics = new LoadCustomHeuristicsUseCase(
+                container.workspace,
+                (container as any).fileSystem || (container as any).ide,
+                ruleEngine
+            );
+            await loadHeuristics.execute();
+            (container as any).ruleEngine = ruleEngine;
+        } catch (e) {
+            console.error('[ACTIVATION] Failed to load heuristics', e);
+        }
+    })();
+
     context.subscriptions.push(container.ide);
 
     const config = vscode.workspace.getConfiguration('codeReview');
