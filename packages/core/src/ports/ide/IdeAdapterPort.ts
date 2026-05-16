@@ -17,4 +17,5 @@ export interface IdeAdapterPort {
   applyFix(finding: Finding): Promise<void>;
   getPullRequestInfo?(): Promise<PullRequestInfo | null>;
   getBranchDiff?(baseBranch: string): Promise<string>;
+  getBranchCommits?(baseBranch: string): Promise<any[]>;
 }

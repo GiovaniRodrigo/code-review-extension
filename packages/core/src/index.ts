@@ -44,6 +44,8 @@ export * from './application/use-cases/review/GenerateQualityReportUseCase';
 export * from './application/use-cases/review/RefactorFindingUseCase';
 export * from './application/use-cases/review/LoadCustomHeuristicsUseCase';
 export * from './application/use-cases/review/AnalyzeWorkspaceUseCase';
+export * from './application/use-cases/review/AnalyzeBranchCommitsUseCase';
+export * from './application/use-cases/review/AnalyzePrUseCase';
 export * from './application/use-cases/review/RunTechnicalAnalysisUseCase';
 export * from './application/use-cases/sync/SyncRepositoryUseCase';
 export * from './application/use-cases/vps/AuthenticateWithVpsUseCase';

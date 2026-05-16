@@ -4,6 +4,8 @@ import { AIProviderFactory } from '@code-review/infra';
 
 import { analyzeCommand } from '../commands/analyzeCommand';
 import { analyzeWorkspaceCommand } from '../commands/analyzeWorkspaceCommand';
+import { analyzeBranchCommitsCommand } from '../commands/analyzeBranchCommitsCommand';
+import { analyzePrCommand } from '../commands/analyzePrCommand';
 import { generatePRSummaryCommand } from '../commands/generatePRSummaryCommand';
 import { generateQualityReportCommand } from '../commands/generateQualityReportCommand';
 import { clearSessionCommand } from '../commands/clearSessionCommand';
@@ -15,6 +17,8 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   const commandsToRegister = [
     analyzeCommand,
     analyzeWorkspaceCommand,
+    analyzeBranchCommitsCommand,
+    analyzePrCommand,
     generatePRSummaryCommand,
     generateQualityReportCommand,
     clearSessionCommand,
@@ -189,8 +193,6 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
 
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
-    'code-review.analyzeBranchCommits',
-    'code-review.analyzePr',
     'code-review.searchRepositoryContext',
     'code-review.setGitLabCredentials',
     'code-review.setGitLabUrl',

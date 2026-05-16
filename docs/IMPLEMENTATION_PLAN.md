@@ -22,89 +22,60 @@
 | EP-03 | 🟢 DONE | Core de Code Review | 100% | - | EP-01 |
 | EP-04 | 🟢 DONE | Providers de IA | 100% | - | EP-03 |
 | EP-05 | 🟢 DONE | Sistema RAG | 100% | - | EP-04 |
-| EP-06 | 🟢 DONE | AST Builder | 100% | - | EP-03 |
-| EP-07 | 🟢 DONE | Analyzers | 100% | - | EP-06 |
+| EP-06 | 🟢 DONE | AST Builder Multi-Lang | 100% | - | EP-03 |
+| EP-07 | 🟢 DONE | Analyzers & SOLID | 100% | - | EP-06 |
 | EP-08 | 🟢 DONE | Persistência Local | 100% | - | EP-03 |
-| EP-09 | 🔵 DEV | VPS / Git Sync | 20% | - | EP-03 |
-| EP-10 | 🟢 DONE | UI/UX | 100% | - | EP-02 |
+| EP-09 | 🟢 DONE | VPS / Cloud Sync | 100% | - | EP-03 |
+| EP-10 | 🟢 DONE | UI/UX & Visualization | 100% | - | EP-02 |
+| EP-13 | 🟢 DONE | Enterprise Privacy | 100% | - | EP-04 |
+| EP-14 | 🟢 DONE | Advanced AI (Chat/Refactor) | 100% | - | TODOS |
 | EP-11 | 🟢 DONE | Testes | 100% | - | TODOS |
 | EP-12 | 🟢 DONE | Documentação | 100% | - | TODOS |
 
 ---
 
-# EP-01 — Fundação Arquitetural
+# Novas Funcionalidades Avançadas (Concluídas)
 
-| ID | Status | Task | Tipo | Prioridade | Progresso |
-|---|---|---|---|---|---:|
-| ARC-001 | 🟢 DONE | Definir estrutura do monorepo | Arquitetura | Alta | 100% |
-| ARC-002 | 🟢 DONE | Criar pacotes core, domain, infra | Arquitetura | Alta | 100% |
-| ARC-003 | 🟢 DONE | Configurar TurboRepo | Build | Média | 100% |
-| ARC-004 | 🟢 DONE | Definir contratos base (IDEAdapter) | Design | Alta | 100% |
+### 1. Inteligência e Diagnóstico
+- **Score de Risco Avançado:** Granularidade por método e complexidade.
+- **Regras SOLID:** SRP, ISP e DIP validados automaticamente via AST.
+- **Complexidade Cognitiva:** Medição da carga mental do código (aninhamento profundo).
+- **Testability Index:** Diagnóstico preditivo de quão testável é o código.
 
----
+### 2. Experiência IA & Automação
+- **AI-Powered Refactoring (Smart Fix):** Geração e aplicação automática de correções.
+- **Project-Aware Chat:** Conversa técnica com contexto total do repositório (RAG + AST).
+- **Incremental Revalidation:** Reanalisa apenas as linhas alteradas (Fast Iteration).
+- **PR Summary Generator:** Criação automática de descrições detalhadas de PR.
 
-# EP-02 — Integração Multi-IDE
-
-| ID | Status | Task | Tipo | Prioridade | Progresso |
-|---|---|---|---|---|---:|
-| IDE-001 | 🟢 DONE | Implementar Adapter VS Code | IDE | Alta | 100% |
-| IDE-002 | 🟢 DONE | Criar placeholder JetBrains | IDE | Média | 100% |
-| IDE-003 | 🟢 DONE | Criar placeholder Neovim | IDE | Baixa | 100% |
-| IDE-004 | 🟢 DONE | Validar bootstrap multi-IDE | IDE | Alta | 100% |
-
----
-
-# EP-03 — Core de Code Review
-
-| ID | Status | Task | Tipo | Prioridade | Progresso |
-|---|---|---|---|---|---:|
-| REV-001 | 🟢 DONE | Criar Use Cases de análise | Core | Alta | 100% |
-| REV-002 | 🟢 DONE | Implementar motor de severidade | Core | Média | 100% |
-| REV-003 | 🟢 DONE | Sistema de persistência de sessão | Core | Alta | 100% |
-| REV-004 | 🟢 DONE | Fluxo Human-in-the-Loop (HITL) | Core | Alta | 100% |
+### 3. Enterprise & Governança
+- **Data Masking (Privacy):** Ofuscação local de segredos e PII antes de enviar para nuvem.
+- **Audit Logs:** Trilha de auditoria completa de todas as ações de review.
+- **Multi-Language Support:** Parsers estruturais para TypeScript, Python e Go.
+- **Cloud Sync (VPS):** Sincronização e merge de sessões entre times.
 
 ---
 
-# EP-04 — Providers de IA
+# EP-09 — VPS / Cloud Sync
 
 | ID | Status | Task | Tipo | Prioridade | Progresso |
 |---|---|---|---|---|---:|
-| AI-001 | 🟢 DONE | Implementar Mock AI | Provider | Baixa | 100% |
-| AI-002 | 🟢 DONE | Implementar Ollama Provider | Provider | Alta | 100% |
-| AI-003 | 🟢 DONE | Implementar OpenAI Provider | Provider | Alta | 100% |
-| AI-004 | 🟢 DONE | Criar AIProviderFactory | Provider | Média | 100% |
+| VPS-001 | 🟢 DONE | Implementar VpsSyncPort | Core | Alta | 100% |
+| VPS-002 | 🟢 DONE | Criar VpsClient (Axios) | Infra | Alta | 100% |
+| VPS-003 | 🟢 DONE | Lógica de Merge e Conflitos | Core | Alta | 100% |
+| VPS-004 | 🟢 DONE | Auto-sync por Branch | IDE | Média | 100% |
 
 ---
 
-# EP-05 — Sistema RAG
+# EP-14 — Advanced AI Features
 
 | ID | Status | Task | Tipo | Prioridade | Progresso |
 |---|---|---|---|---|---:|
-| RAG-001 | 🟢 DONE | Implementar Chunker semântico | Core | Alta | 100% |
-| RAG-002 | 🟢 DONE | Criar Vector Store local | Infra | Alta | 100% |
-| RAG-003 | 🟢 DONE | Indexador de repositório | Core | Alta | 100% |
-| RAG-004 | 🟢 DONE | Busca contextual (Retrieval) | Core | Alta | 100% |
+| ADV-001 | 🟢 DONE | Refactoring Smart Fix | Feature | Alta | 100% |
+| ADV-002 | 🟢 DONE | Project AI Chat | Feature | Alta | 100% |
+| ADV-003 | 🟢 DONE | Reinforcement Learning (Learning from Reject) | Core | Alta | 100% |
+| ADV-004 | 🟢 DONE | PR Description Generator | Feature | Média | 100% |
 
 ---
 
-# EP-06 — AST Builder
-
-| ID | Status | Task | Tipo | Prioridade | Progresso |
-|---|---|---|---|---|---:|
-| AST-001 | 🟢 DONE | Criar AstBuilderPort | Core | Alta | 100% |
-| AST-002 | 🟢 DONE | Implementar TypeScript AST | Infra | Alta | 100% |
-| AST-003 | 🟢 DONE | Implementar parser de imports | Infra | Alta | 100% |
-| AST-004 | 🟢 DONE | Criar dependency graph | Infra | Alta | 100% |
-| AST-005 | 🟢 DONE | Integrar AST ao RAG | Core | Alta | 100% |
-| AST-006 | 🟢 DONE | Integrar AST aos analyzers | Core | Alta | 100% |
-
----
-
-# EP-11 — Testes
-
-| ID | Status | Task | Tipo | Prioridade | Progresso |
-|---|---|---|---|---|---:|
-| TST-001 | 🟢 DONE | Setup de Vitest no monorepo | DevOps | Alta | 100% |
-| TST-002 | 🟢 DONE | Testes unitários do Core | Teste | Alta | 100% |
-| TST-003 | 🟢 DONE | Testes de integração VS Code | Teste | Alta | 100% |
-| TST-004 | 🟢 DONE | Configurar Mutation Testing | Teste | Baixa | 100% |
+*Status: 🟢 **Prod-Ready Architecture**. A plataforma atingiu todos os marcos de inteligência e governança técnica previstos para a versão Beta Enterprise.*
