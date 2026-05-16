@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { AstBuilder } from '../src/AstBuilder';
 
 describe('AstBuilder', () => {
-  it('should build a serializable AST summary for TypeScript code', () => {
+  it('should build a serializable AST summary for TypeScript code', async () => {
     const builder = new AstBuilder();
-    const result = builder.build({
+    const result = await builder.build({
       filePath: 'sample.ts',
       code: [
         "import { readFile } from 'node:fs/promises';",
@@ -55,9 +55,9 @@ describe('AstBuilder', () => {
     });
   });
 
-  it('should include class members with line ranges', () => {
+  it('should include class members with line ranges', async () => {
     const builder = new AstBuilder();
-    const result = builder.build({
+    const result = await builder.build({
       filePath: 'service.ts',
       code: [
         'class Service {',
@@ -83,9 +83,9 @@ describe('AstBuilder', () => {
     ]);
   });
 
-  it('should parse JavaScript files', () => {
+  it('should parse JavaScript files', async () => {
     const builder = new AstBuilder();
-    const result = builder.build({
+    const result = await builder.build({
       filePath: 'index.js',
       code: 'function main() { return true; }'
     });
@@ -98,8 +98,8 @@ describe('AstBuilder', () => {
     }));
   });
 
-  it('should calculate cyclomatic complexity for functions', () => {
-    const ast = new AstBuilder().build({
+  it('should calculate cyclomatic complexity for functions', async () => {
+    const ast = await new AstBuilder().build({
       filePath: 'complexity.ts',
       code: `
         function complex(a, b) {
@@ -119,8 +119,8 @@ describe('AstBuilder', () => {
     expect(func.metadata?.complexity).toBe(4); // 1 base + 2 ifs + 1 for
   });
 
-  it('should calculate cognitive complexity focusing on nesting', () => {
-    const ast = new AstBuilder().build({
+  it('should calculate cognitive complexity focusing on nesting', async () => {
+    const ast = await new AstBuilder().build({
       filePath: 'cognitive.ts',
       code: `
         function veryHard(a, b) {
@@ -138,5 +138,29 @@ describe('AstBuilder', () => {
 
     const func = ast.root.children[0];
     expect(func.metadata?.cognitive).toBe(6); // 1 + 2 + 3
+  });
+
+  it('should parse Python files using basic parser', async () => {
+    const builder = new AstBuilder();
+    const result = await builder.build({
+      filePath: 'main.py',
+      code: [
+        'import os',
+        'class User:',
+        '    def __init__(self, name):',
+        '        self.name = name',
+        '    def say_hi(self):',
+        '        print(f"Hi {self.name}")',
+        'def main():',
+        '    u = User("John")',
+        '    u.say_hi()'
+      ].join('\n')
+    });
+
+    expect(result.language).toBe('python');
+    expect(result.metrics.classes).toBe(1);
+    expect(result.metrics.functions).toBe(1);
+    expect(result.metrics.methods).toBe(2);
+    expect(result.metrics.imports).toBe(1);
   });
 });
