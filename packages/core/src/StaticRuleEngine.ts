@@ -202,6 +202,87 @@ export function createDefaultStaticRules(): StaticRule[] {
       }
     },
     {
+      id: 'hardcoded-secrets',
+      description: 'Detect potential hardcoded secrets or API keys.',
+      enabled: true,
+      run: async ({ ast }) => {
+        const secretRegex = /(?:key|token|secret|password|passwd|auth|api_key|apikey)[\s:=]+['"`][\w\d-]{10,}['"`]/i;
+        const allNodes = flattenAstNodes(ast.root);
+        const findings: StaticRuleFinding[] = [];
+        
+        // Check variable names and initializers
+        allNodes.filter(n => n.kind === 'variable').forEach(n => {
+            if (secretRegex.test(n.name)) {
+                findings.push({
+                    ruleId: 'hardcoded-secrets',
+                    message: `Potential hardcoded secret found in variable: ${n.name}`,
+                    severity: 'error',
+                    file: ast.filePath,
+                    line: n.startLine,
+                    target: n.name
+                });
+            }
+        });
+        return findings;
+      }
+    },
+    {
+      id: 'unsafe-eval',
+      description: 'Detect usage of eval() or dynamic execution.',
+      enabled: true,
+      run: async ({ ast }) => {
+          if (ast.code && ast.code.includes('eval(')) {
+              return [{
+                  ruleId: 'unsafe-eval',
+                  message: 'Usage of eval() detected. This is a major security risk.',
+                  severity: 'error',
+                  file: ast.filePath,
+                  line: 1, 
+                  target: 'eval'
+              }];
+          }
+          return [];
+      }
+    },
+    {
+      id: 'weak-crypto',
+      description: 'Detect usage of weak cryptographic algorithms (MD5, SHA1).',
+      enabled: true,
+      run: async ({ ast }) => {
+          const weakAlgs = /['"](md5|sha1)['"]/i;
+          if (ast.code && weakAlgs.test(ast.code)) {
+              return [{
+                  ruleId: 'weak-crypto',
+                  message: 'Usage of weak cryptographic algorithm detected (MD5/SHA1). Use SHA-256 or better.',
+                  severity: 'warning',
+                  file: ast.filePath,
+                  line: 1,
+                  target: 'crypto'
+              }];
+          }
+          return [];
+      }
+    },
+    {
+      id: 'unsafe-regex',
+      description: 'Detect potentially unsafe or overly complex Regex patterns (ReDoS risk).',
+      enabled: true,
+      run: async ({ ast }) => {
+          const redosRegex = /(\([^\)]+\)\+|\([^\)]+\)\*)\+/;
+          if (ast.code && redosRegex.test(ast.code)) {
+              return [{
+                  ruleId: 'unsafe-regex',
+                  message: 'Potential ReDoS vulnerability: Nested quantifiers in Regex can lead to catastrophic backtracking.',
+                  severity: 'error',
+                  file: ast.filePath,
+                  line: 1,
+                  target: 'regex'
+              }];
+          }
+          return [];
+      }
+    },
+    {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
       enabled: true,

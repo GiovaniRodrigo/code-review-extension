@@ -67,6 +67,14 @@ export class AIAnalysisService {
                 context += reinforcement;
             }
 
+            if (input.mode === 'audit') {
+                context += '\n### Security Audit Mode Enabled:\n';
+                context += '- Look for OWASP Top 10 vulnerabilities.\n';
+                context += '- Check for injection risks (SQL, NoSQL, OS).\n';
+                context += '- Verify proper authentication and authorization checks.\n';
+                context += '- Detect sensitive data exposure.\n';
+            }
+
             // Phase 2: Performance - Truncate excessive context (~10k chars limit)
             const MAX_CONTEXT_CHARS = 10000;
             if (context.length > MAX_CONTEXT_CHARS) {
