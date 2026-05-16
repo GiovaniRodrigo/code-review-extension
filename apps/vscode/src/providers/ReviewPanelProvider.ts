@@ -90,18 +90,29 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     const sectionsHtml = Object.keys(findingsByFile).map(file => {
       const fileFindings = findingsByFile[file];
       const isCollapsed = state.collapsed?.includes(file);
-      const itemsHtml = fileFindings.map((f: any) => `
+      const itemsHtml = fileFindings.map((f: any) => {
+      const confidence = f.confidenceScore !== undefined ? f.confidenceScore : 0.8;
+      const confidencePercent = Math.round(confidence * 100);
+      const confidenceColor = confidence >= 0.8 ? '#4caf50' : confidence >= 0.5 ? '#ff9800' : '#f44336';
+      const confidenceLabel = confidence >= 0.8 ? 'High' : confidence >= 0.5 ? 'Medium' : 'Low';
+
+      return `
             <div class="finding-item" id="item-${f.id}" data-severity="${f.severity}" style="border-left: 3px solid ${this._getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
                 <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
                 <strong>${f.severity.toUpperCase()}</strong>: ${f.message}<br/>
                 <small>Line ${f.line}</small> | <em>${f.status}</em><br/>
+                <div style="margin-top: 5px; font-size: 10px; display: flex; align-items: center; gap: 5px;">
+                    <span title="AI Confidence: ${confidencePercent}%" style="background: ${confidenceColor}; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                    <span style="color: ${confidenceColor}; opacity: 0.8;">AI Confidence: ${confidenceLabel} (${confidencePercent}%)</span>
+                </div>
                 <div style="margin-top: 5px; display: flex; gap: 5px;">
                     <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
                     <button onclick="focusItem('${session.id}', '${f.id}')">Focus</button>
                     <button onclick="copyFinding('${f.message}')">Copy</button>
                 </div>
             </div>
-        `).join('');
+        `;
+    }).join('');
 
       return `
             <details class="file-section" ${isCollapsed ? '' : 'open'} ontoggle="saveCurrentState()">

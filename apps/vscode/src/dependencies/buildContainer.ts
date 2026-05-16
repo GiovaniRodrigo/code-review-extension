@@ -167,6 +167,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     maxRetries: config.get<number>('ai.retries', 2)
   });
 
+  const heatmapService = new HeatmapService(repository);
   const codeReviewService = new CodeReviewService(repository);
   const ragIndexingService = new RagIndexingService(ragIndexer);
   
@@ -188,7 +189,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
-    dashboardProvider: new DashboardProvider(),
+    dashboardProvider: new DashboardProvider(heatmapService),
     ragStatusProvider: new RagStatusProvider(),
     reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),

@@ -71,6 +71,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     try {
       await container.approveFindingUseCase.execute(sessionId, findingId);
       await container.reviewPanelProvider.refresh();
+      await container.dashboardProvider.refresh();
       await container.notifications.info('Finding approved and diagnostics updated.');
     } catch (e: any) {
       await container.notifications.error(`Failed to approve: ${e.message}`);
