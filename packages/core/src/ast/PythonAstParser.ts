@@ -1,5 +1,5 @@
 import { AstParser } from '../../ports/ast/AstParser';
-import { AstNodeSummary, AstMetrics } from './AstBuilder';
+import { AstNodeSummary, AstMetrics } from '../shared/astTypes';
 
 export class PythonAstParser implements AstParser {
     supports(language: string): boolean {

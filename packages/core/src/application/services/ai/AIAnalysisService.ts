@@ -109,6 +109,11 @@ export class AIAnalysisService {
             }
 
             const data = validated.data as AIAnalysisResponseDTO;
+
+            // Notify caller of each finding if callback provided (Phase 5: UX/Streaming)
+            if (input.onFinding) {
+                data.findings.forEach(f => input.onFinding!(f));
+            }
             
             // Phase 4: Quality - Deduplicate findings from AI to reduce noise
             data.findings = data.findings.filter((f, index, self) =>

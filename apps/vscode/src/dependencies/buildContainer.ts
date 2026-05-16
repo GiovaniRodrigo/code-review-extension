@@ -17,7 +17,11 @@ import {
   SelectAIProviderUseCase,
   AIProviderConfig,
   ReinforcementService,
-  ValidateFindingUseCase
+  ValidateFindingUseCase,
+  HeatmapService,
+  AddCommentToFindingUseCase,
+  RefactorFindingUseCase,
+  ProjectChatUseCase
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
@@ -27,10 +31,12 @@ import {
   MemoryRagVectorStore,
   SimpleEmbeddingProvider,
   SimpleRagIndexer,
-  TypeScriptAstBuilder 
+  TypeScriptAstBuilder,
+  TypeScriptDependencyGraphBuilder
 } from '@code-review/infra';
 import { VSCodeIdeAdapter } from '../adapters/ide/VSCodeIdeAdapter';
 import { VSCodeWorkspaceAdapter } from '../adapters/ide/VSCodeWorkspaceAdapter';
+import { VSCodeFileSystemAdapter } from '../adapters/ide/VSCodeFileSystemAdapter';
 import { VSCodeCommandRegistryAdapter } from '../adapters/ide/VSCodeCommandRegistryAdapter';
 import { VSCodeNotificationAdapter } from '../adapters/ide/VSCodeNotificationAdapter';
 import { VSCodeStorageAdapter } from '../adapters/ide/VSCodeStorageAdapter';
@@ -44,6 +50,7 @@ export interface VSCodeContainer {
   context: vscode.ExtensionContext;
   ide: VSCodeIdeAdapter;
   workspace: VSCodeWorkspaceAdapter;
+  fileSystem: VSCodeFileSystemAdapter;
   commands: VSCodeCommandRegistryAdapter;
   notifications: VSCodeNotificationAdapter;
   storage: VSCodeStorageAdapter;
@@ -53,6 +60,8 @@ export interface VSCodeContainer {
   revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
   projectChatUseCase: ProjectChatUseCase;
   approveFindingUseCase: ApproveFindingUseCase;
+  addCommentToFindingUseCase: AddCommentToFindingUseCase;
+  refactorFindingUseCase: RefactorFindingUseCase;
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
   indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
   clearRepositoryRagUseCase: ClearRepositoryRagUseCase;
@@ -72,94 +81,40 @@ export interface VSCodeContainer {
 export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
   const config = vscode.workspace.getConfiguration('codeReview');
   let providerConfigs = config.get<AIProviderConfig[]>('ai.providers', []);
-
-  // Fallback / Migration logic
+  
   if (providerConfigs.length === 0) {
-    const legacyProviderType = config.get<string>('provider', 'mock');
-    const legacyConfig: AIProviderConfig = {
-        id: 'default',
-        type: legacyProviderType as any,
-        label: `Default ${legacyProviderType}`,
-        enabled: true,
-        model: config.get<string>(`${legacyProviderType}.model`, ''),
-        baseUrl: legacyProviderType === 'ollama' ? config.get<string>('ollama.baseUrl') : undefined,
-        apiKey: legacyProviderType === 'openai' 
-            ? async () => (await context.secrets.get('openai-api-key')) || ''
-            : legacyProviderType === 'gemini'
-            ? async () => (await context.secrets.get('gemini-api-key')) || ''
-            : undefined
-    };
-    providerConfigs = [legacyConfig];
+    providerConfigs = [
+      { id: 'ollama-local', name: 'Ollama (Local)', type: 'ollama', endpoint: 'http://localhost:11434' },
+      { id: 'openai-cloud', name: 'OpenAI (Cloud)', type: 'openai' },
+      { id: 'gemini-pro', name: 'Gemini Pro', type: 'gemini' }
+    ];
   }
-
-  // Bind secrets
-  providerConfigs.forEach(pc => {
-    if (pc.type === 'openai' && !pc.apiKey) {
-        pc.apiKey = async () => (await context.secrets.get('openai-api-key')) || '';
-    } else if (pc.type === 'gemini' && !pc.apiKey) {
-        pc.apiKey = async () => (await context.secrets.get('gemini-api-key')) || '';
-    }
-  });
 
   return providerConfigs;
 }
 
-export function buildContainer(context: vscode.ExtensionContext): VSCodeContainer {
+export async function buildContainer(context: vscode.ExtensionContext): Promise<VSCodeContainer> {
   const config = vscode.workspace.getConfiguration('codeReview');
-  const storageDir =
-    context.globalStorageUri?.fsPath
-    ?? context.storageUri?.fsPath
-    ?? context.extensionUri.fsPath;
-
-  const repository = new FileReviewRepository(storageDir);
   
+  // Infrastructure
+  const repository = new FileReviewRepository(context.globalStorageUri.fsPath);
+  const auditLogService = new FileAuditLogService();
   const vectorStore = new MemoryRagVectorStore();
   const embeddingProvider = new SimpleEmbeddingProvider();
-  const astBuilder = new TypeScriptAstBuilder();
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider);
+  const dependencyGraphBuilder = new TypeScriptDependencyGraphBuilder();
   
-  const ragEnabled = config.get<boolean>('rag.enabled', true);
-  const contextBuilder = ragEnabled 
-    ? new SimpleRagContextBuilder(vectorStore, embeddingProvider, { maxChunks: config.get<number>('rag.maxChunks', 5) })
-    : undefined;
-
-  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, { 
-    storageDir,
-    ignoredFolders: config.get<string[]>('rag.ignoredFolders', ['node_modules', '.git', 'dist', '.turbo'])
-  });
-
-  // Multi-provider logic
+  // AI Registry
   const providerRegistry = new AIProviderRegistry();
-  const discoveryService = new AIProviderDiscoveryService();
-  
-  const providerConfigsRaw = config.get<AIProviderConfig[]>('ai.providers', []);
-  let activeProviderId = config.get<string>('ai.activeProviderId');
-
-  // Sync initialization for buildContainer
-  let initialConfigs = providerConfigsRaw;
-  if (initialConfigs.length === 0) {
-      const legacyProviderType = config.get<string>('provider', 'mock');
-      initialConfigs = [{
-          id: 'default',
-          type: legacyProviderType as any,
-          label: `Default ${legacyProviderType}`,
-          enabled: true,
-          model: config.get<string>(`${legacyProviderType}.model`, ''),
-          baseUrl: legacyProviderType === 'ollama' ? config.get<string>('ollama.baseUrl') : undefined,
-          apiKey: legacyProviderType === 'openai' 
-            ? async () => (await context.secrets.get('openai-api-key')) || ''
-            : legacyProviderType === 'gemini'
-            ? async () => (await context.secrets.get('gemini-api-key')) || ''
-            : undefined
-      }];
-      activeProviderId = 'default';
-  }
+  const initialConfigs = await getAIProviderConfigs(context);
+  const activeProviderId = context.globalState?.get ? context.globalState.get<string>('activeAIProviderId') : undefined;
 
   initialConfigs.forEach(pc => {
     // Re-bind secrets if necessary
     if (pc.type === 'openai' && !pc.apiKey) {
-        pc.apiKey = async () => (await context.secrets.get('openai-api-key')) || '';
+        pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('openai-api-key')) : '') || '';
     } else if (pc.type === 'gemini' && !pc.apiKey) {
-        pc.apiKey = async () => (await context.secrets.get('gemini-api-key')) || '';
+        pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('gemini-api-key')) : '') || '';
     }
     providerRegistry.register(pc.id, AIProviderFactory.create(pc) as any);
   });
@@ -170,6 +125,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     providerRegistry.setActiveProvider(initialConfigs[0].id);
   }
 
+  const contextBuilder = new SimpleRagContextBuilder(vectorStore, embeddingProvider);
   const reinforcementService = new ReinforcementService(vectorStore, embeddingProvider);
 
   const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, reinforcementService, {
@@ -178,24 +134,23 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     maskData: config.get<boolean>('privacy.maskData', true)
   });
 
-  const auditLogService = new FileAuditLogService();
   const heatmapService = new HeatmapService(repository);
   const codeReviewService = new CodeReviewService(repository);
-  approveFindingUseCase: ApproveFindingUseCase;
-  addCommentToFindingUseCase: AddCommentToFindingUseCase;
-  refactorFindingUseCase: RefactorFindingUseCase;
-  deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
-  ...
-  const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
+  const ragIndexingService = new RagIndexingService(ragIndexer);
+  
   const ide = new VSCodeIdeAdapter();
-  const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
+  const fileSystem = new VSCodeFileSystemAdapter();
+  const projectChatUseCase = new ProjectChatUseCase(providerRegistry, contextBuilder, new VSCodeWorkspaceAdapter(), fileSystem, dependencyGraphBuilder);
+  const validateFindingUseCase = new ValidateFindingUseCase(repository, ide, reinforcementService, auditLogService);
   const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
   const refactorFindingUseCase = new RefactorFindingUseCase(repository, aiAnalysisService, ide);
+  const discoveryService = new AIProviderDiscoveryService();
 
   return {
     context,
     ide,
     workspace: new VSCodeWorkspaceAdapter(),
+    fileSystem,
     commands: new VSCodeCommandRegistryAdapter(context),
     notifications: new VSCodeNotificationAdapter(),
     storage: new VSCodeStorageAdapter(context),
@@ -209,18 +164,17 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     refactorFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
 
-
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(heatmapService, auditLogService),
     ragStatusProvider: new RagStatusProvider(),
     dependencyGraphProvider: new DependencyGraphProvider(
         new VSCodeWorkspaceAdapter(),
-        new VSCodeFileSystemAdapter(),
+        fileSystem,
         dependencyGraphBuilder
     ),
     chatProvider: new ChatProvider(projectChatUseCase),
-    reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
+    reviewPanelProvider: new ReviewPanelProvider(repository, ide, validateFindingUseCase as any, context),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
     selectAIProviderUseCase: new SelectAIProviderUseCase(),
     aiProviderRegistry: providerRegistry,

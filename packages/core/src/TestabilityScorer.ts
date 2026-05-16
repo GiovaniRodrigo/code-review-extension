@@ -1,4 +1,5 @@
-import { AstBuildResult, AstNodeSummary, flattenAstNodes } from './AstBuilder';
+import { AstBuildResult, AstNodeSummary } from './AstBuilder';
+import { flattenAstNodes } from './shared/astUtils';
 
 export interface TestabilityScore {
   score: number; // 0-100

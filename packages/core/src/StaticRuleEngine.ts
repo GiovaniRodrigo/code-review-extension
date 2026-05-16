@@ -1,4 +1,5 @@
 import { AstBuildResult, AstNodeSummary } from './AstBuilder';
+import { flattenAstNodes } from './shared/astUtils';
 
 export type StaticRuleSeverity = 'info' | 'warning' | 'error';
 
@@ -47,7 +48,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'max-class-members',
       description: 'Warn when a class has too many members.',
       enabled: true,
-      run: async ({ ast }) => ast.root.children
+      run: async ({ ast }) => (ast.root?.children || [])
         .filter(node => node.kind === 'class' && node.children.length > 8)
         .map(node => ({
           ruleId: 'max-class-members',
@@ -63,7 +64,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       description: 'Warn when a file exposes many top-level functions.',
       enabled: true,
       run: async ({ ast }) => {
-        const functions = ast.root.children.filter(node => node.kind === 'function');
+        const functions = (ast.root?.children || []).filter(node => node.kind === 'function');
         if (functions.length <= 10) {
           return [];
         }
@@ -121,9 +122,9 @@ export function createDefaultStaticRules(): StaticRule[] {
       description: 'Warn when application layer depends on infrastructure directly.',
       enabled: true,
       run: async ({ ast }) => {
-        if (!ast.filePath.includes('application')) return [];
+        if (!ast.filePath || !ast.filePath.includes('application')) return [];
 
-        return ast.root.children
+        return (ast.root?.children || [])
           .filter(node => node.kind === 'import')
           .filter(node => node.name.includes('/infra/') || node.name.includes('@code-review/infra'))
           .map(node => ({
@@ -140,7 +141,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       id: 'max-interface-methods',
       description: 'Warn when an interface has too many methods (ISP violation).',
       enabled: true,
-      run: async ({ ast }) => ast.root.children
+      run: async ({ ast }) => (ast.root?.children || [])
         .filter(node => node.kind === 'interface' && node.children.length > 5)
         .map(node => ({
           ruleId: 'max-interface-methods',
@@ -268,7 +269,7 @@ export function createDefaultStaticRules(): StaticRule[] {
       description: 'Detect potentially unsafe or overly complex Regex patterns (ReDoS risk).',
       enabled: true,
       run: async ({ ast }) => {
-          const redosRegex = /(\([^\)]+\)\+|\([^\)]+\)\*)\+/;
+          const redosRegex = /(\([^)]+\)\+|\([^)]+\)\*)\+/;
           if (ast.code && redosRegex.test(ast.code)) {
               return [{
                   ruleId: 'unsafe-regex',
@@ -285,15 +286,18 @@ export function createDefaultStaticRules(): StaticRule[] {
     {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
-      enabled: true,
+      enabled: false,
       run: async ({ ast }) => {
-        if (ast.root.children.length > 0) {
+        const structuralKinds = ['class', 'function', 'interface', 'import', 'export', 'variable'];
+        const hasStructure = (ast.root?.children || []).some(n => structuralKinds.includes(n.kind));
+
+        if (hasStructure) {
           return [];
         }
 
         return [{
           ruleId: 'missing-structure',
-          message: 'No imports, exports, classes, interfaces, functions, or variables were detected.',
+          message: 'No imports, exports, classes, functions or variables found.',
           severity: 'info',
           file: ast.filePath,
           line: 1,
@@ -301,9 +305,6 @@ export function createDefaultStaticRules(): StaticRule[] {
         }];
       }
     }
-  ];
-}
 
-export function flattenAstNodes(root: AstNodeSummary): AstNodeSummary[] {
-  return [root, ...root.children.flatMap(child => flattenAstNodes(child))];
+  ];
 }

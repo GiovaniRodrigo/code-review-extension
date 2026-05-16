@@ -30,7 +30,12 @@ export const analyzeCommand = {
             activeAbortController?.abort();
         });
 
-        const targetLines = await container.ide.getUncommittedChangesLines(filePath);
+        let targetLines: number[] = [];
+        try {
+            targetLines = await container.ide.getUncommittedChangesLines(filePath);
+        } catch (error) {
+            console.warn('[ANALYZE] Git diff failed, falling back to full analysis', error);
+        }
 
         return await container.revalidateCodeReviewUseCase.execute({
           code,

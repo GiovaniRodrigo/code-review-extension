@@ -2,39 +2,9 @@ import { AstParser } from './ports/ast/AstParser';
 import { TypeScriptAstParser } from './ast/TypeScriptAstParser';
 import { PythonAstParser } from './ast/PythonAstParser';
 import { GoAstParser } from './ast/GoAstParser';
+import { AstNodeKind, AstNodeSummary, AstMetrics } from './shared/astTypes';
 
-export type AstNodeKind =
-  | 'sourceFile'
-  | 'import'
-  | 'export'
-  | 'class'
-  | 'interface'
-  | 'function'
-  | 'method'
-  | 'property'
-  | 'variable'
-  | 'unknown';
-
-export interface AstNodeSummary {
-  kind: AstNodeKind;
-  name: string;
-  startLine: number;
-  endLine: number;
-  children: AstNodeSummary[];
-  metadata?: Record<string, any>;
-}
-
-export interface AstMetrics {
-  imports: number;
-  exports: number;
-  classes: number;
-  interfaces: number;
-  functions: number;
-  methods: number;
-  properties: number;
-  variables: number;
-  maxDepth: number;
-}
+export { AstNodeKind, AstNodeSummary, AstMetrics };
 
 export interface AstBuildInput {
   filePath: string;
@@ -45,6 +15,7 @@ export interface AstBuildInput {
 export interface AstBuildResult {
   filePath: string;
   language: string;
+  code: string;
   root: AstNodeSummary;
   metrics: AstMetrics;
 }
@@ -65,6 +36,7 @@ export class AstBuilder {
         return {
             filePath: input.filePath,
             language,
+            code: input.code,
             root: {
                 kind: 'sourceFile',
                 name: input.filePath,
@@ -85,6 +57,7 @@ export class AstBuilder {
     return {
       filePath: input.filePath,
       language,
+      code: input.code,
       root,
       metrics
     };

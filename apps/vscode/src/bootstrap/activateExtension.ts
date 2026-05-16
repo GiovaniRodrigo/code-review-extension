@@ -7,9 +7,9 @@ import { registerEvents } from './registerEvents';
 import { registerProviders } from './registerProviders';
 import { restoreCurrentBranchSession } from './restoreCurrentBranchSession';
 
-export function activateExtension(context: vscode.ExtensionContext): void {
+export async function activateExtension(context: vscode.ExtensionContext): Promise<void> {
   try {
-    const container = bootstrapContainer(context);
+    const container = await bootstrapContainer(context);
     registerCommands(context, container);
     registerViews(context, container);
     registerMenus(context, container);
@@ -17,22 +17,20 @@ export function activateExtension(context: vscode.ExtensionContext): void {
     registerProviders(context, container);
     
     // Load custom heuristics for the workspace
-    void (async () => {
-        try {
-            const { StaticRuleEngine, LoadCustomHeuristicsUseCase } = await import('@code-review/core');
-            const ruleEngine = (container as any).ruleEngine || new StaticRuleEngine();
-            const loadHeuristics = new LoadCustomHeuristicsUseCase(
-                container.workspace,
-                (container as any).fileSystem || (container as any).ide,
-                ruleEngine,
-                container.analysisService
-            );
-            await loadHeuristics.execute();
-            (container as any).ruleEngine = ruleEngine;
-        } catch (e) {
-            console.error('[ACTIVATION] Failed to load heuristics', e);
-        }
-    })();
+    try {
+        const { StaticRuleEngine, LoadCustomHeuristicsUseCase } = await import('@code-review/core');
+        const ruleEngine = (container as any).ruleEngine || new StaticRuleEngine();
+        const loadHeuristics = new LoadCustomHeuristicsUseCase(
+            container.workspace,
+            container.fileSystem,
+            ruleEngine,
+            container.analysisService
+        );
+        await loadHeuristics.execute();
+        (container as any).ruleEngine = ruleEngine;
+    } catch (e) {
+        console.error('[ACTIVATION] Failed to load heuristics', e);
+    }
 
     context.subscriptions.push(container.ide);
 

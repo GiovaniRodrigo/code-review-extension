@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { AstParser } from '../../ports/ast/AstParser';
-import { AstNodeSummary, AstMetrics, AstNodeKind } from './AstBuilder';
+import { AstNodeSummary, AstMetrics, AstNodeKind } from '../shared/astTypes';
+import { flattenAstNodes } from '../shared/astUtils';
 
 export class TypeScriptAstParser implements AstParser {
     supports(language: string): boolean {
@@ -30,6 +31,11 @@ export class TypeScriptAstParser implements AstParser {
             if (summary) {
                 root.children.push(summary);
             }
+        });
+
+        // Ensure all nodes have children array initialized
+        flattenAstNodes(root).forEach(node => {
+            if (!node.children) node.children = [];
         });
 
         return {
@@ -234,7 +240,7 @@ export class TypeScriptAstParser implements AstParser {
                 case ts.SyntaxKind.CaseClause:
                     complexity++;
                     break;
-                case ts.SyntaxKind.BinaryExpression:
+                case ts.SyntaxKind.BinaryExpression: {
                     const binary = child as ts.BinaryExpression;
                     if (
                         binary.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ||
@@ -244,6 +250,7 @@ export class TypeScriptAstParser implements AstParser {
                         complexity++;
                     }
                     break;
+                }
             }
             ts.forEachChild(child, visit);
         };
@@ -276,7 +283,7 @@ export class TypeScriptAstParser implements AstParser {
                     increment = 1;
                     isNestingIncrement = true;
                     break;
-                case ts.SyntaxKind.BinaryExpression:
+                case ts.SyntaxKind.BinaryExpression: {
                     const binary = child as ts.BinaryExpression;
                     if (
                         binary.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ||
@@ -286,6 +293,7 @@ export class TypeScriptAstParser implements AstParser {
                         increment = 1;
                     }
                     break;
+                }
             }
 
             complexity += increment;

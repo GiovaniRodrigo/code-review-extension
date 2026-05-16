@@ -1,4 +1,5 @@
-import { AstNodeSummary, AstMetrics } from './AstBuilder';
+import { AstNodeSummary, AstMetrics } from '../../shared/astTypes';
+
 
 export interface AstParser {
     supports(language: string): boolean;

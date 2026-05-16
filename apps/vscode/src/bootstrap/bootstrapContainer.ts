@@ -4,8 +4,8 @@ import { registerPorts } from '../dependencies/registerPorts';
 import { registerProviders } from '../dependencies/registerProviders';
 import { registerUseCases } from '../dependencies/registerUseCases';
 
-export function bootstrapContainer(context: vscode.ExtensionContext): VSCodeContainer {
-  const container = buildContainer(context);
+export async function bootstrapContainer(context: vscode.ExtensionContext): Promise<VSCodeContainer> {
+  const container = await buildContainer(context);
   registerPorts(container);
   registerProviders(container);
   registerUseCases(container);

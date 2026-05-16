@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { activateExtension } from './bootstrap/activateExtension';
 
-export function activate(
+export async function activate(
   context: vscode.ExtensionContext
-): void {
-  activateExtension(context);
+): Promise<void> {
+  await activateExtension(context);
 }
 
 export function deactivate(): void {}

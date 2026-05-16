@@ -33,13 +33,13 @@ export class RevalidateCodeReviewUseCase {
     if (input.targetLines && input.targetLines.length > 0) {
         console.log(`[REVALIDATE] Incremental mode for lines: ${input.targetLines.join(', ')}`);
         try {
-            const ast = this.astBuilder.build({ filePath: input.filePath, code: input.code });
+            const ast = await this.astBuilder.build({ filePath: input.filePath, code: input.code });
             codeToAnalyze = this.pruningService.prune({
                 ast,
                 targetLines: input.targetLines
             });
-        } catch (e) {
-            console.warn('[REVALIDATE] Pruning failed, falling back to full code');
+        } catch (error) {
+            console.warn('[REVALIDATE] Pruning failed, falling back to full code', error);
         }
     }
 
@@ -64,7 +64,6 @@ export class RevalidateCodeReviewUseCase {
             }
         }
     });
-...
 
     const newFindings: Finding[] = analysisResult.findings.map((f, index) => ({
         id: `ai-${Date.now()}-${index}`,
@@ -78,10 +77,13 @@ export class RevalidateCodeReviewUseCase {
         suggestedFix: f.suggestedFix
     }));
 
+    const MAX_FINDINGS = 100;
+
     if (!existingSession) {
-        const session = await this.reviewService.create(input.branch, newFindings);
+        const limitedFindings = newFindings.slice(0, MAX_FINDINGS);
+        const session = await this.reviewService.create(input.branch, limitedFindings);
         const duration = Date.now() - startTime;
-        console.log(`[REVALIDATE] New session created in ${duration}ms. Findings: ${newFindings.length}`);
+        console.log(`[REVALIDATE] New session created in ${duration}ms. Findings: ${limitedFindings.length}`);
         return session;
     }
 
@@ -107,7 +109,6 @@ export class RevalidateCodeReviewUseCase {
     );
 
     // Limit findings per session (Phase 2: Performance)
-    const MAX_FINDINGS = 100;
     existingSession.findings = uniqueFindings.slice(0, MAX_FINDINGS);
     
     await this.reviewService.update(existingSession);

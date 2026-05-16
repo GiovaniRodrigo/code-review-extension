@@ -1,4 +1,5 @@
-import { StaticRule, StaticRuleFinding, flattenAstNodes } from './StaticRuleEngine';
+import { StaticRule, StaticRuleFinding } from './StaticRuleEngine';
+import { flattenAstNodes } from './shared/astUtils';
 export interface CustomRuleConfig {
   id: string;
   description: string;
