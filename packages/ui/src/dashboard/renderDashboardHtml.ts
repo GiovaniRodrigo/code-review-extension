@@ -1,5 +1,9 @@
 import { baseHtml } from '../shared/baseHtml';
 import { escapeHtml } from '../shared/escapeHtml';
+import { Page } from '../components/Page';
+import { Card } from '../components/Card';
+import { Badge } from '../components/Badge';
+import { EmptyState } from '../components/EmptyState';
 import type { DashboardState, DashboardHeatItem, DashboardLogEntry } from './DashboardState';
 
 export function renderDashboardHtml(state: DashboardState): string {
@@ -13,7 +17,7 @@ export function renderDashboardHtml(state: DashboardState): string {
     `).join('');
 
   const logsHtml = state.logs.map((l: DashboardLogEntry) => `
-        <div style="font-size: 10px; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 2px;">
+        <div style="font-size: 10px; margin-bottom: 5px; border-bottom: 1px solid var(--m3-outline); padding-bottom: 2px;">
             <div style="display: flex; justify-content: space-between; opacity: 0.8;">
                 <strong>${escapeHtml(l.action)}</strong>
                 <span>${new Date(l.timestamp).toLocaleTimeString()}</span>
@@ -24,44 +28,37 @@ export function renderDashboardHtml(state: DashboardState): string {
 
   return baseHtml({
     title: 'Code Review Dashboard',
-    styles: `
-      .card { background: var(--vscode-sideBar-background); padding: 10px; margin-bottom: 10px; border: 1px solid var(--vscode-widget-border); }
-      .title { font-size: 10px; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px; }
-      .score { font-size: 20px; font-weight: bold; }
-      .status-success { color: #4caf50; }
-      .status-error { color: #f44336; }
-    `,
-    body: `
-      <div class="card">
-        <div class="title">Technical Debt Hotspots</div>
-        ${heatHtml || '<div style="opacity: 0.5; font-size: 11px;">No data yet. Run an analysis.</div>'}
-      </div>
+    body: Page(`
+      ${Card(`
+        <div class="cr-title">Technical Debt Hotspots</div>
+        ${heatHtml || EmptyState('No data yet. Run an analysis.')}
+      `)}
       
-      <div class="card">
-        <div class="title">Recent Audit Logs</div>
+      ${Card(`
+        <div class="cr-title">Recent Audit Logs</div>
         <div style="max-height: 150px; overflow-y: auto;">
-            ${logsHtml || '<div style="opacity: 0.5; font-size: 11px;">No logs yet.</div>'}
+            ${logsHtml || EmptyState('No logs yet.')}
         </div>
-      </div>
+      `)}
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div class="card">
-            <div class="title">Coverage</div>
-            <div class="score">${state.coverage}%</div>
-        </div>
-        <div class="card">
-            <div class="title">Testability</div>
-            <div class="score" style="color: ${getTestabilityColor(state.testability.level)}">${state.testability.score}</div>
-        </div>
+        ${Card(`
+            <div class="cr-title" style="font-size: 10px;">Coverage</div>
+            <div style="font-size: 20px; font-weight: bold;">${state.coverage}%</div>
+        `)}
+        ${Card(`
+            <div class="cr-title" style="font-size: 10px;">Testability</div>
+            <div style="font-size: 20px; font-weight: bold; color: ${getTestabilityColor(state.testability.level)}">${state.testability.score}</div>
+        `)}
       </div>
 
-      <div class="card">
-        <div class="title">Quality Gates</div>
-        <div class="score ${state.gatesPassed ? 'status-success' : 'status-error'}">
+      ${Card(`
+        <div class="cr-title" style="font-size: 10px;">Quality Gates</div>
+        <div style="font-size: 20px; font-weight: bold; color: ${state.gatesPassed ? '#4caf50' : '#f44336'}">
             ${state.gatesPassed ? 'PASSED' : 'FAILED'}
         </div>
-      </div>
-    `
+      `)}
+    `)
   });
 }
 

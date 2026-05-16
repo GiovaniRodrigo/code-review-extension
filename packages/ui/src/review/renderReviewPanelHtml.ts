@@ -1,14 +1,21 @@
 import { baseHtml } from '../shared/baseHtml';
 import { escapeHtml } from '../shared/escapeHtml';
+import { Page } from '../components/Page';
+import { Card } from '../components/Card';
+import { Badge } from '../components/Badge';
+import { Button } from '../components/Button';
 import type { ReviewPanelState, ReviewFinding } from './ReviewPanelState';
 
 export function renderReviewPanelHtml(state: ReviewPanelState): string {
-  const loadingHtml = state.loading ? '<div style="background: #333; padding: 5px; text-align: center;">AI is analyzing...</div>' : '';
+  const loadingHtml = state.loading ? `<div class="cr-card" style="text-align: center; margin-bottom: 12px;">AI is analyzing...</div>` : '';
 
   if (!state.findings.length && !state.loading) {
     return baseHtml({
       title: 'Review Findings',
-      body: `${loadingHtml}<p>No findings for this branch.</p>`
+      body: Page(`
+        ${loadingHtml}
+        <div class="cr-empty">No findings for this branch.</div>
+      `)
     });
   }
 
@@ -28,16 +35,16 @@ export function renderReviewPanelHtml(state: ReviewPanelState): string {
       const confidenceLabel = confidence >= 0.8 ? 'High' : confidence >= 0.5 ? 'Medium' : 'Low';
 
       const discussionHtml = (f.discussion || []).map((c: any) => `
-        <div style="font-size: 10px; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 3px; border-radius: 2px;">
+        <div style="font-size: 10px; margin-top: 5px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 4px;">
             <strong>${c.author === 'developer' ? 'You' : 'AI'}:</strong> ${escapeHtml(c.body)}
         </div>
       `).join('');
 
       return `
             <div class="finding-item" id="item-${f.id}" data-severity="${escapeHtml(f.severity)}" style="border-left: 3px solid ${getSeverityColor(f.severity)}; padding-left: 10px; margin-bottom: 10px; position: relative;">
-                <div style="font-size: 10px; position: absolute; right: 5px; top: 0; color: #888;">#${f.id.substring(0, 4)}</div>
-                <strong>${escapeHtml(f.severity.toUpperCase())}</strong>: ${escapeHtml(f.message)}<br/>
-                <small>Line ${f.line}</small> | <em>${escapeHtml(f.status)}</em><br/>
+                <div style="font-size: 10px; position: absolute; right: 5px; top: 0; opacity: 0.5;">#${f.id.substring(0, 4)}</div>
+                <strong>${Badge(f.severity.toUpperCase())}</strong> ${escapeHtml(f.message)}<br/>
+                <small class="cr-muted">Line ${f.line} | ${escapeHtml(f.status)}</small><br/>
                 <div style="margin-top: 5px; font-size: 10px; display: flex; align-items: center; gap: 5px;">
                     <span title="AI Confidence: ${confidencePercent}%" style="background: ${confidenceColor}; width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
                     <span style="color: ${confidenceColor}; opacity: 0.8;">AI Confidence: ${confidenceLabel} (${confidencePercent}%)</span>
@@ -45,21 +52,21 @@ export function renderReviewPanelHtml(state: ReviewPanelState): string {
                 
                 <div class="discussion-thread">${discussionHtml}</div>
 
-                <div style="margin-top: 5px; display: flex; gap: 5px;">
-                    <button onclick="approve('${state.sessionId}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
-                    <button onclick="focusItem('${state.sessionId}', '${f.id}')">Focus</button>
-                    <button onclick="refactor('${state.sessionId}', '${f.id}')">Refactor</button>
-                    <button onclick="addComment('${state.sessionId}', '${f.id}')">Reply</button>
-                    <button onclick="copyFinding('${escapeHtml(f.message)}')">Copy</button>
+                <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <button class="cr-button" onclick="approve('${state.sessionId}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''} style="font-size: 10px; padding: 4px 10px;">Approve</button>
+                    <button class="cr-button secondary" onclick="focusItem('${state.sessionId}', '${f.id}')" style="font-size: 10px; padding: 4px 10px;">Focus</button>
+                    <button class="cr-button secondary" onclick="refactor('${state.sessionId}', '${f.id}')" style="font-size: 10px; padding: 4px 10px;">Refactor</button>
+                    <button class="cr-button secondary" onclick="addComment('${state.sessionId}', '${f.id}')" style="font-size: 10px; padding: 4px 10px;">Reply</button>
+                    <button class="cr-button secondary" onclick="copyFinding('${escapeHtml(f.message)}')" style="font-size: 10px; padding: 4px 10px;">Copy</button>
                 </div>
             </div>
         `;
     }).join('');
 
     return `
-          <details class="file-section" ${isCollapsed ? '' : 'open'} ontoggle="saveCurrentState()">
-              <summary style="font-weight: bold; cursor: pointer; padding: 5px; background: #333; margin-bottom: 5px;" data-file="${escapeHtml(file)}">${escapeHtml(file)} (${fileFindings.length})</summary>
-              <div style="padding: 5px;">${itemsHtml}</div>
+          <details class="file-section" ${isCollapsed ? '' : 'open'} ontoggle="saveCurrentState()" style="margin-bottom: 8px; border: 1px solid var(--m3-outline); border-radius: var(--m3-radius-md); overflow: hidden;">
+              <summary style="font-weight: bold; cursor: pointer; padding: 8px; background: var(--m3-surface-container);" data-file="${escapeHtml(file)}">${escapeHtml(file)} (${fileFindings.length})</summary>
+              <div style="padding: 10px; background: var(--m3-surface);">${itemsHtml}</div>
           </details>
       `;
   }).join('');
@@ -67,20 +74,19 @@ export function renderReviewPanelHtml(state: ReviewPanelState): string {
   return baseHtml({
     title: 'Review Findings',
     styles: `
-      .filter-btn { background: none; border: 1px solid #555; color: #ccc; cursor: pointer; padding: 2px 5px; font-size: 10px; }
-      .filter-btn.active { background: #555; color: white; }
-      .highlight { background: rgba(255, 255, 0, 0.1); }
-      button { cursor: pointer; font-size: 11px; }
+      .filter-btn { background: transparent; border: 1px solid var(--m3-outline); color: var(--m3-on-surface); cursor: pointer; padding: 4px 8px; font-size: 10px; border-radius: 999px; }
+      .filter-btn.active { background: var(--m3-primary); color: var(--m3-on-primary); border-color: var(--m3-primary); }
+      .highlight { background: rgba(255, 255, 0, 0.05); }
     `,
-    body: `
-      <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+    body: Page(`
+      <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-            <strong>Branch:</strong> ${escapeHtml(state.branch)}<br/>
-            <small><strong>Approved:</strong> ${state.findings.filter((f: any) => f.status === 'approved').length}/${state.findings.length}</small>
+            <div style="font-weight: bold; font-size: 11px;">Branch: ${escapeHtml(state.branch)}</div>
+            <div class="cr-muted">Approved: ${state.findings.filter((f: any) => f.status === 'approved').length}/${state.findings.length}</div>
         </div>
-        <button onclick="revalidate()">Revalidate</button>
+        <button class="cr-button" onclick="revalidate()" style="font-size: 10px; padding: 4px 10px;">Revalidate</button>
       </div>
-      <div style="margin-bottom: 10px; display: flex; gap: 5px;">
+      <div style="margin-bottom: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
         <button class="filter-btn ${state.filter === 'all' ? 'active' : ''}" data-type="all" onclick="filter('all', this)">All</button>
         <button class="filter-btn ${state.filter === 'error' ? 'active' : ''}" data-type="error" onclick="filter('error', this)">Errors</button>
         <button class="filter-btn ${state.filter === 'warning' ? 'active' : ''}" data-type="warning" onclick="filter('warning', this)">Warnings</button>
@@ -90,7 +96,7 @@ export function renderReviewPanelHtml(state: ReviewPanelState): string {
       <div id="findings-container">
         ${sectionsHtml}
       </div>
-    `,
+    `),
     script: `
       const vscode = acquireVsCodeApi();
       

@@ -1,10 +1,10 @@
-const assert = require('node:assert');
-const vscode = require('vscode');
+import * as assert from "assert";
+import * as vscode from "vscode";
 
-suite('Extension E2E', function () {
+describe('Extension E2E', function () {
   this.timeout(20000);
 
-  test('should activate extension', async () => {
+  it('should activate extension', async () => {
     const extension =
       vscode.extensions.getExtension(
         'CodeReviewExtension.git-code-review'
@@ -21,7 +21,7 @@ suite('Extension E2E', function () {
     );
   });
 
-  test('should register public commands', async () => {
+  it('should register public commands', async () => {
     const commands =
       await vscode.commands.getCommands(true);
 
@@ -41,7 +41,7 @@ suite('Extension E2E', function () {
     );
   });
 
-  test('should execute analyze command without throwing', async () => {
+  it('should execute analyze command without throwing', async () => {
     // Open a dummy file to ensure analyze has something to work with
     const doc = await vscode.workspace.openTextDocument({ 
         content: 'function test() { let x = 1; }', 
@@ -71,7 +71,7 @@ suite('Extension E2E', function () {
     }
   });
 
-  test('should open sidebar focus command if available', async () => {
+  it('should open sidebar focus command if available', async () => {
     const commands =
       await vscode.commands.getCommands(true);
 
@@ -90,7 +90,7 @@ suite('Extension E2E', function () {
     });
   });
 
-  test('should keep extension active after UI command', async () => {
+  it('should keep extension active after UI command', async () => {
     const extension =
       vscode.extensions.getExtension(
         'CodeReviewExtension.git-code-review'

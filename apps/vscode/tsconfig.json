@@ -23,6 +23,9 @@
             ],
             "@code-review/infra": [
                 "../../packages/infra/src/index.ts"
+            ],
+            "@code-review/ui": [
+                "../../packages/ui/src/index.ts"
             ]
         }
     },

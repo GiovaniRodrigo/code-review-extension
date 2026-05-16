@@ -1,27 +1,35 @@
 import { baseHtml } from '../shared/baseHtml';
-import { escapeHtml } from '../shared/escapeHtml';
+import { Page } from '../components/Page';
+import { Card } from '../components/Card';
+import { Badge } from '../components/Badge';
+import { Button } from '../components/Button';
+import { Alert } from '../components/Alert';
 import type { RagStatusState } from './RagStatusState';
 
 export function renderRagStatusHtml(state: RagStatusState): string {
   return baseHtml({
     title: 'RAG Status',
-    body: `
-      <h1>RAG Status</h1>
-      <section>
-        <p><strong>Status:</strong> ${escapeHtml(state.status)}</p>
-        ${state.totalChunks !== undefined ? `<p><strong>Chunks:</strong> ${state.totalChunks}</p>` : ''}
-        ${state.lastIndexed ? `<p><strong>Last Indexed:</strong> ${escapeHtml(state.lastIndexed)}</p>` : ''}
-        ${state.error ? `<p style="color: var(--vscode-errorForeground);"><strong>Error:</strong> ${escapeHtml(state.error)}</p>` : ''}
-      </section>
-      <section style="margin-top: 20px; display: flex; gap: 10px;">
-        <button onclick="index()">Index Repository</button>
-        <button onclick="clearIndex()">Clear Index</button>
-      </section>
-    `,
+    body: Page(`
+      <h1 class="cr-title">RAG Status</h1>
+      ${Card(`
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div><strong>Status:</strong> ${Badge(state.status)}</div>
+          ${state.totalChunks !== undefined ? `<div><strong>Chunks:</strong> ${state.totalChunks}</div>` : ''}
+          ${state.lastIndexed ? `<div><strong>Last Indexed:</strong> <span class="cr-muted">${state.lastIndexed}</span></div>` : ''}
+          ${state.error ? Alert(`Error: ${state.error}`) : ''}
+        </div>
+      `)}
+      <div style="margin-top: 16px; display: flex; gap: 8px;">
+        ${Button('Index Repository', 'index')}
+        ${Button('Clear Index', 'clear', 'secondary')}
+      </div>
+    `),
     script: `
       const vscode = acquireVsCodeApi();
-      function index() { vscode.postMessage({ command: 'index' }); }
-      function clearIndex() { vscode.postMessage({ command: 'clear' }); }
+      document.addEventListener('click', (e) => {
+        const cmd = e.target.dataset.command;
+        if (cmd) vscode.postMessage({ command: cmd });
+      });
     `
   });
 }

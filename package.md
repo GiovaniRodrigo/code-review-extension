@@ -1,0 +1,115 @@
+# code-review-extension
+
+AI-assisted Code Review Extension - Multi-IDE Architecture
+
+## Package Info
+
+- **Version:** 2.0.0
+- **Private:** Yes
+- **Type:** module
+- **Package manager:** npm@10.9.0
+
+## Workspaces
+
+- `apps/*`
+- `packages/*`
+
+## Scripts
+
+| Script | Command |
+| --- | --- |
+| `lint` | `npm run lint:eslint && npm run arch:depcruise && npm run arch:madge` |
+| `lint:eslint` | `eslint .` |
+| `arch:depcruise` | `depcruise packages apps/vscode/src --config .dependency-cruiser.cjs` |
+| `arch:madge` | `madge packages apps/vscode/src --circular --extensions ts` |
+| `test` | `vitest run --exclude "apps/vscode/tests/e2e/**" --coverage.enabled=false` |
+| `test:unit` | `vitest run --config vitest.unit.config.ts` |
+| `test:integration` | `vitest run --config vitest.integration.config.ts` |
+| `test:coverage` | `vitest run --config vitest.coverage.config.ts --coverage` |
+| `test:mutation` | `npm run test:mutation:domain && npm run test:mutation:core && npm run test:mutation:analyzers` |
+| `test:mutation:domain` | `stryker run config/stryker/domain.json` |
+| `test:mutation:core` | `npm run test:mutation:core:use-cases && npm run test:mutation:core:services-ai && npm run test:mutation:core:shared` |
+| `test:mutation:core:use-cases` | `npm run test:mutation:core:use-cases:ai && npm run test:mutation:core:use-cases:ast && npm run test:mutation:core:use-cases:rag && npm run test:mutation:core:use-cases:review && npm run test:mutation:core:use-cases:sync-vps` |
+| `test:mutation:core:use-cases:ai` | `stryker run config/stryker/core-use-cases-ai.json` |
+| `test:mutation:core:use-cases:ast` | `stryker run config/stryker/core-use-cases-ast.json` |
+| `test:mutation:core:use-cases:rag` | `stryker run config/stryker/core-use-cases-rag.json` |
+| `test:mutation:core:use-cases:review` | `npm run test:mutation:core:use-cases:review:pr && npm run test:mutation:core:use-cases:review:workspace && npm run test:mutation:core:use-cases:review:reporting && npm run test:mutation:core:use-cases:review:session` |
+| `test:mutation:core:use-cases:review:pr` | `stryker run config/stryker/core-use-cases-review-pr.json` |
+| `test:mutation:core:use-cases:review:workspace` | `npm run test:mutation:core:use-cases:review:workspace:analyze && npm run test:mutation:core:use-cases:review:workspace:revalidate` |
+| `test:mutation:core:use-cases:review:workspace:analyze` | `stryker run config/stryker/core-use-cases-review-workspace-analyze.json` |
+| `test:mutation:core:use-cases:review:workspace:revalidate` | `stryker run config/stryker/core-use-cases-review-workspace-revalidate.json` |
+| `test:mutation:core:use-cases:review:reporting` | `stryker run config/stryker/core-use-cases-review-reporting.json` |
+| `test:mutation:core:use-cases:review:analysis` | `npm run test:mutation:core:use-cases:review:pr && npm run test:mutation:core:use-cases:review:workspace && npm run test:mutation:core:use-cases:review:reporting` |
+| `test:mutation:core:use-cases:review:session` | `stryker run config/stryker/core-use-cases-review-session.json` |
+| `test:mutation:core:use-cases:sync-vps` | `stryker run config/stryker/core-use-cases-sync-vps.json` |
+| `test:mutation:core:services-ai` | `stryker run config/stryker/core-services-ai.json` |
+| `test:mutation:core:shared` | `stryker run config/stryker/core-shared.json` |
+| `test:mutation:analyzers` | `stryker run config/stryker/analyzers.json` |
+| `test:mutation:performance` | `vitest run packages/testing/tests/regression/StrykerPerformance.test.ts` |
+| `test:mutation:performance:dry-run` | `npm run test:mutation:performance:core:dry-run` |
+| `test:mutation:performance:core:dry-run` | `npm run test:mutation:performance:core:dry-run:review:pr && npm run test:mutation:performance:core:dry-run:review:workspace && npm run test:mutation:performance:core:dry-run:review:reporting && npm run test:mutation:performance:core:dry-run:review:session` |
+| `test:mutation:performance:core:dry-run:review:pr` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-pr.json` |
+| `test:mutation:performance:core:dry-run:review:workspace` | `npm run test:mutation:performance:core:dry-run:review:workspace:analyze && npm run test:mutation:performance:core:dry-run:review:workspace:revalidate` |
+| `test:mutation:performance:core:dry-run:review:workspace:analyze` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-workspace-analyze.json` |
+| `test:mutation:performance:core:dry-run:review:workspace:revalidate` | `npm run test:mutation:performance:core:dry-run:review:workspace:revalidate:basic && npm run test:mutation:performance:core:dry-run:review:workspace:revalidate:incremental` |
+| `test:mutation:performance:core:dry-run:review:workspace:revalidate:basic` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-workspace-revalidate-basic.json` |
+| `test:mutation:performance:core:dry-run:review:workspace:revalidate:incremental` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-workspace-revalidate-incremental.json` |
+| `test:mutation:performance:core:dry-run:review:reporting` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-reporting.json` |
+| `test:mutation:performance:core:dry-run:review:analysis` | `npm run test:mutation:performance:core:dry-run:review:pr && npm run test:mutation:performance:core:dry-run:review:workspace && npm run test:mutation:performance:core:dry-run:review:reporting` |
+| `test:mutation:performance:core:dry-run:review:session` | `node scripts/stryker-dry-run-performance.mjs config/stryker/core-use-cases-review-session.json` |
+| `test:e2e` | `node apps/vscode/tests/e2e/runE2E.cjs` |
+| `test:runtime` | `node apps/vscode/tests/runtime/runRuntimeDiagnostics.cjs` |
+| `test:all` | `npm run lint && npm run test:unit && npm run test:integration && npm run test:coverage && npm run build` |
+| `build` | `turbo build` |
+| `transpile` | `esbuild "packages/*/src/**/*.ts" "apps/*/src/**/*.ts" --outdir=dist/transpile --platform=node --format=cjs --sourcemap --packages=external --tsconfig=tsconfig.base.json` |
+| `package:vscode` | `cd apps/vscode && npm run package` |
+| `test:full` | `npm run test:all && npm run test:mutation` |
+| `quality` | `rm -rf .stryker-tmp coverage mutation-report && npm run lint && npm run build && npm run test && npm run test:coverage && npm run test:e2e && npm run test:runtime && npm run test:mutation:domain && npm run test:mutation:core:use-cases && npm run test:mutation:core:services-ai && npm run test:mutation:core:shared && npm run test:mutation:analyzers` |
+| `test:ui` | `vitest run apps/vscode/tests/unit/views apps/vscode/tests/unit/providers apps/vscode/tests/unit/webview` |
+| `test:ui:integration` | `vitest run apps/vscode/tests/integration/views apps/vscode/tests/integration/webview` |
+| `audit:critical` | `npm audit --audit-level=critical` |
+
+## Dependencies
+
+| Package | Version |
+| --- | --- |
+| `axios` | `^1.16.0` |
+| `pino` | `^10.3.1` |
+| `zod` | `^4.4.3` |
+
+## Dev Dependencies
+
+| Package | Version |
+| --- | --- |
+| `@eslint/js` | `^9.39.4` |
+| `@stryker-mutator/core` | `~8.7.0` |
+| `@stryker-mutator/vitest-runner` | `~8.7.0` |
+| `@testing-library/dom` | `^10.4.1` |
+| `@testing-library/jest-dom` | `^6.9.1` |
+| `@testing-library/react` | `^16.3.2` |
+| `@testing-library/user-event` | `^14.6.1` |
+| `@types/mocha` | `^10.0.10` |
+| `@types/node` | `^25.7.0` |
+| `@types/react` | `^19.2.14` |
+| `@types/react-dom` | `^19.2.3` |
+| `@types/vscode` | `^1.118.0` |
+| `@vitejs/plugin-react` | `^5.2.0` |
+| `@vitest/coverage-v8` | `^1.6.1` |
+| `@vitest/ui` | `^1.6.1` |
+| `@vscode/test-electron` | `^2.5.2` |
+| `dependency-cruiser` | `^17.4.0` |
+| `esbuild` | `^0.28.0` |
+| `eslint` | `^9.39.4` |
+| `eslint-plugin-import` | `^2.32.0` |
+| `jsdom` | `^29.1.1` |
+| `madge` | `^8.0.0` |
+| `mocha` | `^11.7.5` |
+| `react` | `^19.2.6` |
+| `react-dom` | `^19.2.6` |
+| `ts-morph` | `^28.0.0` |
+| `ts-node` | `^10.9.2` |
+| `tsx` | `^4.21.1` |
+| `turbo` | `latest` |
+| `typescript` | `^5.9.3` |
+| `typescript-eslint` | `^8.59.3` |
+| `vitest` | `^1.0.0` |

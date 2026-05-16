@@ -1,21 +1,28 @@
 import { baseHtml } from '../shared/baseHtml';
-import { escapeHtml } from '../shared/escapeHtml';
+import { Page } from '../components/Page';
+import { Card } from '../components/Card';
+import { Button } from '../components/Button';
 import type { SetupState } from './SetupState';
 
 export function renderSetupHtml(state: SetupState): string {
   return baseHtml({
     title: 'Code Review Setup',
-    body: `
-      <h1>Guided Setup</h1>
-      <p>Current Step: <strong>${escapeHtml(state.step)}</strong></p>
-      <section>
-        <!-- Implementation details for each step -->
-        <button onclick="next()">Next Step</button>
-      </section>
-    `,
+    body: Page(`
+      <h1 class="cr-title">Guided Setup</h1>
+      ${Card(`
+        <p>Current Step: <strong>${state.step}</strong></p>
+        <div style="margin-top: 16px;">
+          <!-- Implementation details for each step -->
+          ${Button('Next Step', 'next')}
+        </div>
+      `)}
+    `),
     script: `
       const vscode = acquireVsCodeApi();
-      function next() { vscode.postMessage({ command: 'next' }); }
+      document.addEventListener('click', (e) => {
+        const cmd = e.target.dataset.command;
+        if (cmd) vscode.postMessage({ command: cmd });
+      });
     `
   });
 }
