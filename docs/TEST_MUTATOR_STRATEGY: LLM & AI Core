@@ -1,0 +1,48 @@
+ # Estratégia de Testes de Mutação: LLM & AI Core
+
+ Este documento detalha como o **Stryker Mutator** é aplicado aos componentes de Inteligência Artificial para garantir a robustez da orquestração sem depender de chamadas reais de API.
+
+ ## 1. Filosofia de Testes
+ Seguindo o princípio de **AI Strategy** do projeto, o Core deve ser resiliente a falhas do provedor e garantir a segurança dos dados. O teste de mutação valida se nossos testes unitários são capazes de detectar regressões nessas garantias.
+
+ ## 2. Pilares de Verificação
+
+ ### A. Privacidade (Data Masking)
+ O sistema deve anonimizar dados sensíveis antes do envio.
+ - **O que o Stryker faz:** Tenta remover a chamada ao `DataMaskingService.mask()`.
+ - **Expectativa:** O teste `should mask data by default` deve falhar (matar a mutação).
+
+ ### B. Economia e Performance (Context Management)
+ Gerenciamento de tokens via AST pruning e truncamento de strings.
+ - **O que o Stryker faz:** Altera limites de caracteres (ex: `MAX_CONTEXT_CHARS`) ou remove a lógica de poda.
+ - **Expectativa:** Testes como `should truncate excessive context` devem detectar o aumento inesperado de carga.
+
+ ### C. Confiabilidade (Retry & Timeouts)
+ Orquestração de retentativas para lidar com instabilidades de rede/API.
+ - **O que o Stryker faz:** Inverte condições de erro ou remove o mecanismo de retentativa.
+ - **Expectativa:** O teste `should retry on failure` deve falhar.
+
+ ### D. Validação de Saída (Schema Enforcement)
+ Garante que a resposta do LLM adere ao contrato esperado.
+ - **O que o Stryker faz:** Ignora falhas de validação ou corrompe o mapeamento do DTO.
+ - **Expectativa:** Testes de validação de esquema devem capturar a inconsistência.
+
+ ## 3. Configuração de Escopo
+ Para manter a eficiência, apenas o Core e o Domain são mutados, evitando a infraestrutura de baixo nível:
+
+ ```json
+ {
+   "mutate": [
+     "packages/core/src/application/services/ai/*.ts",
+     "packages/domain/src/**/*.ts"
+   ]
+ }
+ ```
+
+ ## 4. Benefícios Operacionais
+ 1. **Custo Zero:** Validação de lógica sem consumo de tokens.
+ 2. **Determinismo:** Testes de mutação são 100% reproduzíveis, ao contrário de testes com LLMs reais que podem ser não-determinísticos.
+ 3. **Segurança:** Garantia matemática de que a lógica de mascaramento de dados está ativa e coberta por testes.
+
+ ---
+ *Documento de Referência Técnica - Code Review Extension*
