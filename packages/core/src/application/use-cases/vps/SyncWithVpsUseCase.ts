@@ -1,9 +1,9 @@
-import { VpsSyncPort } from '../../../ports/vps/VpsSyncPort';
+import { VpsSyncService } from '../../services/vps/VpsSyncService';
 
 export class SyncWithVpsUseCase {
-  constructor(private readonly syncPort: VpsSyncPort) {}
+  constructor(private readonly syncService: VpsSyncService) {}
 
-  execute(): Promise<void> {
-    return this.syncPort.sync();
+  async execute(branch: string): Promise<void> {
+    await this.syncService.syncSession(branch);
   }
 }

@@ -7,6 +7,7 @@ export interface RevalidateInput {
     code: string;
     filePath: string;
     signal?: AbortSignal;
+    onFinding?: (finding: Finding) => void;
 }
 
 export class RevalidateCodeReviewUseCase {
@@ -25,7 +26,22 @@ export class RevalidateCodeReviewUseCase {
         code: input.code,
         filePath: input.filePath,
         mode: 'fast',
-        signal: input.signal
+        signal: input.signal,
+        onFinding: (dto) => {
+            if (input.onFinding) {
+                input.onFinding({
+                    id: `ai-stream-${Date.now()}`,
+                    file: dto.file,
+                    line: dto.line,
+                    column: dto.column,
+                    message: dto.message,
+                    severity: dto.severity as any,
+                    status: 'pending' as any,
+                    confidenceScore: dto.confidence,
+                    suggestedFix: dto.suggestedFix
+                });
+            }
+        }
     });
 
     const newFindings: Finding[] = analysisResult.findings.map((f, index) => ({

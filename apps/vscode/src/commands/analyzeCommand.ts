@@ -34,7 +34,12 @@ export const analyzeCommand = {
           code,
           filePath,
           branch,
-          signal
+          signal,
+          onFinding: async (finding) => {
+            // Update the review panel immediately when a finding is streamed
+            await container.reviewPanelProvider.refresh();
+            // We could also show a temporary diagnostic or status bar update
+          }
         } as any);
       });
 

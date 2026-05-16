@@ -28,4 +28,24 @@ describe('AIAnalysisService', () => {
       mode: 'audit'
     }));
   });
+
+  it('should support streaming findings', async () => {
+    const mockAI = {
+      analyzeCode: vi.fn().mockImplementation(async (input) => {
+        if (input.onFinding) {
+          input.onFinding({ message: 'finding 1', line: 1, file: 'f.ts', severity: 'info', category: 'code_smell', confidence: 0.9 });
+        }
+        return { findings: [{ message: 'finding 1', line: 1, file: 'f.ts', severity: 'info', category: 'code_smell', confidence: 0.9 }], confidenceScore: 1.0 };
+      })
+    } as unknown as AIProviderPort;
+    const service = new AIAnalysisService(mockAI);
+    const onFinding = vi.fn();
+
+    await service.analyze({ filePath: 'f.ts', code: 'c', onFinding });
+
+    expect(onFinding).toHaveBeenCalledTimes(1);
+    expect(onFinding).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'finding 1'
+    }));
+  });
 });

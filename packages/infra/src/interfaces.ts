@@ -28,6 +28,7 @@ export interface AIAnalysisInput {
   language?: string;
   filePath: string;
   context?: string;
+  onFinding?: (finding: Partial<Finding>) => void;
 }
 
 export interface AIAnalysisResult {

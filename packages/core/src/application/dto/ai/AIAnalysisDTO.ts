@@ -7,6 +7,7 @@ export interface AIAnalysisRequestDTO {
   context?: string;
   mode?: AIExecutionMode;
   signal?: AbortSignal;
+  onFinding?: (finding: AIAnalysisFindingDTO) => void;
 }
 
 export interface AIAnalysisFindingDTO {
