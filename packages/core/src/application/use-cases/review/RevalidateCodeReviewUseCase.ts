@@ -1,11 +1,14 @@
 import { Finding, ReviewSession } from '@code-review/domain';
 import { AIAnalysisService } from '../../services/ai/AIAnalysisService';
 import { CodeReviewService } from '../../services/review/CodeReviewService';
+import { ContextPruningService } from '../../services/ai/ContextPruningService';
+import { AstBuilder } from '../../../AstBuilder';
 
 export interface RevalidateInput {
     branch: string;
     code: string;
     filePath: string;
+    targetLines?: number[]; // New optional parameter for incremental focus
     signal?: AbortSignal;
     onFinding?: (finding: Finding) => void;
 }
@@ -13,7 +16,9 @@ export interface RevalidateInput {
 export class RevalidateCodeReviewUseCase {
   constructor(
     private readonly analysisService: AIAnalysisService,
-    private readonly reviewService: CodeReviewService
+    private readonly reviewService: CodeReviewService,
+    private readonly pruningService = new ContextPruningService(),
+    private readonly astBuilder = new AstBuilder()
   ) {}
 
   async execute(input: RevalidateInput): Promise<ReviewSession> {
@@ -21,9 +26,25 @@ export class RevalidateCodeReviewUseCase {
     console.log(`[REVALIDATE] Starting analysis for ${input.filePath} on branch ${input.branch}`);
 
     const existingSession = await this.reviewService.getByBranch(input.branch);
-    
+
+    let codeToAnalyze = input.code;
+
+    // Incremental Logic: If we have target lines (changed lines), use pruning
+    if (input.targetLines && input.targetLines.length > 0) {
+        console.log(`[REVALIDATE] Incremental mode for lines: ${input.targetLines.join(', ')}`);
+        try {
+            const ast = this.astBuilder.build({ filePath: input.filePath, code: input.code });
+            codeToAnalyze = this.pruningService.prune({
+                ast,
+                targetLines: input.targetLines
+            });
+        } catch (e) {
+            console.warn('[REVALIDATE] Pruning failed, falling back to full code');
+        }
+    }
+
     const analysisResult = await this.analysisService.analyze({
-        code: input.code,
+        code: codeToAnalyze,
         filePath: input.filePath,
         mode: 'fast',
         signal: input.signal,
@@ -43,6 +64,7 @@ export class RevalidateCodeReviewUseCase {
             }
         }
     });
+...
 
     const newFindings: Finding[] = analysisResult.findings.map((f, index) => ({
         id: `ai-${Date.now()}-${index}`,

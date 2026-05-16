@@ -30,10 +30,13 @@ export const analyzeCommand = {
             activeAbortController?.abort();
         });
 
+        const targetLines = await container.ide.getUncommittedChangesLines(filePath);
+
         return await container.revalidateCodeReviewUseCase.execute({
           code,
           filePath,
           branch,
+          targetLines,
           signal,
           onFinding: async (finding) => {
             // Update the review panel immediately when a finding is streamed

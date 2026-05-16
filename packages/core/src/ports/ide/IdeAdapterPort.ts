@@ -11,6 +11,7 @@ export interface IdeAdapterPort {
   getActiveFileContent(): Promise<string>;
   getActiveFilePath(): Promise<string>;
   getActiveBranch(): Promise<string>;
+  getUncommittedChangesLines(filePath: string): Promise<number[]>;
   showFinding(finding: Finding): Promise<void>;
   focusFinding(finding: Finding): Promise<void>;
   applyFix(finding: Finding): Promise<void>;

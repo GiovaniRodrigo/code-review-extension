@@ -49,6 +49,40 @@ export class VSCodeAdapter implements IDEAdapter {
     }
   }
 
+  async getUncommittedChangesLines(filePath: string): Promise<number[]> {
+    const cwd = this._getWorkspacePath();
+    try {
+      // Get lines changed since HEAD (unstaged and staged)
+      const { stdout } = await execFileAsync(
+        'git',
+        ['diff', 'HEAD', '-U0', '--', filePath],
+        { cwd }
+      );
+
+      const changedLines: number[] = [];
+      const lines = stdout.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('@@')) {
+            // Match @@ -1,1 +5,10 @@ or similar
+            const match = line.match(/@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/);
+            if (match) {
+                const start = parseInt(match[1]);
+                const count = match[2] ? parseInt(match[2]) : 1;
+                for (let i = 0; i < count; i++) {
+                    changedLines.push(start + i);
+                }
+            }
+        }
+      }
+
+      return changedLines;
+    } catch (error) {
+      console.warn(`[VSCodeAdapter] Failed to get git diff for ${filePath}`, error);
+      return [];
+    }
+  }
+
   async getBranchCommits(baseBranch: string): Promise<BranchCommit[]> {
     const cwd = this._getWorkspacePath();
 
