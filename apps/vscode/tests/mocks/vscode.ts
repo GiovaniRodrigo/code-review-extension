@@ -64,6 +64,12 @@ export enum ProgressLocation {
   Notification = 15
 }
 
+export enum ExtensionMode {
+  Production = 1,
+  Development = 2,
+  Test = 3
+}
+
 export const Uri = {
   file: vi.fn((fsPath: string) => ({ fsPath, path: fsPath, scheme: 'file' }))
 };

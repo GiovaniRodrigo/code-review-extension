@@ -142,7 +142,8 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const initialConfigs = await getAIProviderConfigs(context);
   const activeProviderId = context.globalState?.get ? context.globalState.get<string>('activeAIProviderId') : undefined;
 
-  const isE2E = process.env.CODE_REVIEW_E2E === 'true' || context.extensionMode === vscode.ExtensionMode.Test;
+  const isE2E = process.env.CODE_REVIEW_E2E === 'true' || 
+                (vscode.ExtensionMode && context.extensionMode === vscode.ExtensionMode.Test);
   console.log(`[CONTAINER] isE2E: ${isE2E} (Env: ${process.env.CODE_REVIEW_E2E}, Mode: ${context.extensionMode})`);
 
   if (isE2E) {

@@ -160,6 +160,11 @@ export default defineConfig({
         'packages/infra/src/index.ts'
       ),
 
+      '@code-review/ui': path.resolve(
+        __dirname,
+        'packages/ui/src/index.ts'
+      ),
+
       '@apps': path.resolve(
         __dirname,
         'apps'
