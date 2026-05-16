@@ -10,3 +10,5 @@ build/
 reports/
 reports/mutation/mutation.html
 .stryker-tmp/
+contexto-projeto-atualizado.md
+,,/context/
