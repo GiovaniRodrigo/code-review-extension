@@ -1,6 +1,7 @@
 import { AstParser } from './ports/ast/AstParser';
 import { TypeScriptAstParser } from './ast/TypeScriptAstParser';
 import { PythonAstParser } from './ast/PythonAstParser';
+import { GoAstParser } from './ast/GoAstParser';
 
 export type AstNodeKind =
   | 'sourceFile'
@@ -51,7 +52,8 @@ export interface AstBuildResult {
 export class AstBuilder {
   private parsers: AstParser[] = [
       new TypeScriptAstParser(),
-      new PythonAstParser()
+      new PythonAstParser(),
+      new GoAstParser()
   ];
 
   async build(input: AstBuildInput): Promise<AstBuildResult> {
@@ -93,6 +95,7 @@ export class AstBuilder {
     if (['ts', 'tsx'].includes(ext || '')) return 'typescript';
     if (['js', 'jsx'].includes(ext || '')) return 'javascript';
     if (['py'].includes(ext || '')) return 'python';
+    if (['go'].includes(ext || '')) return 'go';
     return 'text';
   }
 }

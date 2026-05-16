@@ -163,4 +163,38 @@ describe('AstBuilder', () => {
     expect(result.metrics.methods).toBe(2);
     expect(result.metrics.imports).toBe(1);
   });
+
+  it('should parse Go files including structs and interfaces', async () => {
+    const builder = new AstBuilder();
+    const result = await builder.build({
+      filePath: 'main.go',
+      code: `
+        package main
+        import "fmt"
+        type Service interface {
+            DoWork() error
+        }
+        type MyService struct {
+            ID string
+        }
+        func (s *MyService) DoWork() error {
+            fmt.Println("working")
+            return nil
+        }
+        func main() {
+            fmt.Println("hi")
+        }
+      `
+    });
+
+    expect(result.language).toBe('go');
+    expect(result.metrics.interfaces).toBe(1);
+    expect(result.metrics.classes).toBe(1); // Struct mapped to class
+    expect(result.metrics.methods).toBe(1);
+    expect(result.metrics.functions).toBe(1);
+    expect(result.metrics.imports).toBe(1);
+    
+    expect(result.root.children.some(c => c.kind === 'interface' && c.name === 'Service')).toBe(true);
+    expect(result.root.children.some(c => c.kind === 'class' && c.name === 'MyService')).toBe(true);
+  });
 });
