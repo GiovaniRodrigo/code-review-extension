@@ -6,6 +6,8 @@
     "html"
   ],
   "coverageAnalysis": "off",
+  "allowConsoleColors": true,
+  "concurrency": 2,
   "mutate": [
     "packages/domain/src/**/*.ts",
     "packages/core/src/application/use-cases/**/*.ts",

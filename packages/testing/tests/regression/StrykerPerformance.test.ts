@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 
 type StrykerConfig = {
   coverageAnalysis?: string;
+  concurrency?: number;
   mutate?: string[];
   ignorePatterns?: string[];
   reporters?: string[];
@@ -73,6 +74,7 @@ describe('stryker performance regression', () => {
       const config = readJson<StrykerConfig>(resolve(strykerConfigDir, fileName));
 
       expect(config.coverageAnalysis).toBe('off');
+      expect(config.concurrency).toBeLessThanOrEqual(2);
       expect(config.reporters).toEqual(['clear-text', 'html']);
       expect(config.mutate).toEqual(
         expect.arrayContaining([
