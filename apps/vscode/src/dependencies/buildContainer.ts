@@ -22,6 +22,7 @@ import {
 import { 
   AIProviderFactory, 
   FileReviewRepository,
+  FileAuditLogService,
   SimpleRagContextBuilder,
   MemoryRagVectorStore,
   SimpleEmbeddingProvider,
@@ -173,6 +174,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     maxRetries: config.get<number>('ai.retries', 2)
   });
 
+  const auditLogService = new FileAuditLogService();
   const heatmapService = new HeatmapService(repository);
   const codeReviewService = new CodeReviewService(repository);
   approveFindingUseCase: ApproveFindingUseCase;
@@ -205,7 +207,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
 
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
-    dashboardProvider: new DashboardProvider(heatmapService),
+    dashboardProvider: new DashboardProvider(heatmapService, auditLogService),
     ragStatusProvider: new RagStatusProvider(),
     dependencyGraphProvider: new DependencyGraphProvider(
         new VSCodeWorkspaceAdapter(),

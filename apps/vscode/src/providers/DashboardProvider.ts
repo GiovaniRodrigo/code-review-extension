@@ -1,12 +1,15 @@
 import * as vscode from 'vscode';
-import { HeatmapService, FileHeat } from '@code-review/core';
+import { HeatmapService, FileHeat, AuditLogService, AuditLogEntry } from '@code-review/core';
 
 export class DashboardProvider implements vscode.WebviewViewProvider {
   static readonly viewType = 'code-review.dashboard';
 
   private _view?: vscode.WebviewView;
 
-  constructor(private readonly heatmapService?: HeatmapService) {}
+  constructor(
+    private readonly heatmapService?: HeatmapService,
+    private readonly auditLog?: AuditLogService
+  ) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this._view = webviewView;
@@ -18,13 +21,15 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
     if (!this._view) return;
     
     const heat = this.heatmapService ? await this.heatmapService.getHeatmap() : [];
+    const logs = this.auditLog ? await this.auditLog.getLogs({}) : [];
     
     this._view.webview.html = this._getHtml({
         coverage: 55,
         mutationScore: 97,
         gatesPassed: true,
         buildStatus: 'success',
-        heat
+        heat,
+        logs: logs.reverse().slice(0, 10) // Show last 10 logs
     });
   }
 
@@ -55,6 +60,21 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
           <div class="card">
             <div class="title">Technical Debt Hotspots</div>
             ${heatHtml || '<div style="opacity: 0.5; font-size: 11px;">No data yet. Run an analysis.</div>'}
+          </div>
+          
+          <div class="card">
+            <div class="title">Recent Audit Logs</div>
+            <div style="max-height: 150px; overflow-y: auto;">
+                ${data.logs.map((l: any) => `
+                    <div style="font-size: 10px; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 2px;">
+                        <div style="display: flex; justify-content: space-between; opacity: 0.8;">
+                            <strong>${l.action}</strong>
+                            <span>${new Date(l.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div style="opacity: 0.6;">${l.metadata?.file?.split('/').pop() || ''} ${l.metadata?.message || ''}</div>
+                    </div>
+                `).join('') || '<div style="opacity: 0.5; font-size: 11px;">No logs yet.</div>'}
+            </div>
           </div>
           
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">

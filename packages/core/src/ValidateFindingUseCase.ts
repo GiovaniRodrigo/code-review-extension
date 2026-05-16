@@ -1,4 +1,4 @@
-import { ReviewSession, TechnicalComment } from '@code-review/domain';
+import { ReviewSession, TechnicalComment, AuditLogService } from '@code-review/domain';
 import { IdeAdapterPort } from './ports/ide/IdeAdapterPort';
 import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
 import { ReinforcementService } from './application/services/ai/ReinforcementService';
@@ -7,7 +7,8 @@ export class ValidateFindingUseCase {
   constructor(
     private repository: CodeReviewRepositoryPort,
     private ideAdapter?: IdeAdapterPort,
-    private reinforcementService?: ReinforcementService
+    private reinforcementService?: ReinforcementService,
+    private auditLog?: AuditLogService
   ) {}
 
   async execute(sessionId: string, findingId: string, status: 'approved' | 'rejected'): Promise<ReviewSession> {
@@ -48,6 +49,14 @@ export class ValidateFindingUseCase {
     
     if (this.reinforcementService) {
         await this.reinforcementService.learnFromFinding(finding);
+    }
+
+    if (this.auditLog) {
+        await this.auditLog.log(
+            `finding_${status}`,
+            'developer',
+            { findingId, file: finding.file, message: finding.message }
+        );
     }
 
     console.log(`Finding ${findingId} in session ${sessionId} updated to ${status}`);

@@ -1,4 +1,4 @@
-import { Finding, ReviewSession } from '@code-review/domain';
+import { Finding, ReviewSession, AuditLogService } from '@code-review/domain';
 import { AIAnalysisService } from '../../services/ai/AIAnalysisService';
 import { CodeReviewService } from '../../services/review/CodeReviewService';
 import { IdeWorkspacePort } from '../../../ports/ide/IdeWorkspacePort';
@@ -15,12 +15,17 @@ export class AnalyzeWorkspaceUseCase {
     private readonly workspace: IdeWorkspacePort,
     private readonly fileSystem: IdeFileSystemPort,
     private readonly analysisService: AIAnalysisService,
-    private readonly reviewService: CodeReviewService
+    private readonly reviewService: CodeReviewService,
+    private readonly auditLog?: AuditLogService
   ) {}
 
   async execute(input: AnalyzeWorkspaceInput): Promise<ReviewSession> {
     const filePaths = await this.workspace.findFiles('**/*.{ts,tsx,js,jsx}');
     const total = filePaths.length;
+    
+    if (this.auditLog) {
+        await this.auditLog.log('workspace_analysis_start', 'developer', { totalFiles: total, branch: input.branch });
+    }
     
     let session = await this.reviewService.getByBranch(input.branch);
     if (!session) {
