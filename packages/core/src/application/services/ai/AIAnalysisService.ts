@@ -2,6 +2,7 @@ import { AIProviderPort } from '../../../ports/ai/AIProviderPort';
 import { RagContextBuilderPort } from '../../../ports/rag/RagContextBuilderPort';
 import { ReinforcementService } from './ReinforcementService';
 import { ContextPruningService } from './ContextPruningService';
+import { DataMaskingService } from './DataMaskingService';
 import { AstBuilder } from '../../../AstBuilder';
 import {
   AIAnalysisRequestDTO,
@@ -10,16 +11,17 @@ import {
 import { AIAnalysisResponseSchema } from '../../dto/ai/AIAnalysisSchema';
 
 export interface AIAnalysisConfig {
-    timeout?: number;
-    maxRetries?: number;
+  timeout?: number;
+  maxRetries?: number;
+  maskData?: boolean;
 }
-
 export class AIAnalysisService {
   constructor(
     private readonly aiProvider: AIProviderPort,
     private readonly contextBuilder?: RagContextBuilderPort,
     private readonly reinforcementService?: ReinforcementService,
     private readonly pruningService = new ContextPruningService(),
+    private readonly maskingService = new DataMaskingService(),
     private readonly astBuilder = new AstBuilder(),
     private readonly config: AIAnalysisConfig = {}
   ) {}
@@ -54,6 +56,14 @@ export class AIAnalysisService {
                     });
                 } catch (e) {
                     console.warn('[AI] Context pruning failed, falling back to full code', e);
+                }
+            }
+            
+            // Phase 1: Privacy - Mask sensitive data before sending to AI
+            if (this.config.maskData !== false) {
+                codeToAnalyze = this.maskingService.mask(codeToAnalyze);
+                if (context) {
+                    context = this.maskingService.mask(context);
                 }
             }
             

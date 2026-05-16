@@ -248,6 +248,11 @@
           ],
           "description": "Folders to ignore during RAG indexing."
         },
+        "codeReview.privacy.maskData": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically mask PII (emails, IPs) and potential secrets before sending code to AI."
+        },
         "codeReview.autoRestoreSession": {
           "type": "boolean",
           "default": true,

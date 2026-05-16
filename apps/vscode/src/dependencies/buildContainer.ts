@@ -174,7 +174,8 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
 
   const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, reinforcementService, {
     timeout: config.get<number>('ai.timeout', 30000),
-    maxRetries: config.get<number>('ai.retries', 2)
+    maxRetries: config.get<number>('ai.retries', 2),
+    maskData: config.get<boolean>('privacy.maskData', true)
   });
 
   const auditLogService = new FileAuditLogService();
