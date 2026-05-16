@@ -6,6 +6,7 @@ import { DependencyAnalysisService, Cycle } from '../../services/ast/DependencyA
 export interface DependencyAnalysisReport {
   totalFiles: number;
   cycles: Cycle[];
+  nodes: { id: string, dependsOn: string[] }[];
 }
 
 export class AnalyzeWorkspaceDependenciesUseCase {
@@ -19,7 +20,7 @@ export class AnalyzeWorkspaceDependenciesUseCase {
   async execute(): Promise<DependencyAnalysisReport> {
     const filePaths = await this.workspace.findFiles('**/*.{ts,tsx,js,jsx}');
     const files = await Promise.all(
-      filePaths.slice(0, 100).map(async filePath => ({ // Limit to 100 files for performance
+      filePaths.slice(0, 50).map(async filePath => ({ // Limit to 50 files for visualization performance
         filePath,
         code: await this.fileSystem.readFile(filePath)
       }))
@@ -28,9 +29,15 @@ export class AnalyzeWorkspaceDependenciesUseCase {
     const graph = await this.graphBuilder.buildGraph(files);
     const cycles = this.analysisService.findCycles(graph);
 
+    const nodes = Array.from(graph.nodes.values()).map(n => ({
+        id: n.filePath,
+        dependsOn: n.dependsOn
+    }));
+
     return {
       totalFiles: filePaths.length,
-      cycles
+      cycles,
+      nodes
     };
   }
 }

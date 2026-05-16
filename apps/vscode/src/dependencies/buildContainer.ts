@@ -36,6 +36,7 @@ import { VSCodeStorageAdapter } from '../adapters/ide/VSCodeStorageAdapter';
 import { DashboardProvider } from '../providers/DashboardProvider';
 import { RagStatusProvider } from '../providers/RagStatusProvider';
 import { ReviewPanelProvider } from '../providers/ReviewPanelProvider';
+import { DependencyGraphProvider } from '../providers/DependencyGraphProvider';
 
 export interface VSCodeContainer {
   context: vscode.ExtensionContext;
@@ -55,6 +56,7 @@ export interface VSCodeContainer {
   dashboardProvider: DashboardProvider;
   ragStatusProvider: RagStatusProvider;
   reviewPanelProvider: ReviewPanelProvider;
+  dependencyGraphProvider: DependencyGraphProvider;
   discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
   selectAIProviderUseCase: SelectAIProviderUseCase;
   aiProviderRegistry: AIProviderRegistry;
@@ -201,6 +203,11 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     dashboardProvider: new DashboardProvider(heatmapService),
     ragStatusProvider: new RagStatusProvider(),
+    dependencyGraphProvider: new DependencyGraphProvider(
+        new VSCodeWorkspaceAdapter(),
+        new VSCodeFileSystemAdapter(),
+        dependencyGraphBuilder
+    ),
     reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
     selectAIProviderUseCase: new SelectAIProviderUseCase(),

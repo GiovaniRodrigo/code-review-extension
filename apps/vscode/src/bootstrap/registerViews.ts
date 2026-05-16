@@ -25,6 +25,10 @@ export function registerViews(
     vscode.window.registerWebviewViewProvider(
       'code-review.ragStatus',
       container.ragStatusProvider as any
+    ),
+    vscode.window.registerWebviewViewProvider(
+      'code-review.dependencyGraph',
+      container.dependencyGraphProvider as any
     )
   );
 }

@@ -140,6 +140,11 @@
           "type": "webview",
           "id": "code-review.ragStatus",
           "name": "RAG Status"
+        },
+        {
+          "type": "webview",
+          "id": "code-review.dependencyGraph",
+          "name": "Dependency Graph"
         }
       ]
     },
