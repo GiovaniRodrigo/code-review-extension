@@ -40,6 +40,20 @@ export function activateExtension(context: vscode.ExtensionContext): void {
     if (config.get<boolean>('autoRestoreSession', true)) {
         void restoreCurrentBranchSession(context, container);
     }
+
+    // Auto-sync with VPS
+    if (config.get<boolean>('sync.enabled', false)) {
+        container.ide.onBranchChange(async (branch) => {
+            console.log(`[SYNC] Auto-sync triggered for branch ${branch}`);
+            try {
+                await container.syncWithVpsUseCase.execute(branch);
+                await container.reviewPanelProvider.refresh();
+                await container.dashboardProvider.refresh();
+            } catch (e) {
+                console.warn('[SYNC] Auto-sync failed', e);
+            }
+        });
+    }
   } catch (error) {
     console.error('Critical failure during activation', error);
   }

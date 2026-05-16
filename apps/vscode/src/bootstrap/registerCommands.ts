@@ -167,6 +167,24 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     }
   });
 
+  container.commands.register('code-review.syncWithVps', async () => {
+    try {
+      const branch = await container.ide.getActiveBranch();
+      await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: `Syncing review session for ${branch}...`,
+        cancellable: false
+      }, async () => {
+        await container.syncWithVpsUseCase.execute(branch);
+      });
+      await container.reviewPanelProvider.refresh();
+      await container.dashboardProvider.refresh();
+      await container.notifications.info('Sync completed successfully.');
+    } catch (e: any) {
+      await container.notifications.error(`Sync failed: ${e.message}`);
+    }
+  });
+
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
     'code-review.analyzeBranchCommits',
@@ -175,8 +193,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     'code-review.setGitLabCredentials',
     'code-review.setGitLabUrl',
     'code-review.syncRemotePR',
-    'code-review.setupRag',
-    'code-review.syncWithVps'
+    'code-review.setupRag'
   ];
 
   for (const cmd of dummyCommands) {
