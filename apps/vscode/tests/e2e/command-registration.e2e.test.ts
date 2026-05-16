@@ -25,4 +25,12 @@ describe("Command Registration E2E", () => {
             commands.includes("code-review.setOpenAIApiKey")
         );
     });
+
+    it("should register guided setup command", async () => {
+        const commands = await vscode.commands.getCommands(true);
+
+        assert.ok(
+            commands.includes("code-review.setup")
+        );
+    });
 });

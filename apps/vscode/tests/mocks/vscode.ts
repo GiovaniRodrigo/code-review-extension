@@ -86,7 +86,8 @@ export const workspace = {
   })),
 
   openTextDocument: vi.fn(),
-  onDidSaveTextDocument: vi.fn(() => ({ dispose: vi.fn() }))
+  onDidSaveTextDocument: vi.fn(() => ({ dispose: vi.fn() })),
+  onDidChangeConfiguration: vi.fn(() => ({ dispose: vi.fn() }))
 };
 
 export const commands = {

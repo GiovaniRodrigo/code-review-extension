@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { AstParser } from '../../ports/ast/AstParser';
+import { AstParser } from '../ports/ast/AstParser';
 import { AstNodeSummary, AstMetrics, AstNodeKind } from '../shared/astTypes';
 import { flattenAstNodes } from '../shared/astUtils';
 

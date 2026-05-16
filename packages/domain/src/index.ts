@@ -15,6 +15,7 @@ export interface Finding {
   column?: number;
   message: string;
   severity: FindingSeverity;
+  category?: string;
   suggestedFix?: string;
   status: FindingStatus;
   confidenceScore?: number;

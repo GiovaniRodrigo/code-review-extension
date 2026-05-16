@@ -3,10 +3,17 @@ import { runTests } from '@vscode/test-electron';
 
 async function main() {
     try {
+        process.env.CODE_REVIEW_E2E = 'true';
         const extensionDevelopmentPath = path.resolve(__dirname, '../../../../../');
         const extensionTestsPath = path.resolve(__dirname, './index');
+        const workspacePath = path.resolve(__dirname, '../../../../../apps/vscode/tests/fixtures/workspace');
 
-        await runTests({ extensionDevelopmentPath, extensionTestsPath });
+        await runTests({ 
+            extensionDevelopmentPath, 
+            extensionTestsPath,
+            launchArgs: [workspacePath],
+            extensionTestsEnv: { CODE_REVIEW_E2E: 'true' }
+        });
     } catch (err) {
         console.error('Failed to run tests');
         process.exit(1);

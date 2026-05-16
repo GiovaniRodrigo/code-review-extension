@@ -24,7 +24,7 @@ export class GenerateQualityReportUseCase {
     }
 
     const findings = session.findings;
-    const criticalCount = findings.filter(f => f.severity === 'error' || f.severity === 'critical').length;
+    const criticalCount = findings.filter(f => f.severity === 'error' || (f.severity as string) === 'critical').length;
     const warningCount = findings.filter(f => f.severity === 'warning').length;
 
     // Calculate a simple aggregate health score (0-100)

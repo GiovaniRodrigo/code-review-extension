@@ -12,6 +12,7 @@ describe("AI Analysis E2E", () => {
 
         assert.ok(result);
 
-        assert.ok(typeof result === "string");
+        assert.ok(typeof result === "object");
+        assert.ok(Array.isArray((result as any).findings));
     });
 });

@@ -5,7 +5,7 @@ let activeAbortController: AbortController | null = null;
 
 export const analyzeCommand = {
   id: 'code-review.analyze',
-  async execute(container: VSCodeContainer) {
+  async execute(container: VSCodeContainer, args?: any) {
     if (activeAbortController) {
         activeAbortController.abort();
         activeAbortController = null;
@@ -15,8 +15,8 @@ export const analyzeCommand = {
     const signal = activeAbortController.signal;
 
     try {
-      const code = await container.ide.getActiveFileContent();
-      const filePath = await container.ide.getActiveFilePath();
+      const code = args?.diff || await container.ide.getActiveFileContent();
+      const filePath = args?.filePath || await container.ide.getActiveFilePath();
       const branch = await container.ide.getActiveBranch();
       
       await container.reviewPanelProvider.refresh(true); // Set loading state
@@ -31,10 +31,12 @@ export const analyzeCommand = {
         });
 
         let targetLines: number[] = [];
-        try {
-            targetLines = await container.ide.getUncommittedChangesLines(filePath);
-        } catch (error) {
-            console.warn('[ANALYZE] Git diff failed, falling back to full analysis', error);
+        if (!args?.diff) {
+            try {
+                targetLines = await container.ide.getUncommittedChangesLines(filePath);
+            } catch (error) {
+                console.warn('[ANALYZE] Git diff failed, falling back to full analysis', error);
+            }
         }
 
         return await container.revalidateCodeReviewUseCase.execute({
@@ -57,6 +59,7 @@ export const analyzeCommand = {
       await container.reviewPanelProvider.refresh();
       await container.dashboardProvider.refresh();
       await container.notifications.info(`AI analysis completed: ${result.findings.length} finding(s) synced.`);
+      return result;
     } catch (e: any) {
       if (e.name === 'AbortError' || e.message?.includes('aborted')) {
           console.log('[ANALYZE] Analysis cancelled.');

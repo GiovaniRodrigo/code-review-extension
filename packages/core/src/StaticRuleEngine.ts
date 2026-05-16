@@ -106,10 +106,10 @@ export function createDefaultStaticRules(): StaticRule[] {
         const allNodes = flattenAstNodes(ast.root);
         return allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
-          .filter(node => node.metadata?.parameters > 4)
+          .filter(node => (node.metadata?.parameters || 0) > 4)
           .map(node => ({
             ruleId: 'too-many-params',
-            message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has too many parameters (${node.metadata.parameters}).`,
+            message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has too many parameters (${node.metadata?.parameters || 0}).`,
             severity: 'warning',
             file: ast.filePath,
             line: node.startLine,
@@ -158,23 +158,25 @@ export function createDefaultStaticRules(): StaticRule[] {
       enabled: true,
       run: async ({ ast }) => {
         const allNodes = flattenAstNodes(ast.root);
-        return allNodes
+        const findings: StaticRuleFinding[] = [];
+        
+        allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
-          .map(node => {
+          .forEach(node => {
             const complexity = node.metadata?.complexity || 1;
             if (complexity > 10) {
-              return {
+              findings.push({
                 ruleId: 'cyclomatic-complexity',
                 message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has high complexity (${complexity}). Consider refactoring.`,
-                severity: 'warning' as const,
+                severity: 'warning',
                 file: ast.filePath,
                 line: node.startLine,
                 target: node.name
-              };
+              });
             }
-            return null;
-          })
-          .filter((f): f is StaticRuleFinding => f !== null);
+          });
+        
+        return findings;
       }
     },
     {
@@ -183,23 +185,25 @@ export function createDefaultStaticRules(): StaticRule[] {
       enabled: true,
       run: async ({ ast }) => {
         const allNodes = flattenAstNodes(ast.root);
-        return allNodes
+        const findings: StaticRuleFinding[] = [];
+
+        allNodes
           .filter(node => (node.kind === 'method' || node.kind === 'function'))
-          .map(node => {
+          .forEach(node => {
             const cognitive = node.metadata?.cognitive || 0;
             if (cognitive > 15) {
-              return {
+              findings.push({
                 ruleId: 'cognitive-complexity',
                 message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has high cognitive complexity (${cognitive}). It is very hard to understand.`,
-                severity: 'warning' as const,
+                severity: 'warning',
                 file: ast.filePath,
                 line: node.startLine,
                 target: node.name
-              };
+              });
             }
-            return null;
-          })
-          .filter((f): f is StaticRuleFinding => f !== null);
+          });
+        
+        return findings;
       }
     },
     {

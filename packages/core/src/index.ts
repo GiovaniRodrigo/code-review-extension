@@ -23,6 +23,7 @@ export * from './application/services/rag/RagOrchestratorService';
 export * from './application/services/review/CodeReviewService';
 export * from './application/services/sync/RepositorySyncService';
 export * from './application/services/vps/VpsAccessService';
+export * from './application/services/vps/VpsSyncService';
 export * from './application/use-cases/ai/AnalyzeCodeWithAIUseCase';
 export * from './application/use-cases/ai/DiscoverAIProvidersUseCase';
 export * from './application/use-cases/ai/SelectAIProviderUseCase';

@@ -28,7 +28,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   ];
 
   for (const cmd of commandsToRegister) {
-    container.commands.register(cmd.id, () => cmd.execute(container));
+    container.commands.register(cmd.id, (...args: any[]) => cmd.execute(container, ...args));
   }
 
   container.commands.register('code-review.setOpenAIApiKey', async () => {
@@ -191,13 +191,59 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     }
   });
 
+  container.commands.register('code-review.setup', async () => {
+    try {
+        const selection = await vscode.window.showQuickPick([
+            { label: '$(gear) Configure AI Provider', id: 'provider' },
+            { label: '$(key) Set API Keys', id: 'keys' },
+            { label: '$(database) Setup RAG / Indexing', id: 'rag' },
+            { label: '$(sync) Full Setup (Guided)', id: 'full' }
+        ], { placeHolder: 'Code Review Setup' });
+
+        if (!selection) return;
+
+        if (selection.id === 'provider' || selection.id === 'full') {
+            await vscode.commands.executeCommand('code-review.setProvider');
+        }
+
+        if (selection.id === 'keys' || selection.id === 'full') {
+            const keyType = await vscode.window.showQuickPick([
+                { label: 'OpenAI API Key', id: 'openai' },
+                { label: 'Gemini API Key', id: 'gemini' },
+                { label: 'GitHub Token', id: 'github' },
+                { label: 'GitLab Token', id: 'gitlab' }
+            ], { placeHolder: 'Which key/token do you want to set?' });
+
+            if (keyType) {
+                const cmd = {
+                    openai: 'code-review.setOpenAIApiKey',
+                    gemini: 'code-review.setGeminiApiKey',
+                    github: 'code-review.setGitHubToken',
+                    gitlab: 'code-review.setGitLabToken'
+                }[keyType.id];
+                if (cmd) await vscode.commands.executeCommand(cmd);
+            }
+        }
+
+        if (selection.id === 'rag' || selection.id === 'full') {
+            const action = await vscode.window.showQuickPick([
+                { label: 'Index Repository Now', id: 'index' },
+                { label: 'Clear RAG Index', id: 'clear' }
+            ]);
+            if (action?.id === 'index') await vscode.commands.executeCommand('code-review.indexRepositoryRag');
+            if (action?.id === 'clear') await vscode.commands.executeCommand('code-review.clearRepositoryRag');
+        }
+    } catch (e: any) {
+        await container.notifications.error(`Setup failed: ${e.message}`);
+    }
+  });
+
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
     'code-review.searchRepositoryContext',
     'code-review.setGitLabCredentials',
     'code-review.setGitLabUrl',
-    'code-review.syncRemotePR',
-    'code-review.setupRag'
+    'code-review.syncRemotePR'
   ];
 
   for (const cmd of dummyCommands) {
@@ -205,4 +251,8 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
       await container.notifications.info(`Command ${cmd} is not fully implemented yet.`);
     });
   }
+
+  container.commands.register('code-review.setupRag', async () => {
+    await vscode.commands.executeCommand('code-review.setup');
+  });
 }

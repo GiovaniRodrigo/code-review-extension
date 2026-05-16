@@ -5,7 +5,7 @@ describe("Extension Activation E2E", () => {
   it("should activate extension", async () => {
     console.log("All extensions:", vscode.extensions.all.map(e => e.id));
     const extension = vscode.extensions.getExtension(
-      "code-review.vscode-code-review"
+      "CodeReviewExtension.git-code-review"
     );
 
     assert.ok(extension);

@@ -16,7 +16,7 @@ export const AIAnalysisFindingSchema = z.object({
   ]),
   message: z.string().min(1).max(1000),
   suggestedFix: z.string().optional(),
-  confidence: z.number().min(0).max(1)
+  confidenceScore: z.number().min(0).max(1).optional()
 });
 
 export const AIAnalysisResponseSchema = z.object({

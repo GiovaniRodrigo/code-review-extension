@@ -1,7 +1,7 @@
 import { IdeWorkspacePort } from '../../../ports/ide/IdeWorkspacePort';
 import { IdeFileSystemPort } from '../../../ports/ide/IdeFileSystemPort';
 import { CustomRuleProvider, CustomRuleConfig } from '../../../CustomRuleProvider';
-import { StaticRuleEngine } from '../../StaticRuleEngine';
+import { StaticRuleEngine } from '../../../StaticRuleEngine';
 import { AIAnalysisService } from '../../services/ai/AIAnalysisService';
 
 export class LoadCustomHeuristicsUseCase {

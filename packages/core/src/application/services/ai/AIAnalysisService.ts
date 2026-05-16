@@ -49,7 +49,7 @@ export class AIAnalysisService {
             // Phase 4: Performance - Prune large files if they are not just diffs
             if (codeToAnalyze.length > 5000 && !codeToAnalyze.startsWith('diff')) {
                 try {
-                    const ast = this.astBuilder.build({ filePath: input.filePath, code: codeToAnalyze });
+                    const ast = await this.astBuilder.build({ filePath: input.filePath, code: codeToAnalyze });
                     codeToAnalyze = this.pruningService.prune({ 
                         ast, 
                         targetLines: [1] // Default to top, but ideally would be active lines

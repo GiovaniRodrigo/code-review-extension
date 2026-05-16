@@ -20,7 +20,7 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
   async refresh(): Promise<void> {
     if (!this._view) return;
     
-    const heat = this.heatmapService ? await this.heatmapService.getHeatmap() : [];
+    const heat = this.heatmapService ? await this.heatmapService.calculateHeatmap() : [];
     const logs = this.auditLog ? await this.auditLog.getLogs({}) : [];
     
     this._view.webview.html = this._getHtml({

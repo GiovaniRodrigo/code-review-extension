@@ -4,6 +4,9 @@
     "private": true,
     "main": "src/index.ts",
     "types": "src/index.ts",
+    "scripts": {
+        "test:vscode": "cd ../../apps/vscode && npm run test"
+    },
     "dependencies": {
         "axios": "^1.16.0"
     }

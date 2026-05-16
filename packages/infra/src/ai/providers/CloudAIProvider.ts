@@ -18,7 +18,7 @@ export class CloudAIProvider implements AIProviderPort {
           severity: 'info',
           category: 'code_smell',
           message: 'Cloud provider scaffold is not configured.',
-          confidence: 0.1
+          confidenceScore: 0.1
         }
       ],
       confidenceScore: 0.1

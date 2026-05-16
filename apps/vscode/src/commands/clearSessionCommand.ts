@@ -9,8 +9,10 @@ export const clearSessionCommand = {
       container.ide.clearDiagnostics();
       await container.reviewPanelProvider.refresh();
       await container.notifications.info(`Review session cleared for branch ${branch}.`);
+      return true;
     } catch (e: any) {
       await container.notifications.error(`Failed to clear session: ${e.message}`);
+      return false;
     }
   }
 };

@@ -5,5 +5,6 @@ export const restoreSessionCommand = {
   async execute(container: VSCodeContainer) {
     const branch = await container.ide.getActiveBranch();
     await container.notifications.info(`Restoring session for ${branch}`);
+    return true;
   }
 };

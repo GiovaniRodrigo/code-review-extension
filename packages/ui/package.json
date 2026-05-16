@@ -1,0 +1,10 @@
+{
+  "name": "@code-review/ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test:vscode": "cd ../../apps/vscode && npm run test"
+  }
+}

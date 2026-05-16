@@ -1,4 +1,4 @@
-import { AstParser } from '../../ports/ast/AstParser';
+import { AstParser } from '../ports/ast/AstParser';
 import { AstNodeSummary, AstMetrics } from '../shared/astTypes';
 
 export class GoAstParser implements AstParser {

@@ -60,7 +60,7 @@ Return findings as structured JSON.
       message: f.message,
       severity: f.severity as any,
       status: 'pending' as any,
-      confidenceScore: f.confidence,
+      confidenceScore: f.confidenceScore,
       suggestedFix: f.suggestedFix
     }));
 

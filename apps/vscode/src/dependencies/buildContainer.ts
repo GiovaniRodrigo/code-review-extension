@@ -21,10 +21,14 @@ import {
   HeatmapService,
   AddCommentToFindingUseCase,
   RefactorFindingUseCase,
-  ProjectChatUseCase
+  ProjectChatUseCase,
+  SyncWithVpsUseCase,
+  VpsSyncService
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
+  MockAIProvider,
+  GeminiMockProvider,
   FileReviewRepository,
   FileAuditLogService,
   SimpleRagContextBuilder,
@@ -32,7 +36,8 @@ import {
   SimpleEmbeddingProvider,
   SimpleRagIndexer,
   TypeScriptAstBuilder,
-  TypeScriptDependencyGraphBuilder
+  TypeScriptDependencyGraphBuilder,
+  LinuxVpsProvider
 } from '@code-review/infra';
 import { VSCodeIdeAdapter } from '../adapters/ide/VSCodeIdeAdapter';
 import { VSCodeWorkspaceAdapter } from '../adapters/ide/VSCodeWorkspaceAdapter';
@@ -65,6 +70,7 @@ export interface VSCodeContainer {
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
   indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
   clearRepositoryRagUseCase: ClearRepositoryRagUseCase;
+  syncWithVpsUseCase: SyncWithVpsUseCase;
   dashboardProvider: DashboardProvider;
   ragStatusProvider: RagStatusProvider;
   reviewPanelProvider: ReviewPanelProvider;
@@ -84,9 +90,35 @@ export async function getAIProviderConfigs(context: vscode.ExtensionContext): Pr
   
   if (providerConfigs.length === 0) {
     providerConfigs = [
-      { id: 'ollama-local', name: 'Ollama (Local)', type: 'ollama', endpoint: 'http://localhost:11434' },
-      { id: 'openai-cloud', name: 'OpenAI (Cloud)', type: 'openai' },
-      { id: 'gemini-pro', name: 'Gemini Pro', type: 'gemini' }
+      { 
+        id: 'ollama-local', 
+        label: 'Ollama (Local)', 
+        type: 'ollama', 
+        baseUrl: config.get<string>('ollama.baseUrl', 'http://localhost:11434'),
+        model: config.get<string>('ollama.model', 'llama3'),
+        enabled: true
+      },
+      { 
+        id: 'openai-cloud', 
+        label: 'OpenAI (Cloud)', 
+        type: 'openai',
+        model: config.get<string>('openai.model', 'gpt-4o-mini'),
+        enabled: true
+      },
+      { 
+        id: 'gemini-pro', 
+        label: 'Gemini Pro', 
+        type: 'gemini',
+        model: config.get<string>('gemini.model', 'gemini-flash-latest'),
+        enabled: true
+      },
+      {
+        id: 'claude-3-5',
+        label: 'Claude 3.5 Sonnet',
+        type: 'claude',
+        model: 'claude-3-5-sonnet-20240620',
+        enabled: true
+      }
     ];
   }
 
@@ -101,7 +133,8 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const auditLogService = new FileAuditLogService();
   const vectorStore = new MemoryRagVectorStore();
   const embeddingProvider = new SimpleEmbeddingProvider();
-  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider);
+  const astBuilder = new TypeScriptAstBuilder();
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, { storageDir: context.globalStorageUri.fsPath });
   const dependencyGraphBuilder = new TypeScriptDependencyGraphBuilder();
   
   // AI Registry
@@ -109,26 +142,43 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const initialConfigs = await getAIProviderConfigs(context);
   const activeProviderId = context.globalState?.get ? context.globalState.get<string>('activeAIProviderId') : undefined;
 
-  initialConfigs.forEach(pc => {
-    // Re-bind secrets if necessary
-    if (pc.type === 'openai' && !pc.apiKey) {
-        pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('openai-api-key')) : '') || '';
-    } else if (pc.type === 'gemini' && !pc.apiKey) {
-        pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('gemini-api-key')) : '') || '';
-    }
-    providerRegistry.register(pc.id, AIProviderFactory.create(pc) as any);
-  });
+  const isE2E = process.env.CODE_REVIEW_E2E === 'true' || context.extensionMode === vscode.ExtensionMode.Test;
+  console.log(`[CONTAINER] isE2E: ${isE2E} (Env: ${process.env.CODE_REVIEW_E2E}, Mode: ${context.extensionMode})`);
 
-  if (activeProviderId && initialConfigs.some(p => p.id === activeProviderId)) {
-    providerRegistry.setActiveProvider(activeProviderId);
-  } else if (initialConfigs.length > 0) {
-    providerRegistry.setActiveProvider(initialConfigs[0].id);
+  if (isE2E) {
+    providerRegistry.register('mock', new MockAIProvider() as any);
+    providerRegistry.setActiveProvider('mock');
+    
+    // Register mock for all initial configs too, just in case
+    initialConfigs.forEach(pc => {
+        if (pc.type === 'gemini') {
+            providerRegistry.register(pc.id, new GeminiMockProvider() as any);
+        } else {
+            providerRegistry.register(pc.id, new MockAIProvider() as any);
+        }
+    });
+  } else {
+    initialConfigs.forEach(pc => {
+        // Re-bind secrets if necessary
+        if (pc.type === 'openai' && !pc.apiKey) {
+            pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('openai-api-key')) : '') || '';
+        } else if (pc.type === 'gemini' && !pc.apiKey) {
+            pc.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('gemini-api-key')) : '') || '';
+        }
+        providerRegistry.register(pc.id, AIProviderFactory.create(pc) as any);
+    });
+
+    if (activeProviderId && initialConfigs.some(p => p.id === activeProviderId)) {
+        providerRegistry.setActiveProvider(activeProviderId);
+    } else if (initialConfigs.length > 0) {
+        providerRegistry.setActiveProvider(initialConfigs[0].id);
+    }
   }
 
   const contextBuilder = new SimpleRagContextBuilder(vectorStore, embeddingProvider);
   const reinforcementService = new ReinforcementService(vectorStore, embeddingProvider);
 
-  const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, reinforcementService, {
+  const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, reinforcementService, undefined, undefined, astBuilder as any, {
     timeout: config.get<number>('ai.timeout', 30000),
     maxRetries: config.get<number>('ai.retries', 2),
     maskData: config.get<boolean>('privacy.maskData', true)
@@ -137,6 +187,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const heatmapService = new HeatmapService(repository);
   const codeReviewService = new CodeReviewService(repository);
   const ragIndexingService = new RagIndexingService(ragIndexer);
+  const vpsSyncService = new VpsSyncService(new LinuxVpsProvider() as any, repository);
   
   const ide = new VSCodeIdeAdapter();
   const fileSystem = new VSCodeFileSystemAdapter();
@@ -166,6 +217,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
 
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
+    syncWithVpsUseCase: new SyncWithVpsUseCase(vpsSyncService),
     dashboardProvider: new DashboardProvider(heatmapService, auditLogService),
     ragStatusProvider: new RagStatusProvider(),
     dependencyGraphProvider: new DependencyGraphProvider(

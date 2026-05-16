@@ -25,7 +25,7 @@ export interface AIAnalysisFindingDTO {
     | 'rag';
   message: string;
   suggestedFix?: string;
-  confidence: number;
+  confidenceScore?: number;
 }
 
 export interface AIAnalysisResponseDTO {

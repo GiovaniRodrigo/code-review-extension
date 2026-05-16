@@ -62,7 +62,7 @@ export class RevalidateCodeReviewUseCase {
                     message: dto.message,
                     severity: dto.severity as any,
                     status: 'pending' as any,
-                    confidenceScore: dto.confidence,
+                    confidenceScore: dto.confidenceScore,
                     suggestedFix: dto.suggestedFix
                 });
             }
@@ -77,7 +77,7 @@ export class RevalidateCodeReviewUseCase {
         message: f.message,
         severity: f.severity as any,
         status: 'pending' as any,
-        confidenceScore: f.confidence,
+        confidenceScore: f.confidenceScore,
         suggestedFix: f.suggestedFix
     }));
 
