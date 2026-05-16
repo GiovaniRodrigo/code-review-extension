@@ -5,11 +5,14 @@ Intelligent, local-first code review assistant for VS Code. Designed with a **Hu
 ## 🚀 Key Features
 
 - **HITL Workflow**: Approve or reject AI findings before they appear as diagnostics in your editor.
-- **Context-Aware (RAG)**: Uses Retrieval Augmented Generation to understand your project structure and patterns.
-- **Multi-Provider**: Use **Ollama** (100% local) or **OpenAI** (Cloud) for your analyses.
-- **Branch Persistence**: Your review progress is automatically saved and restored when switching branches.
-- **Operational Sidebar**: Organize, filter, and focus on findings efficiently.
-- **Privacy First**: Sensitive keys are stored in the OS-level secure storage.
+- **Context-Aware (RAG)**: Uses Retrieval Augmented Generation to understand your project structure and patterns via the **Project AI Chat**.
+- **Advanced Quality Metrics**: Automatic detection of **SOLID** violations, **Cognitive Complexity**, and **Testability Index**.
+- **Smart Fix (AI Refactoring)**: Automatically generate and apply code corrections for identified findings.
+- **PR Summary Generator**: Create detailed, technical descriptions for Pull Requests automatically.
+- **Multi-Provider Support**: Use **Ollama** (100% local), **OpenAI**, **Gemini**, or **Claude**.
+- **Privacy & Security**: Built-in **Data Masking** for PII/Secrets and OS-level secure credential storage.
+- **Cloud Sync (VPS)**: Sincronize your review sessions and findings across different machines.
+- **Multi-Language**: Structural analysis support for **TypeScript**, **Python**, and **Go**.
 
 ## 📦 Installation
 
@@ -19,10 +22,13 @@ Intelligent, local-first code review assistant for VS Code. Designed with a **Hu
 
 ## 🛠️ Quick Start
 
-1. Open your project folder.
-2. If using OpenAI, run command: `Code Review: Set OpenAI API Key`.
-3. Open a file and run command: `Code Review: Analyze Code with IA`.
-4. Open the **AI Review** view in the sidebar to manage your findings.
+1. **Setup Provider**: Run `Code Review: Set AI Provider` and select your preferred engine.
+2. **Setup RAG**: Run `Code Review: Setup RAG` to index your project for context-aware analysis.
+3. **Analyze**: 
+   - **Current File**: `Ctrl+Alt+R` (or `Cmd+Alt+R` on Mac).
+   - **Full Workspace**: Run `Code Review: Analyze Entire Workspace`.
+4. **Review Findings**: Open the **AI Review** sidebar view to approve/reject suggestions.
+5. **PR Automation**: Run `Code Review: Generate AI PR Summary` before pushing your changes.
 
 > **Tip**: Check the [QUICKSTART.md](./QUICKSTART.md) for a detailed 5-minute setup guide.
 
@@ -32,9 +38,10 @@ Access settings via `codeReview` prefix.
 
 | Setting | Default | Description |
 |---|---|---|
-| `codeReview.provider` | `mock` | `mock`, `ollama`, or `openai` |
-| `codeReview.ollama.baseUrl` | `http://localhost:11434` | Your local Ollama server |
-| `codeReview.rag.enabled` | `true` | Enable project-wide context |
+| `codeReview.provider` | `mock` | `mock`, `ollama`, `openai`, `gemini`, or `claude` |
+| `codeReview.rag.enabled` | `true` | Enable project-wide context enrichment |
+| `codeReview.privacy.maskData` | `true` | Automatically mask PII and Secrets |
+| `codeReview.autoRevalidate` | `false` | Re-analyze code automatically on save |
 | `codeReview.autoRestoreSession` | `true` | Restore work on branch switch |
 
 ## 📖 Documentation
@@ -45,4 +52,4 @@ Access settings via `codeReview` prefix.
 
 ---
 
-*Status: 🟢 **Beta**. We recommend using the Ollama provider for maximum privacy and zero cost.*
+*Status: 🟢 **Prod-Ready Beta**. Optimized for privacy and developer productivity.*
