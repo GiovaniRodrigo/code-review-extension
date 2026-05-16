@@ -127,7 +127,7 @@ export class SimpleRagIndexer implements RagIndexerPort {
       } else {
           // Check extension
           const ext = path.extname(file).toLowerCase();
-          if (['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs'].includes(ext)) {
+          if (['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.md'].includes(ext)) {
             results.push(fullPath);
           }
       }

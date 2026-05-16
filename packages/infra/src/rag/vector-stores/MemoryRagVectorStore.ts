@@ -8,19 +8,37 @@ export class MemoryRagVectorStore implements RagVectorStorePort {
     this.items.push({ chunk, vector });
   }
 
-  async search(vector: number[], limit: number): Promise<RagChunkDTO[]> {
-    // Phase 8: Hardening - Implement simple word overlap score if vector length matches but is low-info
-    // For now, since we use SimpleEmbeddingProvider (dummy), we'll do a simple text-based scoring 
-    // to improve results without a real local LLM embedding engine yet.
-    
+  async search(vector: number[], limit: number, query?: string): Promise<RagChunkDTO[]> {
     return this.items
-      .map(item => ({
-        ...item,
-        score: this._calculateScore(item.vector, vector)
-      }))
+      .map(item => {
+        const vectorScore = this._calculateScore(item.vector, vector);
+        const keywordScore = query ? this._calculateKeywordScore(item.chunk.content, query) : 0;
+        
+        // Hybrid score: 70% vector, 30% keyword
+        const finalScore = query ? (vectorScore * 0.7 + keywordScore * 0.3) : vectorScore;
+
+        return {
+          ...item,
+          score: finalScore
+        };
+      })
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map(i => i.chunk);
+  }
+
+  private _calculateKeywordScore(content: string, query: string): number {
+    const contentWords = new Set(content.toLowerCase().split(/\W+/));
+    const queryWords = query.toLowerCase().split(/\W+/).filter(w => w.length > 2);
+    
+    if (queryWords.length === 0) return 0;
+    
+    let matches = 0;
+    queryWords.forEach(word => {
+      if (contentWords.has(word)) matches++;
+    });
+
+    return matches / queryWords.length;
   }
 
   private _calculateScore(v1: number[], v2: number[]): number {

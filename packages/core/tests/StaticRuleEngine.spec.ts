@@ -45,4 +45,19 @@ describe('StaticRuleEngine', () => {
     const findings = new StaticRuleEngine().run(ast);
     expect(findings.length).toBeGreaterThanOrEqual(0);
   });
+
+  it('should detect architectural-dip violations', () => {
+    const ast = new AstBuilder().build({
+      filePath: 'src/application/MyUseCase.ts',
+      code: "import { MyInfra } from '../infra/MyInfra';"
+    });
+
+    const findings = new StaticRuleEngine().run(ast);
+    expect(findings).toEqual([
+      expect.objectContaining({
+        ruleId: 'architectural-dip',
+        severity: 'error'
+      })
+    ]);
+  });
 });

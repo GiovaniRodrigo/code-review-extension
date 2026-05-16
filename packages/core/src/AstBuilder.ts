@@ -18,6 +18,7 @@ export interface AstNodeSummary {
   startLine: number;
   endLine: number;
   children: AstNodeSummary[];
+  metadata?: Record<string, any>;
 }
 
 export interface AstMetrics {
@@ -111,7 +112,9 @@ export class AstBuilder {
     }
 
     if (ts.isFunctionDeclaration(node)) {
-      return this._createSummary('function', node.name?.getText(sourceFile) || 'anonymous function', node, sourceFile);
+      const summary = this._createSummary('function', node.name?.getText(sourceFile) || 'anonymous function', node, sourceFile);
+      summary.metadata = { parameters: node.parameters.length };
+      return summary;
     }
 
     if (ts.isVariableStatement(node)) {
@@ -128,7 +131,9 @@ export class AstBuilder {
 
   private _summarizeClassMember(node: ts.ClassElement, sourceFile: ts.SourceFile): AstNodeSummary | null {
     if (ts.isMethodDeclaration(node) || ts.isConstructorDeclaration(node)) {
-      return this._createSummary('method', this._nodeName(node, sourceFile), node, sourceFile);
+      const summary = this._createSummary('method', this._nodeName(node, sourceFile), node, sourceFile);
+      summary.metadata = { parameters: node.parameters.length };
+      return summary;
     }
 
     if (ts.isPropertyDeclaration(node) || ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node)) {

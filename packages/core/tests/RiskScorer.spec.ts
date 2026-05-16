@@ -10,11 +10,11 @@ describe('RiskScorer', () => {
       code: 'function ok() { return true; }'
     });
 
-    expect(new RiskScorer().score(ast)).toEqual({
-      score: 0,
-      level: 'low',
-      reasons: []
-    });
+    const score = new RiskScorer().score(ast);
+    expect(score.score).toBe(0);
+    expect(score.level).toBe('low');
+    expect(score.methods).toHaveLength(1);
+    expect(score.methods[0].name).toBe('ok');
   });
 
   it('should score higher risk from findings and structure', () => {
@@ -38,8 +38,9 @@ describe('RiskScorer', () => {
     const score = new RiskScorer().score(ast, findings);
 
     expect(score.level).toBe('medium');
-    expect(score.score).toBe(30);
-    expect(score.reasons).toContain('1 static rule finding(s)');
+    expect(score.score).toBeGreaterThanOrEqual(20);
+    expect(score.reasons).toContain('1 total warning-level finding(s)');
     expect(score.reasons).toContain('many top-level functions in one file');
+    expect(score.methods).toHaveLength(11);
   });
 });

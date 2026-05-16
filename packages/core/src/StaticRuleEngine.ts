@@ -72,6 +72,79 @@ export function createDefaultStaticRules(): StaticRule[] {
       }
     },
     {
+      id: 'long-method',
+      description: 'Warn when a method or function is too long.',
+      enabled: true,
+      run: ({ ast }) => {
+        const allNodes = flattenAstNodes(ast.root);
+        return allNodes
+          .filter(node => (node.kind === 'method' || node.kind === 'function'))
+          .filter(node => (node.endLine - node.startLine + 1) > 40)
+          .map(node => ({
+            ruleId: 'long-method',
+            message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} is too long (${node.endLine - node.startLine + 1} lines).`,
+            severity: 'warning',
+            file: ast.filePath,
+            line: node.startLine,
+            target: node.name
+          }));
+      }
+    },
+    {
+      id: 'too-many-params',
+      description: 'Warn when a method or function has too many parameters.',
+      enabled: true,
+      run: ({ ast }) => {
+        const allNodes = flattenAstNodes(ast.root);
+        return allNodes
+          .filter(node => (node.kind === 'method' || node.kind === 'function'))
+          .filter(node => node.metadata?.parameters > 4)
+          .map(node => ({
+            ruleId: 'too-many-params',
+            message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has too many parameters (${node.metadata.parameters}).`,
+            severity: 'warning',
+            file: ast.filePath,
+            line: node.startLine,
+            target: node.name
+          }));
+      }
+    },
+    {
+      id: 'architectural-dip',
+      description: 'Warn when application layer depends on infrastructure directly.',
+      enabled: true,
+      run: ({ ast }) => {
+        if (!ast.filePath.includes('application')) return [];
+
+        return ast.root.children
+          .filter(node => node.kind === 'import')
+          .filter(node => node.name.includes('/infra/') || node.name.includes('@code-review/infra'))
+          .map(node => ({
+            ruleId: 'architectural-dip',
+            message: `Dependency Inversion violation: Application layer should not import from infrastructure directly (${node.name}).`,
+            severity: 'error',
+            file: ast.filePath,
+            line: node.startLine,
+            target: node.name
+          }));
+      }
+    },
+    {
+      id: 'max-interface-methods',
+      description: 'Warn when an interface has too many methods (ISP violation).',
+      enabled: true,
+      run: ({ ast }) => ast.root.children
+        .filter(node => node.kind === 'interface' && node.children.length > 5)
+        .map(node => ({
+          ruleId: 'max-interface-methods',
+          message: `Interface ${node.name} has ${node.children.length} methods. Consider splitting it (ISP).`,
+          severity: 'warning',
+          file: ast.filePath,
+          line: node.startLine,
+          target: node.name
+        }))
+    },
+    {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
       enabled: true,

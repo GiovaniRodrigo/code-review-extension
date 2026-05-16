@@ -13,6 +13,6 @@ export class SimpleRagContextBuilder implements RagContextBuilderPort {
   async buildContext(query: string): Promise<RagChunkDTO[]> {
     const vector = await this.embeddingProvider.generateEmbedding(query);
     const limit = this.config.maxChunks ?? 5;
-    return this.vectorStore.search(vector, limit);
+    return this.vectorStore.search(vector, limit, query);
   }
 }
