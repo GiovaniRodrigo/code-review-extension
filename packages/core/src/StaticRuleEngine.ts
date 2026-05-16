@@ -145,6 +145,31 @@ export function createDefaultStaticRules(): StaticRule[] {
         }))
     },
     {
+      id: 'cyclomatic-complexity',
+      description: 'Warn when a method or function is too complex.',
+      enabled: true,
+      run: ({ ast }) => {
+        const allNodes = flattenAstNodes(ast.root);
+        return allNodes
+          .filter(node => (node.kind === 'method' || node.kind === 'function'))
+          .map(node => {
+            const complexity = node.metadata?.complexity || 1;
+            if (complexity > 10) {
+              return {
+                ruleId: 'cyclomatic-complexity',
+                message: `${node.kind === 'method' ? 'Method' : 'Function'} ${node.name} has high complexity (${complexity}). Consider refactoring.`,
+                severity: 'warning' as const,
+                file: ast.filePath,
+                line: node.startLine,
+                target: node.name
+              };
+            }
+            return null;
+          })
+          .filter((f): f is StaticRuleFinding => f !== null);
+      }
+    },
+    {
       id: 'missing-structure',
       description: 'Inform when no known structural nodes were found.',
       enabled: true,

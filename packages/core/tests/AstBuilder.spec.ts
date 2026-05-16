@@ -97,4 +97,25 @@ describe('AstBuilder', () => {
       name: 'main'
     }));
   });
+
+  it('should calculate cyclomatic complexity for functions', () => {
+    const ast = new AstBuilder().build({
+      filePath: 'complexity.ts',
+      code: `
+        function complex(a, b) {
+          if (a) {
+            for (let i = 0; i < 10; i++) {
+              if (b) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+      `
+    });
+
+    const func = ast.root.children[0];
+    expect(func.metadata?.complexity).toBe(4); // 1 base + 2 ifs + 1 for
+  });
 });

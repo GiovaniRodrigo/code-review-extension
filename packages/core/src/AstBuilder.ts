@@ -113,7 +113,10 @@ export class AstBuilder {
 
     if (ts.isFunctionDeclaration(node)) {
       const summary = this._createSummary('function', node.name?.getText(sourceFile) || 'anonymous function', node, sourceFile);
-      summary.metadata = { parameters: node.parameters.length };
+      summary.metadata = { 
+        parameters: node.parameters.length,
+        complexity: this._calculateComplexity(node)
+      };
       return summary;
     }
 
@@ -132,7 +135,10 @@ export class AstBuilder {
   private _summarizeClassMember(node: ts.ClassElement, sourceFile: ts.SourceFile): AstNodeSummary | null {
     if (ts.isMethodDeclaration(node) || ts.isConstructorDeclaration(node)) {
       const summary = this._createSummary('method', this._nodeName(node, sourceFile), node, sourceFile);
-      summary.metadata = { parameters: node.parameters.length };
+      summary.metadata = { 
+        parameters: node.parameters.length,
+        complexity: this._calculateComplexity(node)
+      };
       return summary;
     }
 
@@ -246,5 +252,39 @@ export class AstBuilder {
       return false;
     }
     return Boolean(ts.getModifiers(node as any)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword));
+  }
+
+  private _calculateComplexity(node: ts.Node): number {
+    let complexity = 1;
+
+    const visit = (child: ts.Node) => {
+      switch (child.kind) {
+        case ts.SyntaxKind.IfStatement:
+        case ts.SyntaxKind.ForStatement:
+        case ts.SyntaxKind.ForInStatement:
+        case ts.SyntaxKind.ForOfStatement:
+        case ts.SyntaxKind.WhileStatement:
+        case ts.SyntaxKind.DoStatement:
+        case ts.SyntaxKind.CatchClause:
+        case ts.SyntaxKind.ConditionalExpression:
+        case ts.SyntaxKind.CaseClause:
+          complexity++;
+          break;
+        case ts.SyntaxKind.BinaryExpression:
+          const binary = child as ts.BinaryExpression;
+          if (
+            binary.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ||
+            binary.operatorToken.kind === ts.SyntaxKind.BarBarToken ||
+            binary.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+          ) {
+            complexity++;
+          }
+          break;
+      }
+      ts.forEachChild(child, visit);
+    };
+
+    ts.forEachChild(node, visit);
+    return complexity;
   }
 }

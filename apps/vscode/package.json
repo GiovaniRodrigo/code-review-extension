@@ -26,11 +26,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "code-review.analyze",
-        "title": "Code Review: Analyze Code with IA"
+        command: "code-review.analyze",
+        title: "Code Review: Analyze Code with IA"
       },
       {
-        "command": "code-review.analyzeBranchCommits",
+        command: "code-review.analyzeWorkspace",
+        title: "Code Review: Analyze Entire Workspace"
+      },
+      {
+        command: "code-review.analyzeBranchCommits",
+
         "title": "Code Review: Analyze Branch Commits"
       },
       {

@@ -3,6 +3,7 @@ import { VSCodeContainer } from '../dependencies/buildContainer';
 import { AIProviderFactory } from '@code-review/infra';
 
 import { analyzeCommand } from '../commands/analyzeCommand';
+import { analyzeWorkspaceCommand } from '../commands/analyzeWorkspaceCommand';
 import { clearSessionCommand } from '../commands/clearSessionCommand';
 import { focusCommand } from '../commands/focusCommand';
 import { restoreSessionCommand } from '../commands/restoreSessionCommand';
@@ -11,6 +12,7 @@ import { publishPrReviewCommand } from '../commands/publishPrReviewCommand';
 export function registerCommands(context: vscode.ExtensionContext, container: VSCodeContainer): void {
   const commandsToRegister = [
     analyzeCommand,
+    analyzeWorkspaceCommand,
     clearSessionCommand,
     focusCommand,
     restoreSessionCommand,
