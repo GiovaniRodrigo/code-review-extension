@@ -1,6 +1,8 @@
 import { AIProviderPort } from '../../../ports/ai/AIProviderPort';
 import { RagContextBuilderPort } from '../../../ports/rag/RagContextBuilderPort';
 import { ReinforcementService } from './ReinforcementService';
+import { ContextPruningService } from './ContextPruningService';
+import { AstBuilder } from '../../../AstBuilder';
 import {
   AIAnalysisRequestDTO,
   AIAnalysisResponseDTO
@@ -17,6 +19,8 @@ export class AIAnalysisService {
     private readonly aiProvider: AIProviderPort,
     private readonly contextBuilder?: RagContextBuilderPort,
     private readonly reinforcementService?: ReinforcementService,
+    private readonly pruningService = new ContextPruningService(),
+    private readonly astBuilder = new AstBuilder(),
     private readonly config: AIAnalysisConfig = {}
   ) {}
 
@@ -38,9 +42,23 @@ export class AIAnalysisService {
             }
 
             let context = input.context || '';
+            let codeToAnalyze = input.code;
+
+            // Phase 4: Performance - Prune large files if they are not just diffs
+            if (codeToAnalyze.length > 5000 && !codeToAnalyze.startsWith('diff')) {
+                try {
+                    const ast = this.astBuilder.build({ filePath: input.filePath, code: codeToAnalyze });
+                    codeToAnalyze = this.pruningService.prune({ 
+                        ast, 
+                        targetLines: [1] // Default to top, but ideally would be active lines
+                    });
+                } catch (e) {
+                    console.warn('[AI] Context pruning failed, falling back to full code', e);
+                }
+            }
             
             if (this.contextBuilder && !context) {
-                const chunks = await this.contextBuilder.buildContext(input.code);
+                const chunks = await this.contextBuilder.buildContext(codeToAnalyze.substring(0, 2000));
                 context = chunks.map(c => `FILE: ${c.source}\n${c.content}`).join('\n\n');
             }
 
@@ -58,6 +76,7 @@ export class AIAnalysisService {
 
             const rawResult = await this.aiProvider.analyzeCode({
               ...input,
+              code: codeToAnalyze,
               context,
               mode: input.mode ?? 'fast',
               signal
