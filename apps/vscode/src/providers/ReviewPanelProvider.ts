@@ -60,6 +60,17 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           });
           await this.refresh();
           break;
+        case 'refactor':
+          try {
+            await (this as any).refactorFindingUseCase?.execute({
+                sessionId: message.sessionId,
+                findingId: message.findingId
+            });
+            await this.refresh();
+          } catch (e: any) {
+            vscode.window.showErrorMessage(`Refactoring failed: ${e.message}`);
+          }
+          break;
         case 'saveState':
           await this.context.workspaceState.update('review-panel-state', message.state);
           break;
@@ -126,6 +137,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
                 <div style="margin-top: 5px; display: flex; gap: 5px;">
                     <button onclick="approve('${session.id}', '${f.id}')" ${f.status === 'approved' ? 'disabled' : ''}>Approve</button>
                     <button onclick="focusItem('${session.id}', '${f.id}')">Focus</button>
+                    <button onclick="refactor('${session.id}', '${f.id}')">Refactor</button>
                     <button onclick="addComment('${session.id}', '${f.id}')">Reply</button>
                     <button onclick="copyFinding('${f.message}')">Copy</button>
                 </div>
@@ -200,6 +212,9 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
               if (body) {
                 vscode.postMessage({ command: 'addComment', sessionId, findingId, body });
               }
+            }
+            function refactor(sessionId, findingId) {
+              vscode.postMessage({ command: 'refactor', sessionId, findingId });
             }
             function filter(severity, btn) {
               document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));

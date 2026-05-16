@@ -177,12 +177,14 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
   const codeReviewService = new CodeReviewService(repository);
   approveFindingUseCase: ApproveFindingUseCase;
   addCommentToFindingUseCase: AddCommentToFindingUseCase;
+  refactorFindingUseCase: RefactorFindingUseCase;
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
   ...
   const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
   const ide = new VSCodeIdeAdapter();
   const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
-  const validateFindingUseCase = new ValidateFindingUseCase(repository, ide, reinforcementService);
+  const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
+  const refactorFindingUseCase = new RefactorFindingUseCase(repository, aiAnalysisService, ide);
 
   return {
     context,
@@ -197,7 +199,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
     approveFindingUseCase: validateFindingUseCase as any,
     addCommentToFindingUseCase,
+    refactorFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
+
 
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),

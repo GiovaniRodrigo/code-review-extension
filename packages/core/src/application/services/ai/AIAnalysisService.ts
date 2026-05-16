@@ -140,4 +140,30 @@ If rule is followed, return [].
         message: f.message
     }));
   }
+
+  async generateRefactor(finding: any, code: string): Promise<string> {
+    const prompt = `
+You are a senior refactoring expert. 
+Fix the following finding in the provided code.
+
+FINDING: ${finding.message}
+LOCATION: Line ${finding.line}
+
+CODE:
+${code}
+
+Provide ONLY the refactored code block that replaces the original problematic section. 
+Do not include explanations, just the code.
+`;
+
+    const result = await this.aiProvider.analyzeCode({
+        code: prompt,
+        filePath: 'refactor-request',
+        mode: 'standard'
+    });
+
+    return result.findings.length > 0 
+        ? result.findings[0].suggestedFix || result.findings[0].message
+        : '';
+  }
 }
