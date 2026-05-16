@@ -6,13 +6,15 @@ import { analyzeCommand } from '../commands/analyzeCommand';
 import { clearSessionCommand } from '../commands/clearSessionCommand';
 import { focusCommand } from '../commands/focusCommand';
 import { restoreSessionCommand } from '../commands/restoreSessionCommand';
+import { publishPrReviewCommand } from '../commands/publishPrReviewCommand';
 
 export function registerCommands(context: vscode.ExtensionContext, container: VSCodeContainer): void {
   const commandsToRegister = [
     analyzeCommand,
     clearSessionCommand,
     focusCommand,
-    restoreSessionCommand
+    restoreSessionCommand,
+    publishPrReviewCommand
   ];
 
   for (const cmd of commandsToRegister) {
@@ -38,6 +40,28 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
     if (key) {
         await context.secrets.store('gemini-api-key', key);
         await container.notifications.info('Gemini API Key stored securely.');
+    }
+  });
+
+  container.commands.register('code-review.setGitHubToken', async () => {
+    const token = await vscode.window.showInputBox({ 
+        prompt: 'Enter GitHub Personal Access Token',
+        password: true 
+    });
+    if (token) {
+        await context.secrets.store('github-token', token);
+        await container.notifications.info('GitHub token stored securely.');
+    }
+  });
+
+  container.commands.register('code-review.setGitLabToken', async () => {
+    const token = await vscode.window.showInputBox({ 
+        prompt: 'Enter GitLab Private Token',
+        password: true 
+    });
+    if (token) {
+        await context.secrets.store('gitlab-token', token);
+        await container.notifications.info('GitLab token stored securely.');
     }
   });
   
@@ -142,10 +166,8 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   const dummyCommands = [
     'code-review.analyzeBranchCommits',
     'code-review.analyzePr',
-    'code-review.publishPrReview',
     'code-review.searchRepositoryContext',
     'code-review.setGitLabCredentials',
-    'code-review.setGitLabToken',
     'code-review.setGitLabUrl',
     'code-review.syncRemotePR',
     'code-review.setupRag',

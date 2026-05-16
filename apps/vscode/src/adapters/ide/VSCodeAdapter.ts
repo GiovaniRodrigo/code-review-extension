@@ -375,6 +375,57 @@ export class VSCodeAdapter implements IDEAdapter {
     return vscode.workspace.workspaceFolders?.[0]?.name || 'main';
   }
 
+  async getPullRequestInfo(): Promise<any | null> {
+    try {
+      const gitExtension = vscode.extensions.getExtension('vscode.git');
+      const git = gitExtension?.exports?.getAPI?.(1);
+      const repository = git?.repositories?.[0];
+      const remote = repository?.state?.remotes?.[0];
+      const url = remote?.fetchUrl || remote?.pushUrl || '';
+
+      if (!url) return null;
+
+      let owner = '';
+      let repo = '';
+      let provider: 'github' | 'gitlab' = 'github';
+
+      if (url.includes('github.com')) {
+        const match = url.match(/github\.com[:/]([^/]+)\/([^.]+)(\.git)?/);
+        if (match) {
+          owner = match[1];
+          repo = match[2];
+          provider = 'github';
+        }
+      } else if (url.includes('gitlab.com')) {
+        const match = url.match(/gitlab\.com[:/]([^/]+)\/([^.]+)(\.git)?/);
+        if (match) {
+          owner = match[1];
+          repo = match[2];
+          provider = 'gitlab';
+        }
+      }
+
+      if (!owner || !repo) return null;
+
+      const prNumber = await vscode.window.showInputBox({
+        prompt: `Enter ${provider === 'github' ? 'PR' : 'MR'} number for ${owner}/${repo}`,
+        validateInput: (value) => isNaN(Number(value)) ? 'Must be a number' : null
+      });
+
+      if (!prNumber) return null;
+
+      return {
+        number: Number(prNumber),
+        owner,
+        repo,
+        provider
+      };
+    } catch (e) {
+      console.error('[VSCodeAdapter] Failed to get PR info', e);
+      return null;
+    }
+  }
+
   async getPullRequests(): Promise<any[]> {
     const cwd = this._getWorkspacePath();
 

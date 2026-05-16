@@ -56,6 +56,7 @@ export interface VSCodeContainer {
   discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
   selectAIProviderUseCase: SelectAIProviderUseCase;
   aiProviderRegistry: AIProviderRegistry;
+  repository: FileReviewRepository;
 }
 
 export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
@@ -190,6 +191,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     reviewPanelProvider: new ReviewPanelProvider(repository, ide, approveFindingUseCase, context),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
     selectAIProviderUseCase: new SelectAIProviderUseCase(),
-    aiProviderRegistry: providerRegistry
+    aiProviderRegistry: providerRegistry,
+    repository
   };
 }
