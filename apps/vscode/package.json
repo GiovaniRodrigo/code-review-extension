@@ -38,6 +38,10 @@
         title: "Code Review: Generate AI PR Summary"
       },
       {
+        command: "code-review.generateQualityReport",
+        title: "Code Review: Generate Technical Quality Report"
+      },
+      {
         command: "code-review.analyzeBranchCommits",
 
         "title": "Code Review: Analyze Branch Commits"

@@ -38,6 +38,7 @@ export * from './application/use-cases/review/ApproveFindingUseCase';
 export * from './application/use-cases/review/DeleteCodeReviewUseCase';
 export * from './application/use-cases/review/AddCommentToFindingUseCase';
 export * from './application/use-cases/review/GeneratePRSummaryUseCase';
+export * from './application/use-cases/review/GenerateQualityReportUseCase';
 export * from './application/use-cases/review/RefactorFindingUseCase';
 export * from './application/use-cases/review/LoadCustomHeuristicsUseCase';
 export * from './application/use-cases/review/AnalyzeWorkspaceUseCase';
