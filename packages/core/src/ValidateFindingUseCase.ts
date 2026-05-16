@@ -1,11 +1,13 @@
 import { ReviewSession, TechnicalComment } from '@code-review/domain';
 import { IdeAdapterPort } from './ports/ide/IdeAdapterPort';
 import { CodeReviewRepositoryPort } from './ports/review/CodeReviewRepositoryPort';
+import { ReinforcementService } from './application/services/ai/ReinforcementService';
 
 export class ValidateFindingUseCase {
   constructor(
     private repository: CodeReviewRepositoryPort,
-    private ideAdapter?: IdeAdapterPort
+    private ideAdapter?: IdeAdapterPort,
+    private reinforcementService?: ReinforcementService
   ) {}
 
   async execute(sessionId: string, findingId: string, status: 'approved' | 'rejected'): Promise<ReviewSession> {
@@ -43,6 +45,11 @@ export class ValidateFindingUseCase {
     session.updatedAt = new Date();
 
     await this.repository.saveSession(session);
+    
+    if (this.reinforcementService) {
+        await this.reinforcementService.learnFromFinding(finding);
+    }
+
     console.log(`Finding ${findingId} in session ${sessionId} updated to ${status}`);
     return session;
   }

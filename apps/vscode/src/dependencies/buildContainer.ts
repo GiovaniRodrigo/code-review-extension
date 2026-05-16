@@ -15,7 +15,9 @@ import {
   AIProviderDiscoveryService,
   DiscoverAIProvidersUseCase,
   SelectAIProviderUseCase,
-  AIProviderConfig
+  AIProviderConfig,
+  ReinforcementService,
+  ValidateFindingUseCase
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
@@ -162,7 +164,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     providerRegistry.setActiveProvider(initialConfigs[0].id);
   }
 
-  const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, {
+  const reinforcementService = new ReinforcementService(vectorStore, embeddingProvider);
+
+  const aiAnalysisService = new AIAnalysisService(providerRegistry, contextBuilder, reinforcementService, {
     timeout: config.get<number>('ai.timeout', 30000),
     maxRetries: config.get<number>('ai.retries', 2)
   });
@@ -174,7 +178,9 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
   deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
   ...
   const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
-  const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
+  const ide = new VSCodeIdeAdapter();
+  const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
+  const validateFindingUseCase = new ValidateFindingUseCase(repository, ide, reinforcementService);
 
   return {
     context,
@@ -187,7 +193,7 @@ export function buildContainer(context: vscode.ExtensionContext): VSCodeContaine
     createCodeReviewUseCase: new CreateCodeReviewUseCase(codeReviewService),
     getCodeReviewUseCase: new GetCodeReviewUseCase(codeReviewService),
     revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
-    approveFindingUseCase,
+    approveFindingUseCase: validateFindingUseCase as any,
     addCommentToFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
 

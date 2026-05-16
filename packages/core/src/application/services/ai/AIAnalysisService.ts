@@ -1,5 +1,6 @@
 import { AIProviderPort } from '../../../ports/ai/AIProviderPort';
 import { RagContextBuilderPort } from '../../../ports/rag/RagContextBuilderPort';
+import { ReinforcementService } from './ReinforcementService';
 import {
   AIAnalysisRequestDTO,
   AIAnalysisResponseDTO
@@ -15,6 +16,7 @@ export class AIAnalysisService {
   constructor(
     private readonly aiProvider: AIProviderPort,
     private readonly contextBuilder?: RagContextBuilderPort,
+    private readonly reinforcementService?: ReinforcementService,
     private readonly config: AIAnalysisConfig = {}
   ) {}
 
@@ -40,6 +42,11 @@ export class AIAnalysisService {
             if (this.contextBuilder && !context) {
                 const chunks = await this.contextBuilder.buildContext(input.code);
                 context = chunks.map(c => `FILE: ${c.source}\n${c.content}`).join('\n\n');
+            }
+
+            if (this.reinforcementService) {
+                const reinforcement = await this.reinforcementService.getReinforcementContext(input.code);
+                context += reinforcement;
             }
 
             // Phase 2: Performance - Truncate excessive context (~10k chars limit)
