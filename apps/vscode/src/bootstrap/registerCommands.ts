@@ -31,6 +31,9 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   container.commands.register('code-review.setGeminiApiKey', () => container.setGeminiApiKeyCommandHandler.execute());
   container.commands.register('code-review.setup', () => container.setupCommandHandler.execute());
   
+  // Internal/Sync Commands
+  container.commands.register('code-review.chat.refresh', () => container.chatProvider.refresh());
+  
   // Sync Commands
   container.commands.register('code-review.publishPrReview', () => container.publishPrReviewCommandHandler.execute());
   container.commands.register('code-review.syncWithVps', () => container.syncWithVpsCommandHandler.execute());

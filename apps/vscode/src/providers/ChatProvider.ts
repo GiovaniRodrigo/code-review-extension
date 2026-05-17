@@ -24,6 +24,10 @@ export class ChatProvider implements vscode.WebviewViewProvider {
     this._updateHtml();
   }
 
+  public refresh(): void {
+    this._updateHtml();
+  }
+
   private async _handleMessage(query: string) {
     if (!this._view) return;
 

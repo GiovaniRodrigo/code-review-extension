@@ -38,6 +38,7 @@ export class SetProviderCommandHandler implements CommandHandlerPort {
             const selected = available[0];
             await config.update('ai.activeProviderId', selected.config.id, vscode.ConfigurationTarget.Global);
             this.container.aiProviderRegistry.setActiveProvider(selected.config.id);
+            await vscode.commands.executeCommand('code-review.chat.refresh');
             await this.container.notifications.info(`AI Provider "${selected.config.label}" selected automatically.`);
             return;
         }
@@ -57,6 +58,7 @@ export class SetProviderCommandHandler implements CommandHandlerPort {
             const pickedItem = picked as any;
             await config.update('ai.activeProviderId', pickedItem.id, vscode.ConfigurationTarget.Global);
             this.container.aiProviderRegistry.setActiveProvider(pickedItem.id);
+            await vscode.commands.executeCommand('code-review.chat.refresh');
             await this.container.notifications.info(`AI Provider "${pickedItem.label}" selected.`);
         }
       });
