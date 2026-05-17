@@ -29,7 +29,7 @@ AI-assisted Code Review Extension - Multi-IDE Architecture
 | `test:mutation` | `npm run test:mutation:domain && npm run test:mutation:core && npm run test:mutation:analyzers` |
 | `test:mutation:domain` | `stryker run config/stryker/domain.json` |
 | `test:mutation:core` | `npm run test:mutation:core:use-cases && npm run test:mutation:core:services-ai && npm run test:mutation:core:shared` |
-| `test:mutation:core:use-cases` | `npm run test:mutation:core:use-cases:ai && npm run test:mutation:core:use-cases:ast && npm run test:mutation:core:use-cases:rag && npm run test:mutation:core:use-cases:review && npm run test:mutation:core:use-cases:sync-vps` |
+| `test:mutation:core:use-cases` | `npm run test:mutation:cpore:use-cases:ai && npm run test:mutation:core:use-cases:ast && npm run test:mutation:core:use-cases:rag && npm run test:mutation:core:use-cases:review && npm run test:mutation:core:use-cases:sync-vps` |
 | `test:mutation:core:use-cases:ai` | `stryker run config/stryker/core-use-cases-ai.json` |
 | `test:mutation:core:use-cases:ast` | `stryker run config/stryker/core-use-cases-ast.json` |
 | `test:mutation:core:use-cases:rag` | `stryker run config/stryker/core-use-cases-rag.json` |

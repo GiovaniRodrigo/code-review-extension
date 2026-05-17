@@ -1,58 +1,48 @@
 import * as vscode from 'vscode';
 import { VSCodeContainer } from '../dependencies/buildContainer';
-import { AIProviderFactory } from '@code-review/infra';
-
-import { analyzeCommand } from '../commands/analyzeCommand';
-import { analyzeWorkspaceCommand } from '../commands/analyzeWorkspaceCommand';
-import { analyzeBranchCommitsCommand } from '../commands/analyzeBranchCommitsCommand';
-import { analyzePrCommand } from '../commands/analyzePrCommand';
-import { generatePRSummaryCommand } from '../commands/generatePRSummaryCommand';
-import { generateQualityReportCommand } from '../commands/generateQualityReportCommand';
-import { clearSessionCommand } from '../commands/clearSessionCommand';
-import { focusCommand } from '../commands/focusCommand';
-import { restoreSessionCommand } from '../commands/restoreSessionCommand';
-import { publishPrReviewCommand } from '../commands/publishPrReviewCommand';
 
 export function registerCommands(context: vscode.ExtensionContext, container: VSCodeContainer): void {
-  const commandsToRegister = [
-    analyzeCommand,
-    analyzeWorkspaceCommand,
-    analyzeBranchCommitsCommand,
-    analyzePrCommand,
-    generatePRSummaryCommand,
-    generateQualityReportCommand,
-    clearSessionCommand,
-    focusCommand,
-    restoreSessionCommand,
-    publishPrReviewCommand
-  ];
+  // AI Analysis Commands
+  container.commands.register('code-review.analyze', (args?: any) => container.analyzeCommandHandler.execute(args));
+  container.commands.register('code-review.analyzeWorkspace', () => container.analyzeWorkspaceCommandHandler.execute());
+  container.commands.register('code-review.analyzeBranchCommits', (baseBranch?: string) => container.analyzeBranchCommitsCommandHandler.execute(baseBranch));
+  container.commands.register('code-review.analyzePr', (prNumber?: number) => container.analyzePrCommandHandler.execute(prNumber));
+  
+  // Report Commands
+  container.commands.register('code-review.generatePRSummary', () => container.generatePRSummaryCommandHandler.execute());
+  container.commands.register('code-review.generateQualityReport', () => container.generateQualityReportCommandHandler.execute());
+  
+  // Session Commands
+  container.commands.register('code-review.clearSession', () => container.clearSessionCommandHandler.execute());
+  container.commands.register('code-review.restoreSession', () => container.restoreSessionCommandHandler.execute());
+  
+  // Finding Commands
+  container.commands.register('code-review.approveFinding', (sessionId: any, findingId: any) => container.approveFindingCommandHandler.execute(sessionId, findingId));
+  
+  // RAG Commands
+  container.commands.register('code-review.indexRepositoryRag', () => container.indexRepositoryRagCommandHandler.execute());
+  container.commands.register('code-review.clearRepositoryRag', () => container.clearRepositoryRagCommandHandler.execute());
+  container.commands.register('code-review.setupRag', () => vscode.commands.executeCommand('code-review.setup'));
+  
+  // Configuration Commands
+  container.commands.register('code-review.setProvider', () => container.setProviderCommandHandler.execute());
+  container.commands.register('code-review.setOpenAIApiKey', () => container.setOpenAIApiKeyCommandHandler.execute());
+  container.commands.register('code-review.setGeminiApiKey', () => container.setGeminiApiKeyCommandHandler.execute());
+  container.commands.register('code-review.setup', () => container.setupCommandHandler.execute());
+  
+  // Sync Commands
+  container.commands.register('code-review.publishPrReview', () => container.publishPrReviewCommandHandler.execute());
+  container.commands.register('code-review.syncWithVps', () => container.syncWithVpsCommandHandler.execute());
 
-  for (const cmd of commandsToRegister) {
-    container.commands.register(cmd.id, (...args: any[]) => cmd.execute(container, ...args));
-  }
-
-  container.commands.register('code-review.setOpenAIApiKey', async () => {
-    const key = await vscode.window.showInputBox({ 
-        prompt: 'Enter OpenAI API Key',
-        password: true 
-    });
-    if (key) {
-        await context.secrets.store('openai-api-key', key);
-        await container.notifications.info('OpenAI API Key stored securely.');
+  // Navigation Commands
+  container.commands.register('code-review.focus', (args: any) => {
+    if (args?.finding) {
+        return container.ide.focusFinding(args.finding);
     }
+    return vscode.commands.executeCommand('code-review.dashboard.focus');
   });
 
-  container.commands.register('code-review.setGeminiApiKey', async () => {
-    const key = await vscode.window.showInputBox({ 
-        prompt: 'Enter Gemini API Key',
-        password: true 
-    });
-    if (key) {
-        await context.secrets.store('gemini-api-key', key);
-        await container.notifications.info('Gemini API Key stored securely.');
-    }
-  });
-
+  // Tokens (legacy implementation being kept for simplicity until next refactor)
   container.commands.register('code-review.setGitHubToken', async () => {
     const token = await vscode.window.showInputBox({ 
         prompt: 'Enter GitHub Personal Access Token',
@@ -74,169 +64,6 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
         await container.notifications.info('GitLab token stored securely.');
     }
   });
-  
-  container.commands.register('code-review.approveFinding', async (sessionId: any, findingId: any) => {
-    try {
-      await container.approveFindingUseCase.execute(sessionId, findingId);
-      await container.reviewPanelProvider.refresh();
-      await container.dashboardProvider.refresh();
-      await container.notifications.info('Finding approved and diagnostics updated.');
-    } catch (e: any) {
-      await container.notifications.error(`Failed to approve: ${e.message}`);
-    }
-  });
-
-  container.commands.register('code-review.indexRepositoryRag', async () => {
-    try {
-      const workspacePath = container.workspace.getWorkspacePath();
-      if (!workspacePath) throw new Error('No workspace folder opened.');
-      
-      await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: 'Indexing repository for RAG...',
-        cancellable: false
-      }, async () => {
-        await container.indexRepositoryRagUseCase.execute(workspacePath);
-      });
-      
-      await container.notifications.info('Repository indexed successfully.');
-    } catch (e: any) {
-      await container.notifications.error(`Failed to index: ${e.message}`);
-    }
-  });
-
-  container.commands.register('code-review.clearRepositoryRag', async () => {
-    try {
-      await container.clearRepositoryRagUseCase.execute();
-      await container.notifications.info('RAG index cleared.');
-    } catch (e: any) {
-      await container.notifications.error(`Failed to clear RAG: ${e.message}`);
-    }
-  });
-
-  container.commands.register('code-review.setProvider', async () => {
-    try {
-      const { getAIProviderConfigs } = await import('../dependencies/buildContainer');
-      const providers = await getAIProviderConfigs(context);
-      const config = vscode.workspace.getConfiguration('codeReview');
-
-      if (providers.length === 0) {
-        await container.notifications.warning('No AI providers configured in settings.');
-        return;
-      }
-
-      await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: 'Checking AI Providers health...',
-        cancellable: false
-      }, async () => {
-        const results = await container.discoverAIProvidersUseCase.execute(
-            providers,
-            (pc) => AIProviderFactory.create(pc) as any
-        );
-
-        const available = results.filter(r => r.status.status === 'available');
-
-        if (available.length === 0) {
-            const firstError = results.find(r => r.status.status !== 'available');
-            throw new Error(`No providers available. First error: ${firstError?.status.message || 'Unknown'}`);
-        }
-
-        if (available.length === 1) {
-            const selected = available[0];
-            await config.update('ai.activeProviderId', selected.config.id, vscode.ConfigurationTarget.Global);
-            container.aiProviderRegistry.setActiveProvider(selected.config.id);
-            await container.notifications.info(`AI Provider "${selected.config.label}" selected automatically.`);
-            return;
-        }
-
-        const items = available.map(r => ({
-            label: r.config.label,
-            description: r.config.model,
-            detail: r.config.type,
-            id: r.config.id
-        }));
-
-        const picked = await vscode.window.showQuickPick(items, {
-            placeHolder: 'Select an AI Provider'
-        });
-
-        if (picked && typeof picked === 'object') {
-            const pickedItem = picked as any;
-            await config.update('ai.activeProviderId', pickedItem.id, vscode.ConfigurationTarget.Global);
-            container.aiProviderRegistry.setActiveProvider(pickedItem.id);
-            await container.notifications.info(`AI Provider "${pickedItem.label}" selected.`);
-        }
-      });
-    } catch (e: any) {
-      await container.notifications.error(`Failed to discover providers: ${e.message}`);
-    }
-  });
-
-  container.commands.register('code-review.syncWithVps', async () => {
-    try {
-      const branch = await container.ide.getActiveBranch();
-      await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: `Syncing review session for ${branch}...`,
-        cancellable: false
-      }, async () => {
-        await container.syncWithVpsUseCase.execute(branch);
-      });
-      await container.reviewPanelProvider.refresh();
-      await container.dashboardProvider.refresh();
-      await container.notifications.info('Sync completed successfully.');
-    } catch (e: any) {
-      await container.notifications.error(`Sync failed: ${e.message}`);
-    }
-  });
-
-  container.commands.register('code-review.setup', async () => {
-    try {
-        const selection = await vscode.window.showQuickPick([
-            { label: '$(gear) Configure AI Provider', id: 'provider' },
-            { label: '$(key) Set API Keys', id: 'keys' },
-            { label: '$(database) Setup RAG / Indexing', id: 'rag' },
-            { label: '$(sync) Full Setup (Guided)', id: 'full' }
-        ], { placeHolder: 'Code Review Setup' });
-
-        if (!selection) return;
-
-        if (selection.id === 'provider' || selection.id === 'full') {
-            await vscode.commands.executeCommand('code-review.setProvider');
-        }
-
-        if (selection.id === 'keys' || selection.id === 'full') {
-            const keyType = await vscode.window.showQuickPick([
-                { label: 'OpenAI API Key', id: 'openai' },
-                { label: 'Gemini API Key', id: 'gemini' },
-                { label: 'GitHub Token', id: 'github' },
-                { label: 'GitLab Token', id: 'gitlab' }
-            ], { placeHolder: 'Which key/token do you want to set?' });
-
-            if (keyType) {
-                const cmd = {
-                    openai: 'code-review.setOpenAIApiKey',
-                    gemini: 'code-review.setGeminiApiKey',
-                    github: 'code-review.setGitHubToken',
-                    gitlab: 'code-review.setGitLabToken'
-                }[keyType.id];
-                if (cmd) await vscode.commands.executeCommand(cmd);
-            }
-        }
-
-        if (selection.id === 'rag' || selection.id === 'full') {
-            const action = await vscode.window.showQuickPick([
-                { label: 'Index Repository Now', id: 'index' },
-                { label: 'Clear RAG Index', id: 'clear' }
-            ]);
-            if (action?.id === 'index') await vscode.commands.executeCommand('code-review.indexRepositoryRag');
-            if (action?.id === 'clear') await vscode.commands.executeCommand('code-review.clearRepositoryRag');
-        }
-    } catch (e: any) {
-        await container.notifications.error(`Setup failed: ${e.message}`);
-    }
-  });
 
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
@@ -251,8 +78,4 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
       await container.notifications.info(`Command ${cmd} is not fully implemented yet.`);
     });
   }
-
-  container.commands.register('code-review.setupRag', async () => {
-    await vscode.commands.executeCommand('code-review.setup');
-  });
 }

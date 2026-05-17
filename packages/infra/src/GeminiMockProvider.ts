@@ -1,11 +1,16 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
+import { 
+  AIAnalysisRequestDTO, 
+  AIAnalysisResponseDTO, 
+  AIProviderPort, 
+  HealthStatusDTO 
+} from '@code-review/core';
 
-export class GeminiMockProvider implements AIProvider {
-  async checkHealth(): Promise<HealthStatus> {
+export class GeminiMockProvider implements AIProviderPort {
+  async checkHealth(): Promise<HealthStatusDTO> {
     return { status: 'available' };
   }
 
-  async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
+  async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
     // This mock is based on the specific response provided by the user.
     // The Gemini API response structure is simulated here.
     

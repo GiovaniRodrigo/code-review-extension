@@ -1,46 +1,54 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug VSCode Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
-                "--disable-extensions"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/apps/vscode/dist/**/*.js"
-            ],
-            "preLaunchTask": "build:vscode",
-            "smartStep": true,
-            "sourceMaps": true
-        },
-        {
-            "name": "Extension E2E Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
-                "--extensionTestsPath=${workspaceFolder}/apps/vscode/tests/e2e/suite/index.cjs",
-                "--disable-extensions"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/apps/vscode/dist/**/*.js"
-            ],
-            "preLaunchTask": "build:vscode",
-            "smartStep": true,
-            "sourceMaps": true
-        },
-        {
-            "name": "Attach to Extension Host",
-            "type": "node",
-            "request": "attach",
-            "port": 5870,
-            "restart": true,
-            "timeout": 30000
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug VSCode Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
+        "--disable-extensions"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/apps/vscode/dist/**/*.js"
+      ],
+      "preLaunchTask": "build:vscode",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+        "**/github.copilot-chat/**",
+        "**/resources/app/**",
+        "**/extensions/github.copilot*/**",
+        "**/.vscode-test/**"
+      ]
+    },
+    {
+      "name": "Extension E2E Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
+        "--extensionTestsPath=${workspaceFolder}/apps/vscode/tests/e2e/suite/index.cjs",
+        "--disable-extensions"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/apps/vscode/dist/**/*.js"
+      ],
+      "preLaunchTask": "build:vscode",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/node_modules/**",
+        "**/github.copilot-chat/**",
+        "**/resources/app/**",
+        "**/extensions/github.copilot*/**",
+        "**/.vscode-test/**"
+      ]
+    }
+  ]
 }

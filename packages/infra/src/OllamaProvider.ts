@@ -3,13 +3,13 @@ import axios, {
 } from 'axios';
 
 import {
-  AIAnalysisInput,
-  AIAnalysisResult,
-  AIProvider,
-  HealthStatus
-} from './interfaces';
+  AIAnalysisRequestDTO,
+  AIAnalysisResponseDTO,
+  AIProviderPort,
+  HealthStatusDTO
+} from '@code-review/core';
 
-export class OllamaProvider implements AIProvider {
+export class OllamaProvider implements AIProviderPort {
 
   constructor(
     public readonly baseUrl: string,
@@ -17,7 +17,7 @@ export class OllamaProvider implements AIProvider {
     private readonly httpClient: AxiosInstance = axios
   ) { }
 
-  async checkHealth(): Promise<HealthStatus> {
+  async checkHealth(): Promise<HealthStatusDTO> {
     try {
       const response = await this.httpClient.get(`${this.baseUrl}/api/tags`, { timeout: 5000 });
       const models = response.data?.models || [];
@@ -37,8 +37,8 @@ export class OllamaProvider implements AIProvider {
   }
 
   async analyzeCode(
-    input: AIAnalysisInput
-  ): Promise<AIAnalysisResult> {
+    input: AIAnalysisRequestDTO
+  ): Promise<AIAnalysisResponseDTO> {
 
     const code =
       input.code.length > 12000

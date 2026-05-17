@@ -1,10 +1,15 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
+import { 
+  AIAnalysisRequestDTO, 
+  AIAnalysisResponseDTO, 
+  AIProviderPort, 
+  HealthStatusDTO 
+} from '@code-review/core';
 
 import axios, {
   type AxiosInstance
 } from 'axios';
 
-export class OpenAIProvider implements AIProvider {
+export class OpenAIProvider implements AIProviderPort {
   constructor(
     private readonly apiKey: string | (() => Promise<string>),
     private readonly model: string = 'gpt-4o-mini',
@@ -14,7 +19,7 @@ export class OpenAIProvider implements AIProvider {
   private apiUrl = 'https://api.openai.com/v1/chat/completions';
   private modelsUrl = 'https://api.openai.com/v1/models';
 
-  async checkHealth(): Promise<HealthStatus> {
+  async checkHealth(): Promise<HealthStatusDTO> {
     try {
       const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
       if (!key) {
@@ -45,7 +50,7 @@ export class OpenAIProvider implements AIProvider {
     }
   }
 
-  async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
+  async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
     const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
     
     if (!key) {

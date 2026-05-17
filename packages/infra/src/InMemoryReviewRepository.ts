@@ -1,7 +1,7 @@
 import { ReviewSession } from '@code-review/domain';
-import { ReviewRepository } from './interfaces';
+import { CodeReviewRepositoryPort } from '@code-review/core';
 
-export class InMemoryReviewRepository implements ReviewRepository {
+export class InMemoryReviewRepository implements CodeReviewRepositoryPort {
   private sessions: Map<string, ReviewSession> = new Map();
 
   async saveSession(session: ReviewSession): Promise<void> {

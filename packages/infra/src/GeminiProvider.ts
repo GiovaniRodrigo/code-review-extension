@@ -1,7 +1,16 @@
-import axios, { type AxiosInstance } from 'axios';
-import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
+import { 
+  AIAnalysisRequestDTO, 
+  AIAnalysisResponseDTO, 
+  AIProviderPort, 
+  HealthStatusDTO 
+} from '@code-review/core';
 
-export class GeminiProvider implements AIProvider {
+import axios, {
+  type AxiosInstance
+} from 'axios';
+
+export class GeminiProvider implements AIProviderPort {
+
   constructor(
     private readonly apiKey: string | (() => Promise<string>),
     private readonly model: string = 'gemini-flash-latest',

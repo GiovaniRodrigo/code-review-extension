@@ -1,13 +1,18 @@
-import { AIAnalysisInput, AIAnalysisResult, AIProvider, HealthStatus } from './interfaces';
+import { 
+  AIAnalysisRequestDTO, 
+  AIAnalysisResponseDTO, 
+  AIProviderPort, 
+  HealthStatusDTO 
+} from '@code-review/core';
 
-export class FallbackAIProvider implements AIProvider {
+export class FallbackAIProvider implements AIProviderPort {
   constructor(
-    private primary: AIProvider,
-    private secondary: AIProvider,
+    private primary: AIProviderPort,
+    private secondary: AIProviderPort,
     private onFallback?: (error: Error) => void
   ) {}
 
-  async checkHealth(): Promise<HealthStatus> {
+  async checkHealth(): Promise<HealthStatusDTO> {
     const primaryHealth = await this.primary.checkHealth();
     if (primaryHealth.status === 'available') {
         return primaryHealth;
@@ -15,7 +20,7 @@ export class FallbackAIProvider implements AIProvider {
     return this.secondary.checkHealth();
   }
 
-  async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
+  async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
     try {
       return await this.primary.analyzeCode(input);
     } catch (error: any) {

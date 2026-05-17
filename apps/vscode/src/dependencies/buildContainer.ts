@@ -51,37 +51,44 @@ import { ReviewPanelProvider } from '../providers/ReviewPanelProvider';
 import { DependencyGraphProvider } from '../providers/DependencyGraphProvider';
 import { ChatProvider } from '../providers/ChatProvider';
 
+import { AnalyzeCommandHandler } from '../commands/handlers/AnalyzeCommandHandler';
+import { ApproveFindingCommandHandler } from '../commands/handlers/ApproveFindingCommandHandler';
+import { IndexRepositoryRagCommandHandler } from '../commands/handlers/IndexRepositoryRagCommandHandler';
+import { SetProviderCommandHandler } from '../commands/handlers/SetProviderCommandHandler';
+import { SetOpenAIApiKeyCommandHandler } from '../commands/handlers/SetOpenAIApiKeyCommandHandler';
+import { SetGeminiApiKeyCommandHandler } from '../commands/handlers/SetGeminiApiKeyCommandHandler';
+import { SyncWithVpsCommandHandler } from '../commands/handlers/SyncWithVpsCommandHandler';
+import { ClearRepositoryRagCommandHandler } from '../commands/handlers/ClearRepositoryRagCommandHandler';
+import { SetupCommandHandler } from '../commands/handlers/SetupCommandHandler';
+import { AnalyzeWorkspaceCommandHandler } from '../commands/handlers/AnalyzeWorkspaceCommandHandler';
+import { AnalyzeBranchCommitsCommandHandler } from '../commands/handlers/AnalyzeBranchCommitsCommandHandler';
+import { AnalyzePrCommandHandler } from '../commands/handlers/AnalyzePrCommandHandler';
+import { GeneratePRSummaryCommandHandler } from '../commands/handlers/GeneratePRSummaryCommandHandler';
+import { GenerateQualityReportCommandHandler } from '../commands/handlers/GenerateQualityReportCommandHandler';
+import { ClearSessionCommandHandler } from '../commands/handlers/ClearSessionCommandHandler';
+import { RestoreSessionCommandHandler } from '../commands/handlers/RestoreSessionCommandHandler';
+import { PublishPrReviewCommandHandler } from '../commands/handlers/PublishPrReviewCommandHandler';
+
 export interface VSCodeContainer {
-  context: vscode.ExtensionContext;
-  ide: VSCodeIdeAdapter;
-  workspace: VSCodeWorkspaceAdapter;
-  fileSystem: VSCodeFileSystemAdapter;
-  commands: VSCodeCommandRegistryAdapter;
-  notifications: VSCodeNotificationAdapter;
-  storage: VSCodeStorageAdapter;
-  analyzeCodeWithAIUseCase: AnalyzeCodeWithAIUseCase;
-  createCodeReviewUseCase: CreateCodeReviewUseCase;
-  getCodeReviewUseCase: GetCodeReviewUseCase;
-  revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
-  projectChatUseCase: ProjectChatUseCase;
-  approveFindingUseCase: ApproveFindingUseCase;
-  addCommentToFindingUseCase: AddCommentToFindingUseCase;
-  refactorFindingUseCase: RefactorFindingUseCase;
-  deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
-  indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
-  clearRepositoryRagUseCase: ClearRepositoryRagUseCase;
-  syncWithVpsUseCase: SyncWithVpsUseCase;
-  dashboardProvider: DashboardProvider;
-  ragStatusProvider: RagStatusProvider;
-  reviewPanelProvider: ReviewPanelProvider;
-  dependencyGraphProvider: DependencyGraphProvider;
-  chatProvider: ChatProvider;
-  discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
-  selectAIProviderUseCase: SelectAIProviderUseCase;
-  aiProviderRegistry: AIProviderRegistry;
-  repository: FileReviewRepository;
-  analysisService: AIAnalysisService;
-  reviewService: CodeReviewService;
+  // ... rest same ...
+  // Command Handlers
+  analyzeCommandHandler: AnalyzeCommandHandler;
+  approveFindingCommandHandler: ApproveFindingCommandHandler;
+  indexRepositoryRagCommandHandler: IndexRepositoryRagCommandHandler;
+  setProviderCommandHandler: SetProviderCommandHandler;
+  setOpenAIApiKeyCommandHandler: SetOpenAIApiKeyCommandHandler;
+  setGeminiApiKeyCommandHandler: SetGeminiApiKeyCommandHandler;
+  syncWithVpsCommandHandler: SyncWithVpsCommandHandler;
+  clearRepositoryRagCommandHandler: ClearRepositoryRagCommandHandler;
+  setupCommandHandler: SetupCommandHandler;
+  analyzeWorkspaceCommandHandler: AnalyzeWorkspaceCommandHandler;
+  analyzeBranchCommitsCommandHandler: AnalyzeBranchCommitsCommandHandler;
+  analyzePrCommandHandler: AnalyzePrCommandHandler;
+  generatePRSummaryCommandHandler: GeneratePRSummaryCommandHandler;
+  generateQualityReportCommandHandler: GenerateQualityReportCommandHandler;
+  clearSessionCommandHandler: ClearSessionCommandHandler;
+  restoreSessionCommandHandler: RestoreSessionCommandHandler;
+  publishPrReviewCommandHandler: PublishPrReviewCommandHandler;
 }
 
 export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
@@ -198,7 +205,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const refactorFindingUseCase = new RefactorFindingUseCase(repository, aiAnalysisService, ide);
   const discoveryService = new AIProviderDiscoveryService();
 
-  return {
+  const container: VSCodeContainer = {
     context,
     ide,
     workspace: new VSCodeWorkspaceAdapter(),
@@ -233,6 +240,45 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
     aiProviderRegistry: providerRegistry,
     repository,
     analysisService: aiAnalysisService,
-    reviewService: codeReviewService
+    reviewService: codeReviewService,
+
+    // Handlers initialized below to avoid self-reference issues if any
+    analyzeCommandHandler: null as any,
+    approveFindingCommandHandler: null as any,
+    indexRepositoryRagCommandHandler: null as any,
+    setProviderCommandHandler: null as any,
+    setOpenAIApiKeyCommandHandler: null as any,
+    setGeminiApiKeyCommandHandler: null as any,
+    syncWithVpsCommandHandler: null as any,
+    clearRepositoryRagCommandHandler: null as any,
+    setupCommandHandler: null as any,
+    analyzeWorkspaceCommandHandler: null as any,
+    analyzeBranchCommitsCommandHandler: null as any,
+    analyzePrCommandHandler: null as any,
+    generatePRSummaryCommandHandler: null as any,
+    generateQualityReportCommandHandler: null as any,
+    clearSessionCommandHandler: null as any,
+    restoreSessionCommandHandler: null as any,
+    publishPrReviewCommandHandler: null as any
   };
+
+  container.analyzeCommandHandler = new AnalyzeCommandHandler(container);
+  container.approveFindingCommandHandler = new ApproveFindingCommandHandler(container);
+  container.indexRepositoryRagCommandHandler = new IndexRepositoryRagCommandHandler(container);
+  container.setProviderCommandHandler = new SetProviderCommandHandler(container);
+  container.setOpenAIApiKeyCommandHandler = new SetOpenAIApiKeyCommandHandler(container);
+  container.setGeminiApiKeyCommandHandler = new SetGeminiApiKeyCommandHandler(container);
+  container.syncWithVpsCommandHandler = new SyncWithVpsCommandHandler(container);
+  container.clearRepositoryRagCommandHandler = new ClearRepositoryRagCommandHandler(container);
+  container.setupCommandHandler = new SetupCommandHandler(container);
+  container.analyzeWorkspaceCommandHandler = new AnalyzeWorkspaceCommandHandler(container);
+  container.analyzeBranchCommitsCommandHandler = new AnalyzeBranchCommitsCommandHandler(container);
+  container.analyzePrCommandHandler = new AnalyzePrCommandHandler(container);
+  container.generatePRSummaryCommandHandler = new GeneratePRSummaryCommandHandler(container);
+  container.generateQualityReportCommandHandler = new GenerateQualityReportCommandHandler(container);
+  container.clearSessionCommandHandler = new ClearSessionCommandHandler(container);
+  container.restoreSessionCommandHandler = new RestoreSessionCommandHandler(container);
+  container.publishPrReviewCommandHandler = new PublishPrReviewCommandHandler(container);
+
+  return container;
 }

@@ -1,5 +1,4 @@
-import { AIProviderConfig } from '@code-review/core';
-import { AIProvider } from './interfaces';
+import { AIProviderConfig, AIProviderPort } from '@code-review/core';
 import { MockAIProvider } from './MockAIProvider';
 import { OllamaProvider } from './OllamaProvider';
 import { OpenAIProvider } from './OpenAIProvider';
@@ -7,7 +6,7 @@ import { GeminiProvider } from './GeminiProvider';
 import { ClaudeProvider } from './ClaudeProvider';
 
 export class AIProviderFactory {
-  static create(config: AIProviderConfig): AIProvider {
+  static create(config: AIProviderConfig): AIProviderPort {
     switch (config.type) {
       case 'mock':
         return new MockAIProvider();

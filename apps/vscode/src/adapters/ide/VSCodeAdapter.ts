@@ -6,13 +6,13 @@ import {
   BranchCommit,
   CommitChangedFile,
   CommitChangeSet,
-  IDEAdapter
-} from '@code-review/infra';
+  IdeAdapterPort
+} from '@code-review/core';
 import { Finding } from '@code-review/domain';
 
 const execFileAsync = promisify(execFile);
 
-export class VSCodeAdapter implements IDEAdapter {
+export class VSCodeAdapter implements IdeAdapterPort {
   private readonly diagnosticCollection =
     vscode.languages?.createDiagnosticCollection?.('ai-code-review');
 

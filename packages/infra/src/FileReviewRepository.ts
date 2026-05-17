@@ -1,14 +1,14 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ReviewSession } from '@code-review/domain';
-import { ReviewRepository } from './interfaces';
+import { CodeReviewRepositoryPort } from '@code-review/core';
 
 interface StoredReviewSession extends Omit<ReviewSession, 'createdAt' | 'updatedAt'> {
   createdAt: string;
   updatedAt: string;
 }
 
-export class FileReviewRepository implements ReviewRepository {
+export class FileReviewRepository implements CodeReviewRepositoryPort {
   private readonly filePath: string;
 
   constructor(private readonly storageDir: string) {

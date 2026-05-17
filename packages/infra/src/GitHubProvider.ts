@@ -1,7 +1,8 @@
-import axios, { AxiosInstance } from 'axios';
-import { GitProvider, PRComment } from './interfaces';
+import axios, { type AxiosInstance } from 'axios';
+import { GitProviderPort, PRComment } from '@code-review/core';
 
-export class GitHubProvider implements GitProvider {
+export class GitHubProvider implements GitProviderPort {
+
   constructor(
     private token: string,
     private readonly httpClient: AxiosInstance = axios
