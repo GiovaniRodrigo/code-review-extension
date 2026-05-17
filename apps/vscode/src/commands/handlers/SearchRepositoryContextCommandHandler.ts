@@ -28,7 +28,7 @@ export class SearchRepositoryContextCommandHandler implements CommandHandlerPort
                 return;
             }
 
-            const selection = await vscode.window.showQuickPick(
+            const selection = await vscode.window.showQuickPick<{ label: string, detail: string, description: string, filePath: string }>(
                 results.map(r => ({
                     label: r.source.split('/').pop() || r.source,
                     detail: r.content.substring(0, 100).replace(/\n/g, ' '),

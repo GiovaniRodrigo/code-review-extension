@@ -127,7 +127,7 @@ export class SetupCommandHandler implements CommandHandlerPort {
         // We might need to refresh registry config reading here if it uses getAIProviderConfigs
         this.container.aiProviderRegistry.register(selected.id, AIProviderFactory.create(testConfig) as any);
         this.container.aiProviderRegistry.setActiveProvider(selected.id);
-    } catch (e) {
+    } catch (e: any) {
         console.warn(`[SETUP] Registry sync error: ${e.message}`);
     }
 

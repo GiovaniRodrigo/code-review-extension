@@ -32,4 +32,8 @@ export class MockVectorStore implements RagVectorStorePort {
   async clear(): Promise<void> {
     this.store.clear();
   }
+
+  async count(): Promise<number> {
+    return this.store.size;
+  }
 }

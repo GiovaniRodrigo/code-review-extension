@@ -16,6 +16,10 @@ export class AnalyzeCommandHandler implements CommandHandlerPort {
     activeAbortController = new AbortController();
     const signal = activeAbortController.signal;
 
+    if (!this.container.revalidateCodeReviewUseCase || typeof this.container.revalidateCodeReviewUseCase.execute !== 'function') {
+        throw new Error('revalidateCodeReviewUseCase not registered in container. Please check buildContainer.ts.');
+    }
+
     try {
       const code = args?.diff || await this.container.ide.getActiveFileContent();
       const filePath = args?.filePath || await this.container.ide.getActiveFilePath();

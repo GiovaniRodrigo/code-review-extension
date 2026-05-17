@@ -1,8 +1,10 @@
 import type {
   AIAnalysisRequestDTO,
-  AIAnalysisResponseDTO
-} from '../../../../core/src/application/dto/ai/AIAnalysisDTO';
-import type { AIProviderPort, HealthStatusDTO } from '../../../../core/src/ports/ai/AIProviderPort';
+  AIAnalysisResponseDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
+} from '@code-review/core';
+import type { AIProviderPort, HealthStatusDTO } from '@code-review/core';
 
 export class CloudAIProvider implements AIProviderPort {
   async checkHealth(): Promise<HealthStatusDTO> {
@@ -22,6 +24,12 @@ export class CloudAIProvider implements AIProviderPort {
         }
       ],
       confidenceScore: 0.1
+    };
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    return {
+      answer: "Cloud AI provider is not fully implemented."
     };
   }
 }

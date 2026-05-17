@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { GitProvider, PRComment } from './interfaces';
+import { GitProviderPort, PRComment } from '@code-review/core';
 
 export interface GitLabAuthConfig {
   baseUrl: string;
@@ -10,7 +10,7 @@ export interface GitLabAuthConfig {
   };
 }
 
-export class GitLabProvider implements GitProvider {
+export class GitLabProvider implements GitProviderPort {
   constructor(
     private config: GitLabAuthConfig,
     private readonly httpClient: AxiosInstance = axios

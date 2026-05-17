@@ -10,6 +10,7 @@ export * from './CustomRuleProvider';
 export * from './PublishPRReviewUseCase';
 export * from './AuditLogService';
 export * from './application/dto/ai/AIAnalysisDTO';
+export * from './application/dto/ai/AIChatDTO';
 export * from './application/dto/rag/RagDTO';
 export * from './application/dto/review/ReviewDTO';
 export * from './application/dto/sync/SyncDTO';

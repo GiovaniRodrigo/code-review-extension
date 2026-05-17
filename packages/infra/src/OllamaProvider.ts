@@ -146,8 +146,10 @@ ${code}
         return {
           findings: [
             {
+              file: input.filePath,
               line: 1,
               severity: 'warning',
+              category: 'code_smell',
               message: content.slice(0, 500),
               suggestedFix:
                 'A IA local retornou JSON inválido.'
@@ -161,8 +163,10 @@ ${code}
         return {
           findings: [
             {
+              file: input.filePath,
               line: 1,
               severity: 'warning',
+              category: 'code_smell',
               message: content.slice(0, 500),
               suggestedFix:
                 'A IA retornou JSON válido, mas fora do schema esperado para code review.'

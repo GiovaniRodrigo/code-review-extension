@@ -22,7 +22,7 @@
     "validate:build": "npx tsx scripts/validate-build.ts",
     "validate:config": "npx tsx scripts/validate-config.ts",
     "quality": "npm run typecheck && npm run test:architecture && npm run validate:config && npm run test:smoke && npm run test:integration",
-    "package": "npm run build && vsce package --allow-missing-repository",
+    "package": "npm run build && vsce package --allow-missing-repository --no-dependencies",
     "publish": "vsce publish"
   },
   "dependencies": {

@@ -1,5 +1,7 @@
 import { escapeHtml } from '../shared/escapeHtml';
 
-export function Alert(message: string): string {
-  return `<div class="cr-card" role="alert">${escapeHtml(message)}</div>`;
+export type AlertVariant = 'default' | 'destructive';
+
+export function Alert(message: string, variant: AlertVariant = 'default'): string {
+  return `<div class="cr-card cr-alert cr-alert-${variant}" role="alert">${message}</div>`;
 }

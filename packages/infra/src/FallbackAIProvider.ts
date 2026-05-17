@@ -2,7 +2,9 @@ import {
   AIAnalysisRequestDTO, 
   AIAnalysisResponseDTO, 
   AIProviderPort, 
-  HealthStatusDTO 
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 export class FallbackAIProvider implements AIProviderPort {
@@ -29,6 +31,18 @@ export class FallbackAIProvider implements AIProviderPort {
       }
       console.warn(`Primary AI provider failed, falling back: ${error.message}`);
       return await this.secondary.analyzeCode(input);
+    }
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    try {
+      return await this.primary.chat(input);
+    } catch (error: any) {
+      if (this.onFallback) {
+        this.onFallback(error);
+      }
+      console.warn(`Primary AI provider failed for chat, falling back: ${error.message}`);
+      return await this.secondary.chat(input);
     }
   }
 }

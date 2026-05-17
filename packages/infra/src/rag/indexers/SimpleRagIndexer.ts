@@ -68,11 +68,11 @@ export class SimpleRagIndexer implements RagIndexerPort {
             await this.vectorStore.add({
               id: chunk.id,
               content: chunk.content,
-              source: chunk.source,
+              source: chunk.file,
               metadata: {
-                startLine: chunk.metadata?.startLine,
-                endLine: chunk.metadata?.endLine,
-                language: chunk.metadata?.language
+                startLine: chunk.startLine,
+                endLine: chunk.endLine,
+                language: chunk.language
               }
             }, vector);
           }

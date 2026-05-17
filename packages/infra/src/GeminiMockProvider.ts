@@ -2,7 +2,9 @@ import {
   AIAnalysisRequestDTO, 
   AIAnalysisResponseDTO, 
   AIProviderPort, 
-  HealthStatusDTO 
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 export class GeminiMockProvider implements AIProviderPort {
@@ -63,6 +65,12 @@ export class GeminiMockProvider implements AIProviderPort {
         }
       ],
       confidenceScore: 1.0
+    };
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    return {
+      answer: "This is a mock Gemini response for chat."
     };
   }
 }
