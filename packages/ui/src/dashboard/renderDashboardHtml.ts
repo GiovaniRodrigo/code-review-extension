@@ -3,6 +3,7 @@ import { escapeHtml } from '../shared/escapeHtml';
 import { Page } from '../components/Page';
 import { Card } from '../components/Card';
 import { Badge } from '../components/Badge';
+import { Button } from '../components/Button';
 import { EmptyState } from '../components/EmptyState';
 import type { DashboardState, DashboardHeatItem, DashboardLogEntry } from './DashboardState';
 
@@ -29,6 +30,19 @@ export function renderDashboardHtml(state: DashboardState): string {
   return baseHtml({
     title: 'Code Review Dashboard',
     body: Page(`
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h1 class="cr-title" style="margin: 0;">Dashboard</h1>
+        ${Button('Setup', 'setup', 'secondary')}
+      </div>
+
+      ${Card(`
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="cr-title" style="margin: 0;">AI Provider</div>
+            ${Badge(state.activeAIProvider ?? 'Not Configured', state.activeAIProvider ? 'success' : 'destructive')}
+        </div>
+        ${!state.activeAIProvider ? Button('Configure AI', 'setup', 'primary') : ''}
+      `)}
+
       ${Card(`
         <div class="cr-title">Technical Debt Hotspots</div>
         ${heatHtml || EmptyState('No data yet. Run an analysis.')}
@@ -51,14 +65,16 @@ export function renderDashboardHtml(state: DashboardState): string {
             <div style="font-size: 20px; font-weight: bold; color: ${getTestabilityColor(state.testability.level)}">${state.testability.score}</div>
         `)}
       </div>
-
-      ${Card(`
-        <div class="cr-title" style="font-size: 10px;">Quality Gates</div>
-        <div style="font-size: 20px; font-weight: bold; color: ${state.gatesPassed ? '#4caf50' : '#f44336'}">
-            ${state.gatesPassed ? 'PASSED' : 'FAILED'}
-        </div>
-      `)}
-    `)
+    `),
+    script: `
+      const vscode = acquireVsCodeApi();
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (btn?.dataset.command) {
+            vscode.postMessage({ command: btn.dataset.command });
+        }
+      });
+    `
   });
 }
 

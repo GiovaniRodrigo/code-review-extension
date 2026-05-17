@@ -2,7 +2,9 @@ import {
   AIAnalysisRequestDTO, 
   AIAnalysisResponseDTO, 
   AIProviderPort, 
-  HealthStatusDTO 
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 import axios, {
@@ -21,7 +23,7 @@ export class GeminiProvider implements AIProviderPort {
     return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   }
 
-  async checkHealth(): Promise<HealthStatus> {
+  async checkHealth(): Promise<HealthStatusDTO> {
     try {
       const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
       if (!key) {
@@ -52,7 +54,7 @@ export class GeminiProvider implements AIProviderPort {
     }
   }
 
-  async analyzeCode(input: AIAnalysisInput): Promise<AIAnalysisResult> {
+  async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
     const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
 
     if (!key) {
@@ -112,7 +114,7 @@ ${input.code}
             'Content-Type': 'application/json',
             'x-goog-api-key': key
           },
-          signal: (input as any).signal
+          signal: input.signal
         }
       );
 
@@ -151,6 +153,44 @@ ${input.code}
     }
   }
 
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
+
+    if (!key) {
+      throw new Error('Gemini API Key is missing.');
+    }
+
+    try {
+      const contents = input.messages.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
+
+      const response = await this.httpClient.post(
+        this.getApiUrl(input.model || this.model),
+        { contents },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key
+          },
+          signal: input.signal
+        }
+      );
+
+      if (!response.data || !response.data.candidates || response.data.candidates.length === 0) {
+        throw new Error('No response candidates from Gemini.');
+      }
+
+      return {
+        answer: response.data.candidates[0].content.parts[0].text
+      };
+    } catch (error: any) {
+      if (error.name === 'AbortError') throw error;
+      throw new Error(`Gemini Chat failed: ${error.message}`);
+    }
+  }
+
   private extractJson(content: string): string {
     const cleaned = content
       .replace(/```json/g, '')
@@ -161,7 +201,6 @@ ${input.code}
     const end = cleaned.lastIndexOf('}');
 
     if (start === -1 || end === -1) {
-      // If it doesn't look like JSON at all, maybe it's just the content
       return cleaned;
     }
 

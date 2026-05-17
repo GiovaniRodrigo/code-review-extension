@@ -23,7 +23,7 @@ export default defineConfig({
     setupFiles: [
       path.resolve(
         __dirname,
-        'apps/vscode/tests/setup/setupTests.ts'
+        'tests/setup/setupTests.ts'
       )
     ],
 
@@ -32,7 +32,9 @@ export default defineConfig({
       'packages/**/*.test.ts',
       'packages/**/*.test.tsx',
       'apps/vscode/tests/**/*.test.ts',
-      'apps/vscode/tests/**/*.test.js'
+      'apps/vscode/tests/**/*.test.js',
+      'tests/**/*.test.ts',
+      'tests/**/*.test.js'
     ],
 
     exclude: [
@@ -142,7 +144,7 @@ export default defineConfig({
 
       vscode: path.resolve(
         __dirname,
-        'apps/vscode/tests/mocks/vscode.ts'
+        'tests/mocks/vscode.ts'
       ),
 
       '@code-review/core': path.resolve(

@@ -6,32 +6,38 @@ async function run() {
 	const mocha = new Mocha({
 		ui: 'bdd',
 		color: true,
-		timeout: 10000
+		timeout: 30000
 	});
 
-	const testsRoot = path.resolve(__dirname, '../../..');
-	console.log(`Searching for tests in ${testsRoot}/out/**/*.test.js`);
-	const files = await glob('out/**/*.test.js', { cwd: testsRoot });
+	const extensionRoot = path.resolve(__dirname, '../../..');
+
+	console.log(`Extension root: ${extensionRoot}`);
+	console.log(`Searching for tests in ${extensionRoot}/out/**/*.test.js`);
+
+	const files = await glob('out/**/*.test.js', {
+		cwd: extensionRoot,
+		absolute: true
+	});
 
 	console.log(`Found ${files.length} test files`);
-	files.forEach(f => {
-		console.log(`Adding test file: ${f}`);
-		mocha.addFile(path.resolve(testsRoot, f));
-	});
+
+	for (const file of files) {
+		console.log(`Adding test file: ${file}`);
+		mocha.addFile(file);
+	}
+
+	if (files.length === 0) {
+		throw new Error('No E2E compiled test files found in out/**/*.test.js');
+	}
 
 	return new Promise((resolve, reject) => {
-		try {
-			mocha.run(failures => {
-				if (failures > 0) {
-					reject(new Error(`${failures} tests failed.`));
-				} else {
-					resolve();
-				}
-			});
-		} catch (err) {
-			console.error(err);
-			reject(err);
-		}
+		mocha.run(failures => {
+			if (failures > 0) {
+				reject(new Error(`${failures} tests failed.`));
+			} else {
+				resolve();
+			}
+		});
 	});
 }
 

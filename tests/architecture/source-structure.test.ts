@@ -10,10 +10,10 @@ function exists(relativePath: string) {
 
 describe('source structure', () => {
   it('mantém arquivos nas pastas esperadas pelos imports da nova arquitetura', () => {
-    expect(exists('src/ui')).toBe(true);
-    expect(exists('src/adapters')).toBe(true);
-    expect(exists('src/bootstrap')).toBe(true);
-    expect(exists('src/commands')).toBe(true);
-    expect(exists('src/providers')).toBe(true);
+    expect(exists('apps/vscode/src/ui')).toBe(true);
+    expect(exists('apps/vscode/src/adapters')).toBe(true);
+    expect(exists('apps/vscode/src/bootstrap')).toBe(true);
+    expect(exists('apps/vscode/src/commands')).toBe(true);
+    expect(exists('apps/vscode/src/providers')).toBe(true);
   });
 });

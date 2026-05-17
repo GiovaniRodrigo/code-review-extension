@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { HeatmapService, AuditLogService } from '@code-review/core';
+import { HeatmapService, AuditLogService, AIProviderRegistry } from '@code-review/core';
 import { renderDashboardHtml, DashboardState } from '@code-review/ui';
 
 export class DashboardProvider implements vscode.WebviewViewProvider {
@@ -9,12 +9,21 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
 
   constructor(
     private readonly heatmapService?: HeatmapService,
-    private readonly auditLog?: AuditLogService
+    private readonly auditLog?: AuditLogService,
+    private readonly aiRegistry?: AIProviderRegistry
   ) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this._view = webviewView;
     webviewView.webview.options = { enableScripts: true };
+
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+        if (message.command === 'setup') {
+            await vscode.commands.executeCommand('code-review.setup');
+        }
+        this.refresh();
+    });
+
     this.refresh();
   }
 
@@ -24,6 +33,13 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
     const heat = this.heatmapService ? await this.heatmapService.calculateHeatmap() : [];
     const logs = this.auditLog ? await this.auditLog.getLogs({}) : [];
     
+    let activeProviderId = '';
+    try {
+        activeProviderId = (this.aiRegistry as any)?.activeProviderId || '';
+    } catch (e) {
+        console.debug('[DASHBOARD] Could not get active provider ID', e);
+    }
+
     const state: DashboardState = {
         coverage: 55,
         mutationScore: 97,
@@ -35,7 +51,8 @@ export class DashboardProvider implements vscode.WebviewViewProvider {
             action: l.action,
             timestamp: l.timestamp,
             metadata: l.metadata
-        }))
+        })),
+        activeAIProvider: activeProviderId
     };
 
     this._view.webview.html = renderDashboardHtml(state);

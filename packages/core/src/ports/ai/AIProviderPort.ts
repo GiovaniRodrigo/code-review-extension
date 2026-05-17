@@ -2,6 +2,10 @@ import {
   AIAnalysisRequestDTO,
   AIAnalysisResponseDTO
 } from '../../application/dto/ai/AIAnalysisDTO';
+import {
+  AIChatRequestDTO,
+  AIChatResponseDTO
+} from '../../application/dto/ai/AIChatDTO';
 
 export type AIProviderType = 'mock' | 'ollama' | 'openai' | 'gemini' | 'cloud' | 'claude';
 
@@ -29,5 +33,6 @@ export interface AIProviderSettings {
 
 export interface AIProviderPort {
   analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO>;
+  chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO>;
   checkHealth(): Promise<HealthStatusDTO>;
 }

@@ -5,113 +5,98 @@ export class ChatProvider implements vscode.WebviewViewProvider {
   static readonly viewType = 'code-review.chatView';
 
   private _view?: vscode.WebviewView;
+  private _history: { role: 'user' | 'assistant', content: string }[] = [];
 
   constructor(private readonly chatUseCase: ProjectChatUseCase) {}
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this._view = webviewView;
     webviewView.webview.options = { enableScripts: true };
-    webviewView.webview.html = this._getHtml();
 
     webviewView.webview.onDidReceiveMessage(async (message) => {
-      switch (message.command) {
-        case 'ask':
-          await this._handleAsk(message.text);
-          break;
+      if (message.command === 'sendMessage') {
+        await this._handleMessage(message.text);
+      } else if (message.command === 'setup') {
+        await vscode.commands.executeCommand('code-review.setup');
       }
     });
+
+    this._updateHtml();
   }
 
-  private async _handleAsk(text: string) {
-      if (!this._view) return;
-      
-      this._view.webview.postMessage({ command: 'addMessage', role: 'user', content: text });
-      this._view.webview.postMessage({ command: 'setLoading', loading: true });
+  private async _handleMessage(query: string) {
+    if (!this._view) return;
 
-      try {
-          const response = await this.chatUseCase.execute(text);
-          this._view.webview.postMessage({ 
-              command: 'addMessage', 
-              role: 'assistant', 
-              content: response.answer,
-              files: response.relevantFiles
-          });
-      } catch (e: any) {
-          this._view.webview.postMessage({ command: 'addMessage', role: 'assistant', content: `Error: ${e.message}` });
-      } finally {
-          this._view.webview.postMessage({ command: 'setLoading', loading: false });
-      }
+    this._history.push({ role: 'user', content: query });
+    this._updateHtml(true);
+
+    try {
+      const response = await this.chatUseCase.execute(query, this._history.slice(0, -1));
+      this._history.push({ role: 'assistant', content: response.answer });
+    } catch (e: any) {
+      this._history.push({ role: 'assistant', content: `Error: ${e.message}` });
+    } finally {
+      this._updateHtml(false);
+    }
   }
 
-  private _getHtml(): string {
-    return `
+  private _updateHtml(loading = false) {
+    if (!this._view) return;
+
+    // Get active provider for display
+    let activeProvider = 'Unknown';
+    try {
+        activeProvider = (this.chatUseCase as any).aiProvider?.activeProviderId || 'Default';
+    } catch (e) {
+        console.debug('[CHAT] Could not get active provider ID', e);
+    }
+
+    this._view.webview.html = `
       <!DOCTYPE html>
       <html>
         <head>
           <style>
-            body { font-family: var(--vscode-font-family); color: var(--vscode-foreground); padding: 10px; display: flex; flex-direction: column; height: 100vh; margin: 0; box-sizing: border-box; }
-            #chat-history { flex: 1; overflow-y: auto; margin-bottom: 10px; }
-            .message { margin-bottom: 10px; padding: 8px; border-radius: 4px; font-size: 12px; line-height: 1.4; }
-            .user { background: var(--vscode-button-background); color: var(--vscode-button-foreground); align-self: flex-end; margin-left: 20px; }
-            .assistant { background: var(--vscode-sideBar-background); border: 1px solid var(--vscode-widget-border); margin-right: 20px; }
-            #input-container { display: flex; gap: 5px; }
-            input { flex: 1; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); padding: 5px; }
-            button { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 5px 10px; cursor: pointer; }
+            body { font-family: var(--vscode-font-family); color: var(--vscode-foreground); padding: 10px; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+            #chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+            .msg { padding: 8px; border-radius: 6px; max-width: 90%; font-size: 13px; line-height: 1.4; }
+            .user { align-self: flex-end; background: var(--vscode-button-background); color: var(--vscode-button-foreground); }
+            .assistant { align-self: flex-start; background: var(--vscode-editor-inactiveSelectionBackground); }
+            .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--vscode-widget-border); margin-bottom: 10px; }
+            .provider-badge { font-size: 10px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); padding: 2px 6px; border-radius: 10px; }
+            .input-container { display: flex; gap: 5px; }
+            input { flex: 1; padding: 6px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 4px; }
+            button { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
             button:disabled { opacity: 0.5; }
-            .files { font-size: 10px; opacity: 0.6; margin-top: 5px; border-top: 1px solid #444; padding-top: 3px; }
+            .setup-btn { background: none; color: var(--vscode-textLink-foreground); text-decoration: underline; padding: 0; font-size: 10px; border: none; cursor: pointer; }
           </style>
         </head>
         <body>
-          <div id="chat-history">
-            <div class="message assistant">Hello! I am your Project AI Assistant. Ask me anything about this codebase.</div>
+          <div class="header">
+            <span style="font-weight: bold; font-size: 12px;">AI Assistant</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span class="provider-badge">${activeProvider}</span>
+                <button class="setup-btn" onclick="vscode.postMessage({ command: 'setup' })">Configure</button>
+            </div>
           </div>
-          <div id="input-container">
-            <input type="text" id="chat-input" placeholder="Ask about the code..." />
-            <button id="send-btn">Send</button>
+          <div id="chat">
+            ${this._history.map(m => `<div class="msg ${m.role}">${m.content}</div>`).join('')}
+            ${loading ? '<div class="msg assistant">...</div>' : ''}
           </div>
-
+          <div class="input-container">
+            <input type="text" id="input" placeholder="Ask about the code..." onkeydown="if(event.key==='Enter') send()">
+            <button id="btn" ${loading ? 'disabled' : ''} onclick="send()">Send</button>
+          </div>
           <script>
             const vscode = acquireVsCodeApi();
-            const history = document.getElementById('chat-history');
-            const input = document.getElementById('chat-input');
-            const btn = document.getElementById('send-btn');
-
-            btn.onclick = () => {
-                const text = input.value;
-                if (text) {
-                    vscode.postMessage({ command: 'ask', text });
-                    input.value = '';
-                }
-            };
-
-            input.ononkeydown = (e) => {
-                if (e.key === 'Enter') btn.click();
-            };
-
-            window.addEventListener('message', event => {
-                const m = event.data;
-                if (m.command === 'addMessage') {
-                    const div = document.createElement('div');
-                    div.className = 'message ' + m.role;
-                    div.innerHTML = '<strong>' + (m.role === 'user' ? 'You' : 'AI') + ':</strong><br/>' + m.content;
-                    
-                    if (m.files && m.files.length > 0) {
-                        const filesDiv = document.createElement('div');
-                        filesDiv.className = 'files';
-                        filesDiv.textContent = 'Relevant files: ' + m.files.map(f => f.split('/').pop()).join(', ');
-                        div.appendChild(filesDiv);
-                    }
-
-                    history.appendChild(div);
-                    history.scrollTop = history.scrollHeight;
-                }
-                if (m.command === 'setLoading') {
-                    btn.disabled = m.loading;
-                    input.disabled = m.loading;
-                    if (m.loading) btn.textContent = '...';
-                    else btn.textContent = 'Send';
-                }
-            });
+            function send() {
+                const text = document.getElementById('input').value;
+                if (!text) return;
+                vscode.postMessage({ command: 'sendMessage', text });
+                document.getElementById('input').value = '';
+            }
+            // Auto-scroll
+            const chat = document.getElementById('chat');
+            chat.scrollTop = chat.scrollHeight;
           </script>
         </body>
       </html>

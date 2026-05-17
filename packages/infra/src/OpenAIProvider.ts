@@ -2,7 +2,9 @@ import {
   AIAnalysisRequestDTO, 
   AIAnalysisResponseDTO, 
   AIProviderPort, 
-  HealthStatusDTO 
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 import axios, {
@@ -134,6 +136,43 @@ ${input.code}
     } catch (error: any) {
       if (error.name === 'AbortError') throw error;
       throw new Error(`AI Analysis failed: ${error.message}`);
+    }
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    const key = typeof this.apiKey === 'function' ? await this.apiKey() : this.apiKey;
+    
+    if (!key) {
+        throw new Error('OpenAI API Key is missing.');
+    }
+
+    try {
+      const response = await this.httpClient.post(
+        this.apiUrl,
+        {
+          model: input.model || this.model,
+          messages: input.messages.map(m => ({ role: m.role, content: m.content }))
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${key}`,
+            'Content-Type': 'application/json'
+          },
+          signal: input.signal
+        }
+      );
+
+      return {
+        answer: response.data.choices[0].message.content,
+        usage: {
+            promptTokens: response.data.usage?.prompt_tokens || 0,
+            completionTokens: response.data.usage?.completion_tokens || 0,
+            totalTokens: response.data.usage?.total_tokens || 0
+        }
+      };
+    } catch (error: any) {
+      if (error.name === 'AbortError') throw error;
+      throw new Error(`AI Chat failed: ${error.message}`);
     }
   }
 }

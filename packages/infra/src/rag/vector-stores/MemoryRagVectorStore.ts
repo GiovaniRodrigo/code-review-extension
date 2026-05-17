@@ -70,4 +70,8 @@ export class MemoryRagVectorStore implements RagVectorStorePort {
   async clear(): Promise<void> {
     this.items.length = 0;
   }
+
+  async count(): Promise<number> {
+    return this.items.length;
+  }
 }

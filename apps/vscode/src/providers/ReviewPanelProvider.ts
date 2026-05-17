@@ -2,7 +2,9 @@ import * as vscode from 'vscode';
 import {
   CodeReviewRepositoryPort,
   IdeAdapterPort,
-  ApproveFindingUseCase
+  ApproveFindingUseCase,
+  RefactorFindingUseCase,
+  AddCommentToFindingUseCase
 } from '@code-review/core';
 import { renderReviewPanelHtml, ReviewPanelState } from '@code-review/ui';
 
@@ -15,6 +17,8 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
     private readonly repository: CodeReviewRepositoryPort,
     private readonly ide: IdeAdapterPort,
     private readonly approveFindingUseCase: ApproveFindingUseCase,
+    private readonly refactorFindingUseCase: RefactorFindingUseCase,
+    private readonly addCommentToFindingUseCase: AddCommentToFindingUseCase,
     private readonly context: vscode.ExtensionContext
   ) { }
 
@@ -53,7 +57,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           await vscode.window.showInformationMessage('Finding copied to clipboard.');
           break;
         case 'addComment':
-          await (this as any).addCommentToFindingUseCase?.execute({
+          await this.addCommentToFindingUseCase.execute({
             sessionId: message.sessionId,
             findingId: message.findingId,
             author: 'developer',
@@ -63,7 +67,7 @@ export class ReviewPanelProvider implements vscode.WebviewViewProvider {
           break;
         case 'refactor':
           try {
-            await (this as any).refactorFindingUseCase?.execute({
+            await this.refactorFindingUseCase.execute({
                 sessionId: message.sessionId,
                 findingId: message.findingId
             });

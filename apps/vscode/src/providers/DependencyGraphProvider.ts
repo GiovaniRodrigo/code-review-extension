@@ -15,6 +15,19 @@ export class DependencyGraphProvider implements vscode.WebviewViewProvider {
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     this._view = webviewView;
     webviewView.webview.options = { enableScripts: true };
+    webviewView.webview.onDidReceiveMessage(async (message) => {
+      switch (message.command) {
+        case 'openFile': {
+          const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(message.filePath));
+          await vscode.window.showTextDocument(doc);
+          break;
+        }
+        case 'refresh':
+          await this.refresh();
+          break;
+      }
+    });
+
     this.refresh();
   }
 
@@ -84,7 +97,7 @@ export class DependencyGraphProvider implements vscode.WebviewViewProvider {
             const cycles = ${cycles};
             
             function refresh() {
-                location.reload();
+                vscode.postMessage({ command: 'refresh' });
             }
 
             const svg = document.getElementById('svg');
@@ -123,13 +136,18 @@ export class DependencyGraphProvider implements vscode.WebviewViewProvider {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', node.x);
                 circle.setAttribute('cy', node.y);
-                circle.setAttribute('r', 5);
+                circle.setAttribute('r', 6);
                 circle.setAttribute('class', 'node' + (node.isCycle ? ' cycle' : ''));
                 circle.setAttribute('title', node.id);
+                
+                circle.onclick = () => {
+                    vscode.postMessage({ command: 'openFile', filePath: node.id });
+                };
+
                 svg.appendChild(circle);
 
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', node.x + 7);
+                text.setAttribute('x', node.x + 8);
                 text.setAttribute('y', node.y + 3);
                 text.setAttribute('class', 'label');
                 text.textContent = node.id.split('/').pop();

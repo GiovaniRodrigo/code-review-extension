@@ -9,8 +9,8 @@ describe('ProjectChatUseCase', () => {
 
   beforeEach(() => {
     mockAI = {
-      analyzeCode: vi.fn().mockResolvedValue({
-        findings: [{ message: 'The project uses Clean Architecture.' }]
+      chat: vi.fn().mockResolvedValue({
+        answer: 'The project uses Clean Architecture.'
       })
     };
 
@@ -28,11 +28,10 @@ describe('ProjectChatUseCase', () => {
     expect(mockContext.buildContext).toHaveBeenCalled();
   });
 
-  it('should handle case where AI returns no findings', async () => {
-      mockAI.analyzeCode.mockResolvedValue({ findings: [] });
+  it('should handle case where AI returns an answer', async () => {
       const useCase = new ProjectChatUseCase(mockAI, mockContext, {} as any, {} as any);
       const result = await useCase.execute('test');
-      expect(result.answer).toContain("I'm sorry");
+      expect(result.answer).toBe('The project uses Clean Architecture.');
   });
 
   it('should handle case where RAG returns no context', async () => {
@@ -40,16 +39,22 @@ describe('ProjectChatUseCase', () => {
       const useCase = new ProjectChatUseCase(mockAI, mockContext, {} as any, {} as any);
       const result = await useCase.execute('test');
       expect(result.relevantFiles).toHaveLength(0);
-      expect(mockAI.analyzeCode).toHaveBeenCalledWith(expect.objectContaining({
-          context: expect.stringContaining('CONTEXT FROM CODEBASE:\n\n')
+      expect(mockAI.chat).toHaveBeenCalledWith(expect.objectContaining({
+          context: ''
       }));
   });
 
-  it('should accept history even if it is currently not used in prompt', async () => {
+  it('should accept and pass history to AI provider', async () => {
       const useCase = new ProjectChatUseCase(mockAI, mockContext, {} as any, {} as any);
       const history = [{ role: 'user', content: 'hi' }, { role: 'assistant', content: 'hello' }] as any;
       await useCase.execute('next', history);
-      expect(mockAI.analyzeCode).toHaveBeenCalled();
+      expect(mockAI.chat).toHaveBeenCalledWith(expect.objectContaining({
+          messages: expect.arrayContaining([
+              { role: 'user', content: 'hi' },
+              { role: 'assistant', content: 'hello' },
+              { role: 'user', content: 'next' }
+          ])
+      }));
   });
 });
 

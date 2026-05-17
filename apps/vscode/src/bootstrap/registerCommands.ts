@@ -5,8 +5,8 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   // AI Analysis Commands
   container.commands.register('code-review.analyze', (args?: any) => container.analyzeCommandHandler.execute(args));
   container.commands.register('code-review.analyzeWorkspace', () => container.analyzeWorkspaceCommandHandler.execute());
-  container.commands.register('code-review.analyzeBranchCommits', (baseBranch?: string) => container.analyzeBranchCommitsCommandHandler.execute(baseBranch));
-  container.commands.register('code-review.analyzePr', (prNumber?: number) => container.analyzePrCommandHandler.execute(prNumber));
+  container.commands.register('code-review.analyzeBranchCommits', (baseBranch?: any) => container.analyzeBranchCommitsCommandHandler.execute(baseBranch));
+  container.commands.register('code-review.analyzePr', (prNumber?: any) => container.analyzePrCommandHandler.execute(prNumber));
   
   // Report Commands
   container.commands.register('code-review.generatePRSummary', () => container.generatePRSummaryCommandHandler.execute());
@@ -22,6 +22,7 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
   // RAG Commands
   container.commands.register('code-review.indexRepositoryRag', () => container.indexRepositoryRagCommandHandler.execute());
   container.commands.register('code-review.clearRepositoryRag', () => container.clearRepositoryRagCommandHandler.execute());
+  container.commands.register('code-review.searchRepositoryContext', () => container.searchRepositoryContextCommandHandler.execute());
   container.commands.register('code-review.setupRag', () => vscode.commands.executeCommand('code-review.setup'));
   
   // Configuration Commands
@@ -67,7 +68,6 @@ export function registerCommands(context: vscode.ExtensionContext, container: VS
 
   // Stubs for remaining commands required by package.json
   const dummyCommands = [
-    'code-review.searchRepositoryContext',
     'code-review.setGitLabCredentials',
     'code-review.setGitLabUrl',
     'code-review.syncRemotePR'

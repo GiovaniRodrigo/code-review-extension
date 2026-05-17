@@ -7,6 +7,7 @@ export class ClearRepositoryRagCommandHandler implements CommandHandlerPort {
   async execute(): Promise<void> {
     try {
       await this.container.clearRepositoryRagUseCase.execute();
+      await this.container.ragStatusProvider.refresh();
       await this.container.notifications.info('RAG index cleared.');
     } catch (e: any) {
       await this.container.notifications.error(`Failed to clear RAG: ${e.message}`);

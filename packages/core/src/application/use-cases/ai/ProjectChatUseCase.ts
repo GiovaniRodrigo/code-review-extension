@@ -1,9 +1,9 @@
 import { AIProviderPort } from '../../../ports/ai/AIProviderPort';
 import { RagContextBuilderPort } from '../../../ports/rag/RagContextBuilderPort';
-import { DependencyAnalysisService } from '../../services/ast/DependencyAnalysisService';
 import { DependencyGraphPort } from '../../../ports/ast/DependencyGraphPort';
 import { IdeWorkspacePort } from '../../../ports/ide/IdeWorkspacePort';
 import { IdeFileSystemPort } from '../../../ports/ide/IdeFileSystemPort';
+import { AIChatMessageDTO } from '../../dto/ai/AIChatDTO';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -48,22 +48,21 @@ INSTRUCTIONS:
 - If the user asks about architecture, refer to the provided files.
 `;
 
-    // 3. Call AI
-    const response = await this.aiProvider.analyzeCode({
-        code: query,
-        filePath: 'chat-session',
-        context: systemPrompt,
-        mode: 'standard'
+    // 3. Prepare messages for Chat
+    const messages: AIChatMessageDTO[] = [
+        { role: 'system', content: systemPrompt },
+        ...history.map(m => ({ role: m.role, content: m.content })),
+        { role: 'user', content: query }
+    ];
+
+    // 4. Call AI Chat
+    const response = await this.aiProvider.chat({
+        messages,
+        context: codeContext // Providing context separately too if the provider supports it
     });
 
-    // Our current analyzeCode returns structured findings, 
-    // but for chat we treat the first finding message as the assistant's answer.
-    const answer = response.findings.length > 0 
-        ? response.findings[0].message 
-        : "I'm sorry, I couldn't process that request.";
-
     return {
-      answer,
+      answer: response.answer,
       relevantFiles
     };
   }

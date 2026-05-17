@@ -2,7 +2,9 @@ import {
   AIAnalysisRequestDTO, 
   AIAnalysisResponseDTO, 
   AIProviderPort, 
-  HealthStatusDTO 
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 export class MockAIProvider implements AIProviderPort {
@@ -41,6 +43,13 @@ export class MockAIProvider implements AIProviderPort {
     return {
       findings: mockFindings,
       confidenceScore: 0.99
+    };
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    const lastMessage = input.messages[input.messages.length - 1];
+    return {
+      answer: `Mock response to: "${lastMessage.content}". This is a mock AI response for testing purposes.`
     };
   }
 

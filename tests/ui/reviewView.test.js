@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as reviewView from '../../src/ui/js/reviewView.js';
+import * as reviewView from '../../apps/vscode/src/ui/js/reviewView.js';
 
 describe('reviewView.js', () => {
   let vscodeMock;

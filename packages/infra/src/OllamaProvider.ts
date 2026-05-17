@@ -6,7 +6,9 @@ import {
   AIAnalysisRequestDTO,
   AIAnalysisResponseDTO,
   AIProviderPort,
-  HealthStatusDTO
+  HealthStatusDTO,
+  AIChatRequestDTO,
+  AIChatResponseDTO
 } from '@code-review/core';
 
 export class OllamaProvider implements AIProviderPort {
@@ -183,6 +185,38 @@ ${code}
       throw new Error(
         `Local AI analysis failed: ${error.message}`
       );
+    }
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    try {
+      const response = await this.httpClient.post(
+        `${this.baseUrl}/api/chat`,
+        {
+          model: input.model || this.model,
+          messages: input.messages.map(m => ({ role: m.role, content: m.content })),
+          stream: false,
+          options: {
+            temperature: 0.7,
+            num_ctx: 8192
+          }
+        },
+        {
+          signal: input.signal
+        }
+      );
+
+      return {
+        answer: response.data.message.content,
+        usage: {
+            promptTokens: response.data.prompt_eval_count || 0,
+            completionTokens: response.data.eval_count || 0,
+            totalTokens: (response.data.prompt_eval_count || 0) + (response.data.eval_count || 0)
+        }
+      };
+    } catch (error: any) {
+      if (error.name === 'AbortError') throw error;
+      throw new Error(`Ollama Chat failed: ${error.message}`);
     }
   }
 

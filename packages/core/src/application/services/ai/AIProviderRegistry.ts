@@ -1,5 +1,6 @@
 import { AIProviderPort } from '../../../ports/ai/AIProviderPort';
 import { AIAnalysisRequestDTO, AIAnalysisResponseDTO } from '../../dto/ai/AIAnalysisDTO';
+import { AIChatRequestDTO, AIChatResponseDTO } from '../../dto/ai/AIChatDTO';
 
 export class AIProviderRegistry implements AIProviderPort {
   private providers: Map<string, AIProviderPort> = new Map();
@@ -29,6 +30,10 @@ export class AIProviderRegistry implements AIProviderPort {
 
   async analyzeCode(input: AIAnalysisRequestDTO): Promise<AIAnalysisResponseDTO> {
     return this.getActiveProvider().analyzeCode(input);
+  }
+
+  async chat(input: AIChatRequestDTO): Promise<AIChatResponseDTO> {
+    return this.getActiveProvider().chat(input);
   }
 
   async checkHealth(): Promise<any> {

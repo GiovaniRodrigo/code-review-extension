@@ -9,7 +9,8 @@ describe('dashboardProvider integration', () => {
     const webviewView = {
       webview: {
         options: {},
-        html: ''
+        html: '',
+        onDidReceiveMessage: vi.fn()
       }
     } as unknown as vscode.WebviewView;
 

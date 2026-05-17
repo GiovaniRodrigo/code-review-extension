@@ -23,6 +23,7 @@ export interface DashboardState {
   buildStatus: string;
   heat: DashboardHeatItem[];
   logs: DashboardLogEntry[];
+  activeAIProvider?: string;
   providerStatus?: string;
   ragStatus?: string;
 }

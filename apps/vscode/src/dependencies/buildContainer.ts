@@ -10,7 +10,9 @@ import {
   DeleteCodeReviewUseCase,
   IndexRepositoryRagUseCase,
   ClearRepositoryRagUseCase,
+  SearchRagContextUseCase,
   RagIndexingService,
+  RagContextService,
   AIProviderRegistry,
   AIProviderDiscoveryService,
   DiscoverAIProvidersUseCase,
@@ -68,9 +70,42 @@ import { GenerateQualityReportCommandHandler } from '../commands/handlers/Genera
 import { ClearSessionCommandHandler } from '../commands/handlers/ClearSessionCommandHandler';
 import { RestoreSessionCommandHandler } from '../commands/handlers/RestoreSessionCommandHandler';
 import { PublishPrReviewCommandHandler } from '../commands/handlers/PublishPrReviewCommandHandler';
+import { SearchRepositoryContextCommandHandler } from '../commands/handlers/SearchRepositoryContextCommandHandler';
 
 export interface VSCodeContainer {
-  // ... rest same ...
+  context: vscode.ExtensionContext;
+  ide: VSCodeIdeAdapter;
+  workspace: VSCodeWorkspaceAdapter;
+  fileSystem: VSCodeFileSystemAdapter;
+  commands: VSCodeCommandRegistryAdapter;
+  notifications: VSCodeNotificationAdapter;
+  storage: VSCodeStorageAdapter;
+  analyzeCodeWithAIUseCase: AnalyzeCodeWithAIUseCase;
+  createCodeReviewUseCase: CreateCodeReviewUseCase;
+  getCodeReviewUseCase: GetCodeReviewUseCase;
+  revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
+  projectChatUseCase: ProjectChatUseCase;
+  approveFindingUseCase: ApproveFindingUseCase;
+  addCommentToFindingUseCase: AddCommentToFindingUseCase;
+  refactorFindingUseCase: RefactorFindingUseCase;
+  deleteCodeReviewUseCase: DeleteCodeReviewUseCase;
+
+  indexRepositoryRagUseCase: IndexRepositoryRagUseCase;
+  clearRepositoryRagUseCase: ClearRepositoryRagUseCase;
+  searchRagContextUseCase: SearchRagContextUseCase;
+  syncWithVpsUseCase: SyncWithVpsUseCase;
+  dashboardProvider: DashboardProvider;
+  ragStatusProvider: RagStatusProvider;
+  dependencyGraphProvider: DependencyGraphProvider;
+  chatProvider: ChatProvider;
+  reviewPanelProvider: ReviewPanelProvider;
+  discoverAIProvidersUseCase: DiscoverAIProvidersUseCase;
+  selectAIProviderUseCase: SelectAIProviderUseCase;
+  aiProviderRegistry: AIProviderRegistry;
+  repository: FileReviewRepository;
+  analysisService: AIAnalysisService;
+  reviewService: CodeReviewService;
+
   // Command Handlers
   analyzeCommandHandler: AnalyzeCommandHandler;
   approveFindingCommandHandler: ApproveFindingCommandHandler;
@@ -89,6 +124,7 @@ export interface VSCodeContainer {
   clearSessionCommandHandler: ClearSessionCommandHandler;
   restoreSessionCommandHandler: RestoreSessionCommandHandler;
   publishPrReviewCommandHandler: PublishPrReviewCommandHandler;
+  searchRepositoryContextCommandHandler: SearchRepositoryContextCommandHandler;
 }
 
 export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
@@ -204,6 +240,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
   const refactorFindingUseCase = new RefactorFindingUseCase(repository, aiAnalysisService, ide);
   const discoveryService = new AIProviderDiscoveryService();
+  const searchRagContextUseCase = new SearchRagContextUseCase(new RagContextService(contextBuilder));
 
   const container: VSCodeContainer = {
     context,
@@ -225,16 +262,24 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
 
     indexRepositoryRagUseCase: new IndexRepositoryRagUseCase(ragIndexingService),
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
+    searchRagContextUseCase,
     syncWithVpsUseCase: new SyncWithVpsUseCase(vpsSyncService),
-    dashboardProvider: new DashboardProvider(heatmapService, auditLogService),
-    ragStatusProvider: new RagStatusProvider(),
+    dashboardProvider: new DashboardProvider(heatmapService, auditLogService, providerRegistry),
+    ragStatusProvider: new RagStatusProvider(ragIndexingService),
     dependencyGraphProvider: new DependencyGraphProvider(
         new VSCodeWorkspaceAdapter(),
         fileSystem,
         dependencyGraphBuilder
     ),
     chatProvider: new ChatProvider(projectChatUseCase),
-    reviewPanelProvider: new ReviewPanelProvider(repository, ide, validateFindingUseCase as any, context),
+    reviewPanelProvider: new ReviewPanelProvider(
+        repository, 
+        ide, 
+        validateFindingUseCase as any, 
+        refactorFindingUseCase,
+        addCommentToFindingUseCase,
+        context
+    ),
     discoverAIProvidersUseCase: new DiscoverAIProvidersUseCase(discoveryService),
     selectAIProviderUseCase: new SelectAIProviderUseCase(),
     aiProviderRegistry: providerRegistry,
@@ -259,7 +304,8 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
     generateQualityReportCommandHandler: null as any,
     clearSessionCommandHandler: null as any,
     restoreSessionCommandHandler: null as any,
-    publishPrReviewCommandHandler: null as any
+    publishPrReviewCommandHandler: null as any,
+    searchRepositoryContextCommandHandler: null as any
   };
 
   container.analyzeCommandHandler = new AnalyzeCommandHandler(container);
@@ -279,6 +325,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   container.clearSessionCommandHandler = new ClearSessionCommandHandler(container);
   container.restoreSessionCommandHandler = new RestoreSessionCommandHandler(container);
   container.publishPrReviewCommandHandler = new PublishPrReviewCommandHandler(container);
+  container.searchRepositoryContextCommandHandler = new SearchRepositoryContextCommandHandler(container);
 
   return container;
 }

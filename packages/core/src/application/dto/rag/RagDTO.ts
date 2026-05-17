@@ -14,3 +14,12 @@ export interface RagSearchRequestDTO {
 export interface RagSearchResponseDTO {
   chunks: RagChunkDTO[];
 }
+
+export interface RagStatusDTO {
+  status: 'idle' | 'indexing' | 'error' | 'disabled';
+  totalChunks: number;
+  totalFiles: number;
+  lastIndexed?: string;
+  embeddingProvider?: string;
+  lastError?: string;
+}
