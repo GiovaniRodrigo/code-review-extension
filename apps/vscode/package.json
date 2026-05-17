@@ -3,11 +3,18 @@
   "publisher": "CodeReviewExtension",
   "displayName": "AI Code Review (Beta)",
   "description": "Intelligent Code Review with Human-in-the-Loop, RAG support, and multi-provider IA (Ollama/OpenAI).",
-  "version": "2.1.2",
+  "version": "2.1.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/giovani/code-review-extension.git"
   },
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:code-review.dashboard",
+    "onCommand:code-review.analyze",
+    "onCommand:code-review.setup",
+    "onCommand:code-review.setProvider"
+  ],
   "scripts": {
     "compile": "tsc -p .",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --external:typescript --external:ts-morph --external:@ts-morph/common --external:axios --sourcemap=external --metafile=meta.json --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --alias:@code-review/ui=../../packages/ui/src/index.ts --outfile=dist/extension.js",
