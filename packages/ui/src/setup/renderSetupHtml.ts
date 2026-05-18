@@ -18,7 +18,7 @@ export function renderSetupHtml(state: SetupState): string {
       `)}
     `),
     script: `
-      const vscode = acquireVsCodeApi();
+      const vscode = window.__codeReviewVsCodeApi;
       document.addEventListener('click', (e) => {
         const cmd = e.target.dataset.command;
         if (cmd) vscode.postMessage({ command: cmd });

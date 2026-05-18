@@ -14,7 +14,7 @@ export class SetupCommandHandler implements CommandHandlerPort {
             { label: '$(key) Manage API Keys', id: 'keys' },
             { label: '$(database) RAG Management', id: 'rag' }
         ], {
-            placeHolder: 'Code Review Extension Setup'
+            placeHolder: 'Git Code Review Setup'
         });
 
         if (!action) return;
@@ -147,7 +147,7 @@ export class SetupCommandHandler implements CommandHandlerPort {
         await vscode.commands.executeCommand('code-review.indexRepositoryRag');
     }
 
-    await vscode.commands.executeCommand('code-review.dashboard');
+    await vscode.commands.executeCommand('code-review.focus');
   }
 
   private async showApiKeyMenu() {
@@ -159,8 +159,13 @@ export class SetupCommandHandler implements CommandHandlerPort {
     ]);
     
     if (keyType) {
-        const cmd = `code-review.set${keyType.id.charAt(0).toUpperCase()}${keyType.id.slice(1)}${keyType.id === 'openai' || keyType.id === 'gemini' ? 'ApiKey' : 'Token'}`;
-        await vscode.commands.executeCommand(cmd);
+        const commandByKeyType: Record<string, string> = {
+          openai: 'code-review.setOpenAIApiKey',
+          gemini: 'code-review.setGeminiApiKey',
+          github: 'code-review.setGitHubToken',
+          gitlab: 'code-review.setGitLabToken'
+        };
+        await vscode.commands.executeCommand(commandByKeyType[keyType.id]);
     }
   }
 }

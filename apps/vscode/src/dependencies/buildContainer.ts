@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import {
   AIAnalysisService,
   AnalyzeCodeWithAIUseCase,
+  AnalyzeBranchCommitsUseCase,
+  AnalyzeWorkspaceUseCase,
   CodeReviewService,
   CreateCodeReviewUseCase,
   GetCodeReviewUseCase,
@@ -25,7 +27,11 @@ import {
   RefactorFindingUseCase,
   ProjectChatUseCase,
   SyncWithVpsUseCase,
-  VpsSyncService
+  VpsSyncService,
+  AnalyzePrUseCase,
+  GeneratePRSummaryUseCase,
+  GenerateQualityReportUseCase,
+  PublishCodeReviewUseCase
 } from '@code-review/core';
 import { 
   AIProviderFactory, 
@@ -39,7 +45,8 @@ import {
   SimpleRagIndexer,
   TypeScriptAstBuilder,
   TypeScriptDependencyGraphBuilder,
-  LinuxVpsProvider
+  LinuxVpsProvider,
+  LocalReviewPublisher
 } from '@code-review/infra';
 import { VSCodeIdeAdapter } from '../adapters/ide/VSCodeIdeAdapter';
 import { VSCodeWorkspaceAdapter } from '../adapters/ide/VSCodeWorkspaceAdapter';
@@ -71,6 +78,16 @@ import { ClearSessionCommandHandler } from '../commands/handlers/ClearSessionCom
 import { RestoreSessionCommandHandler } from '../commands/handlers/RestoreSessionCommandHandler';
 import { PublishPrReviewCommandHandler } from '../commands/handlers/PublishPrReviewCommandHandler';
 import { SearchRepositoryContextCommandHandler } from '../commands/handlers/SearchRepositoryContextCommandHandler';
+import { RunDiagnosticsCommandHandler } from '../commands/handlers/RunDiagnosticsCommandHandler';
+import { ExportMarkdownCommandHandler } from '../commands/handlers/ExportMarkdownCommandHandler';
+import { SetupOllamaCommandHandler } from '../commands/handlers/SetupOllamaCommandHandler';
+import { RevalidateSessionCommandHandler } from '../commands/handlers/RevalidateSessionCommandHandler';
+import { ConfigureCloudProviderCommandHandler } from '../commands/handlers/ConfigureCloudProviderCommandHandler';
+import { TestAIProviderCommandHandler } from '../commands/handlers/TestAIProviderCommandHandler';
+import { ExportPdfCommandHandler } from '../commands/handlers/ExportPdfCommandHandler';
+import { SelectReviewTemplateCommandHandler } from '../commands/handlers/SelectReviewTemplateCommandHandler';
+import { ShowProUpgradeCommandHandler } from '../commands/handlers/ShowProUpgradeCommandHandler';
+import { OpenReviewHistoryCommandHandler } from '../commands/handlers/OpenReviewHistoryCommandHandler';
 
 export interface VSCodeContainer {
   context: vscode.ExtensionContext;
@@ -81,6 +98,12 @@ export interface VSCodeContainer {
   notifications: VSCodeNotificationAdapter;
   storage: VSCodeStorageAdapter;
   analyzeCodeWithAIUseCase: AnalyzeCodeWithAIUseCase;
+  analyzeBranchCommitsUseCase: AnalyzeBranchCommitsUseCase;
+  analyzeWorkspaceUseCase: AnalyzeWorkspaceUseCase;
+  analyzePrUseCase: AnalyzePrUseCase;
+  generatePRSummaryUseCase: GeneratePRSummaryUseCase;
+  generateQualityReportUseCase: GenerateQualityReportUseCase;
+  publishCodeReviewUseCase: PublishCodeReviewUseCase;
   createCodeReviewUseCase: CreateCodeReviewUseCase;
   getCodeReviewUseCase: GetCodeReviewUseCase;
   revalidateCodeReviewUseCase: RevalidateCodeReviewUseCase;
@@ -125,47 +148,40 @@ export interface VSCodeContainer {
   restoreSessionCommandHandler: RestoreSessionCommandHandler;
   publishPrReviewCommandHandler: PublishPrReviewCommandHandler;
   searchRepositoryContextCommandHandler: SearchRepositoryContextCommandHandler;
+  runDiagnosticsCommandHandler: RunDiagnosticsCommandHandler;
+  exportMarkdownCommandHandler: ExportMarkdownCommandHandler;
+  setupOllamaCommandHandler: SetupOllamaCommandHandler;
+  revalidateSessionCommandHandler: RevalidateSessionCommandHandler;
+  configureCloudProviderCommandHandler: ConfigureCloudProviderCommandHandler;
+  testAIProviderCommandHandler: TestAIProviderCommandHandler;
+  exportPdfCommandHandler: ExportPdfCommandHandler;
+  selectReviewTemplateCommandHandler: SelectReviewTemplateCommandHandler;
+  showProUpgradeCommandHandler: ShowProUpgradeCommandHandler;
+  openReviewHistoryCommandHandler: OpenReviewHistoryCommandHandler;
 }
 
 export async function getAIProviderConfigs(context: vscode.ExtensionContext): Promise<AIProviderConfig[]> {
   const config = vscode.workspace.getConfiguration('codeReview');
-  let providerConfigs = config.get<AIProviderConfig[]>('ai.providers', []);
-  
-  if (providerConfigs.length === 0) {
-    providerConfigs = [
-      { 
-        id: 'ollama-local', 
-        label: 'Ollama (Local)', 
-        type: 'ollama', 
-        baseUrl: config.get<string>('ollama.baseUrl', 'http://localhost:11434'),
-        model: config.get<string>('ollama.model', 'llama3'),
-        enabled: true
-      },
-      { 
-        id: 'openai-cloud', 
-        label: 'OpenAI (Cloud)', 
-        type: 'openai',
-        model: config.get<string>('openai.model', 'gpt-4o-mini'),
-        enabled: true
-      },
-      { 
-        id: 'gemini-pro', 
-        label: 'Gemini Pro', 
-        type: 'gemini',
-        model: config.get<string>('gemini.model', 'gemini-flash-latest'),
-        enabled: true
-      },
-      {
-        id: 'claude-3-5',
-        label: 'Claude 3.5 Sonnet',
-        type: 'claude',
-        model: 'claude-3-5-sonnet-20240620',
-        enabled: true
-      }
-    ];
-  }
+  const configured = config.get<AIProviderConfig[]>('ai.providers', []);
 
-  return providerConfigs;
+  const defaults: AIProviderConfig[] = [
+    { id: 'mock', label: 'Mock (Offline Safety Fallback)', type: 'mock', model: 'mock-model', enabled: true },
+    { id: 'ollama-local', label: 'Ollama (Local)', type: 'ollama', baseUrl: config.get<string>('ollama.baseUrl', 'http://localhost:11434'), model: config.get<string>('ollama.model', 'llama3'), enabled: true },
+    { id: 'openai-cloud', label: 'OpenAI (Cloud)', type: 'openai', apiKey: async () => (context.secrets?.get ? (await context.secrets.get('openai-api-key')) : '') || '', model: config.get<string>('openai.model', 'gpt-4o-mini'), enabled: true },
+    { id: 'gemini-pro', label: 'Gemini Pro', type: 'gemini', apiKey: async () => (context.secrets?.get ? (await context.secrets.get('gemini-api-key')) : '') || '', model: config.get<string>('gemini.model', 'gemini-flash-latest'), enabled: true }
+  ];
+
+  const providerById = new Map<string, AIProviderConfig>();
+  for (const provider of defaults) providerById.set(provider.id, provider);
+
+  for (const provider of configured) {
+    if (!provider?.id || provider.enabled === false) continue;
+    const normalized: AIProviderConfig = { ...provider, model: provider.model || defaults.find(d => d.type === provider.type)?.model || 'default', enabled: true };
+    if (normalized.type === 'openai' && !normalized.apiKey) normalized.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('openai-api-key')) : '') || '';
+    if (normalized.type === 'gemini' && !normalized.apiKey) normalized.apiKey = async () => (context.secrets?.get ? (await context.secrets.get('gemini-api-key')) : '') || '';
+    providerById.set(normalized.id, normalized);
+  }
+  return Array.from(providerById.values());
 }
 
 export async function buildContainer(context: vscode.ExtensionContext): Promise<VSCodeContainer> {
@@ -177,13 +193,18 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const vectorStore = new MemoryRagVectorStore();
   const embeddingProvider = new SimpleEmbeddingProvider();
   const astBuilder = new TypeScriptAstBuilder();
-  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, { storageDir: context.globalStorageUri.fsPath });
+  const ragIndexer = new SimpleRagIndexer(vectorStore, embeddingProvider, astBuilder, {
+    storageDir: context.globalStorageUri.fsPath,
+    ignoredFolders: ['node_modules', '.git', 'dist', 'build', 'coverage', 'out', '.turbo', '.vscode-test', '.next', '.nuxt', '.output', 'vendor', 'storage']
+  });
   const dependencyGraphBuilder = new TypeScriptDependencyGraphBuilder();
   
   // AI Registry
   const providerRegistry = new AIProviderRegistry();
   const initialConfigs = await getAIProviderConfigs(context);
-  const activeProviderId = context.globalState?.get ? context.globalState.get<string>('activeAIProviderId') : undefined;
+  const configuredActiveProviderId = config.get<string>('ai.activeProviderId', '') || (context.globalState?.get ? context.globalState.get<string>('activeAIProviderId') : undefined);
+  const legacyProvider = config.get<string>('provider', 'mock');
+  const activeProviderId = configuredActiveProviderId || (legacyProvider === 'mock' ? 'mock' : undefined);
 
   const isE2E = process.env.CODE_REVIEW_E2E === 'true' || 
                 (vscode.ExtensionMode && context.extensionMode === vscode.ExtensionMode.Test);
@@ -214,6 +235,8 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
 
     if (activeProviderId && initialConfigs.some(p => p.id === activeProviderId)) {
         providerRegistry.setActiveProvider(activeProviderId);
+    } else if (initialConfigs.some(p => p.id === 'mock')) {
+        providerRegistry.setActiveProvider('mock');
     } else if (initialConfigs.length > 0) {
         providerRegistry.setActiveProvider(initialConfigs[0].id);
     }
@@ -232,11 +255,21 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const codeReviewService = new CodeReviewService(repository);
   const ragIndexingService = new RagIndexingService(ragIndexer);
   const vpsSyncService = new VpsSyncService(new LinuxVpsProvider() as any, repository);
+  const localReviewPublisher = new LocalReviewPublisher();
   
   const ide = new VSCodeIdeAdapter();
   const fileSystem = new VSCodeFileSystemAdapter();
-  const projectChatUseCase = new ProjectChatUseCase(providerRegistry, contextBuilder, new VSCodeWorkspaceAdapter(), fileSystem, dependencyGraphBuilder);
+  const workspaceAdapter = new VSCodeWorkspaceAdapter();
+  const analyzeWorkspaceUseCase = new AnalyzeWorkspaceUseCase(
+    workspaceAdapter,
+    fileSystem,
+    aiAnalysisService,
+    codeReviewService,
+    auditLogService
+  );
+  const projectChatUseCase = new ProjectChatUseCase(providerRegistry, contextBuilder, workspaceAdapter, fileSystem, dependencyGraphBuilder);
   const validateFindingUseCase = new ValidateFindingUseCase(repository, ide, reinforcementService, auditLogService);
+  const approveFindingUseCase = new ApproveFindingUseCase(repository, ide);
   const addCommentToFindingUseCase = new AddCommentToFindingUseCase(repository);
   const refactorFindingUseCase = new RefactorFindingUseCase(repository, aiAnalysisService, ide);
   const discoveryService = new AIProviderDiscoveryService();
@@ -245,17 +278,23 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   const container: VSCodeContainer = {
     context,
     ide,
-    workspace: new VSCodeWorkspaceAdapter(),
+    workspace: workspaceAdapter,
     fileSystem,
     commands: new VSCodeCommandRegistryAdapter(context),
     notifications: new VSCodeNotificationAdapter(),
     storage: new VSCodeStorageAdapter(context),
     analyzeCodeWithAIUseCase: new AnalyzeCodeWithAIUseCase(aiAnalysisService),
+    analyzeBranchCommitsUseCase: new AnalyzeBranchCommitsUseCase(ide, aiAnalysisService, codeReviewService),
+    analyzeWorkspaceUseCase,
+    analyzePrUseCase: new AnalyzePrUseCase(ide, aiAnalysisService, codeReviewService),
+    generatePRSummaryUseCase: new GeneratePRSummaryUseCase(repository, providerRegistry, ide),
+    generateQualityReportUseCase: new GenerateQualityReportUseCase(repository),
+    publishCodeReviewUseCase: new PublishCodeReviewUseCase(localReviewPublisher),
     createCodeReviewUseCase: new CreateCodeReviewUseCase(codeReviewService),
     getCodeReviewUseCase: new GetCodeReviewUseCase(codeReviewService),
     revalidateCodeReviewUseCase: new RevalidateCodeReviewUseCase(aiAnalysisService, codeReviewService),
     projectChatUseCase,
-    approveFindingUseCase: validateFindingUseCase as any,
+    approveFindingUseCase,
     addCommentToFindingUseCase,
     refactorFindingUseCase,
     deleteCodeReviewUseCase: new DeleteCodeReviewUseCase(repository),
@@ -264,10 +303,10 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
     clearRepositoryRagUseCase: new ClearRepositoryRagUseCase(ragIndexingService),
     searchRagContextUseCase,
     syncWithVpsUseCase: new SyncWithVpsUseCase(vpsSyncService),
-    dashboardProvider: new DashboardProvider(heatmapService, auditLogService, providerRegistry),
+    dashboardProvider: new DashboardProvider(heatmapService, auditLogService, providerRegistry, repository, ide),
     ragStatusProvider: new RagStatusProvider(ragIndexingService),
     dependencyGraphProvider: new DependencyGraphProvider(
-        new VSCodeWorkspaceAdapter(),
+        workspaceAdapter,
         fileSystem,
         dependencyGraphBuilder
     ),
@@ -275,7 +314,7 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
     reviewPanelProvider: new ReviewPanelProvider(
         repository, 
         ide, 
-        validateFindingUseCase as any, 
+        approveFindingUseCase, 
         refactorFindingUseCase,
         addCommentToFindingUseCase,
         context
@@ -305,7 +344,17 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
     clearSessionCommandHandler: null as any,
     restoreSessionCommandHandler: null as any,
     publishPrReviewCommandHandler: null as any,
-    searchRepositoryContextCommandHandler: null as any
+    searchRepositoryContextCommandHandler: null as any,
+    runDiagnosticsCommandHandler: null as any,
+    exportMarkdownCommandHandler: null as any,
+    setupOllamaCommandHandler: null as any,
+    revalidateSessionCommandHandler: null as any,
+    configureCloudProviderCommandHandler: null as any,
+    testAIProviderCommandHandler: null as any,
+    exportPdfCommandHandler: null as any,
+    selectReviewTemplateCommandHandler: null as any,
+    showProUpgradeCommandHandler: null as any,
+    openReviewHistoryCommandHandler: null as any
   };
 
   container.analyzeCommandHandler = new AnalyzeCommandHandler(container);
@@ -326,6 +375,16 @@ export async function buildContainer(context: vscode.ExtensionContext): Promise<
   container.restoreSessionCommandHandler = new RestoreSessionCommandHandler(container);
   container.publishPrReviewCommandHandler = new PublishPrReviewCommandHandler(container);
   container.searchRepositoryContextCommandHandler = new SearchRepositoryContextCommandHandler(container);
+  container.runDiagnosticsCommandHandler = new RunDiagnosticsCommandHandler(container);
+  container.exportMarkdownCommandHandler = new ExportMarkdownCommandHandler(container);
+  container.setupOllamaCommandHandler = new SetupOllamaCommandHandler(container);
+  container.revalidateSessionCommandHandler = new RevalidateSessionCommandHandler(container);
+  container.configureCloudProviderCommandHandler = new ConfigureCloudProviderCommandHandler(container);
+  container.testAIProviderCommandHandler = new TestAIProviderCommandHandler(container);
+  container.exportPdfCommandHandler = new ExportPdfCommandHandler(container);
+  container.selectReviewTemplateCommandHandler = new SelectReviewTemplateCommandHandler(container);
+  container.showProUpgradeCommandHandler = new ShowProUpgradeCommandHandler(container);
+  container.openReviewHistoryCommandHandler = new OpenReviewHistoryCommandHandler(container);
 
   return container;
 }

@@ -39,6 +39,23 @@ export async function activateExtension(context: vscode.ExtensionContext): Promi
         void restoreCurrentBranchSession(context, container);
     }
 
+    const showOnboarding = config.get<boolean>('community.showOnboardingOnStart', true);
+    const onboardingSeen = context.globalState.get<boolean>('communityOnboardingSeen', false);
+    if (showOnboarding && !onboardingSeen && context.extensionMode !== vscode.ExtensionMode.Test) {
+        void context.globalState.update('communityOnboardingSeen', true);
+        void vscode.window.showInformationMessage(
+            'Git Code Review is ready for code reviewers. Start with a safe local workspace review or configure Ollama for local AI.',
+            'Start Review',
+            'Setup Ollama',
+            'Diagnostics'
+        ).then(action => {
+            if (action === 'Start Review') return vscode.commands.executeCommand('code-review.startReview');
+            if (action === 'Setup Ollama') return vscode.commands.executeCommand('code-review.setupOllama');
+            if (action === 'Diagnostics') return vscode.commands.executeCommand('code-review.runDiagnostics');
+            return undefined;
+        });
+    }
+
     // Auto-sync with VPS
     if (config.get<boolean>('sync.enabled', false)) {
         container.ide.onBranchChange(async (branch) => {

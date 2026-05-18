@@ -1,8 +1,8 @@
 {
   "name": "code-review-extension",
   "private": true,
-  "description": "AI-assisted Code Review Extension - Multi-IDE Architecture",
-  "version": "2.0.0",
+  "description": "Git Code Review - a code review workspace for reviewers inside VS Code.",
+  "version": "5.1.1",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -66,13 +66,23 @@
     "test:e2e": "node apps/vscode/tests/e2e/runE2E.cjs",
     "test:runtime": "node apps/vscode/tests/runtime/runRuntimeDiagnostics.cjs",
     "test:all": "npm run lint && npm run test:unit && npm run test:integration && npm run test:coverage && npm run build",
-    "build": "turbo build",
+    "build": "npm run build --workspace git-code-review",
     "transpile": "esbuild \"packages/*/src/**/*.ts\" \"apps/*/src/**/*.ts\" --outdir=dist/transpile --platform=node --format=cjs --sourcemap --packages=external --tsconfig=tsconfig.base.json",
-    "package:vscode": "cd apps/vscode && npm run package",
+    "package:vscode": "npm run package --workspace git-code-review",
     "test:full": "npm run test:all && npm run test:mutation",
     "quality": "rm -rf .stryker-tmp coverage mutation-report && npm run lint && npm run build && npm run test && npm run test:coverage && npm run test:e2e && npm run test:runtime && npm run test:mutation:domain && npm run test:mutation:core:use-cases && npm run test:mutation:core:services-ai && npm run test:mutation:core:shared && npm run test:mutation:analyzers",
     "test:ui:integration": "vitest run apps/vscode/tests/integration/views apps/vscode/tests/integration/webview",
-    "audit:critical": "npm audit --audit-level=critical"
+    "audit:critical": "npm audit --audit-level=critical",
+    "build:all": "turbo build",
+    "preflight:vscode": "npm run clean && npm install && npm run typecheck --workspace git-code-review && npm run build --workspace git-code-review && npm run test:smoke --workspace git-code-review && npm run package:vscode",
+    "clean": "rm -rf node_modules apps/vscode/node_modules packages/*/node_modules dist apps/vscode/dist apps/vscode/out apps/vscode/meta.json apps/vscode/*.vsix",
+    "production:gate": "npm run typecheck --workspace git-code-review && npm run test:production --workspace git-code-review && npm run build --workspace git-code-review && npm run package:vscode && npm run validate:vsix --workspace git-code-review && npm run audit:critical",
+    "release:production": "npm run production:gate",
+    "product:ready": "node scripts/product-readiness-check.mjs",
+    "product:release": "npm run typecheck --workspace git-code-review && npm run test:production --workspace git-code-review && npm run build --workspace git-code-review && npm run package:vscode && npm run validate:vsix --workspace git-code-review && npm run product:ready && npm run audit:critical",
+    "release:product": "npm run product:release",
+    "marketplace:package": "npm run product:release",
+    "marketplace:publish": "vsce publish --packagePath git-code-review-5.1.1.vsix"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -83,7 +93,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.7.0",
+    "@types/node": "^22.15.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.118.0",
@@ -103,10 +113,11 @@
     "ts-morph": "^28.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.1",
-    "turbo": "latest",
+    "turbo": "^2.6.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.3",
-    "vitest": "^1.0.0"
+    "vitest": "^1.6.1",
+    "@vscode/vsce": "^3.9.1"
   },
   "dependencies": {
     "axios": "^1.16.0",

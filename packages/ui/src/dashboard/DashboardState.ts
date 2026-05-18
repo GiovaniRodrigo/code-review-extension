@@ -26,4 +26,25 @@ export interface DashboardState {
   activeAIProvider?: string;
   providerStatus?: string;
   ragStatus?: string;
+  plan?: string;
+  targetAudience?: string;
+  qualityScore?: number;
+  reviewStatus?: string;
+  workspaceName?: string;
+  reviewTemplate?: string;
+  proStatus?: {
+    cloudProviderConfigured: boolean;
+    pdfExportAvailable: boolean;
+    qualityReportAvailable: boolean;
+    prSummaryAvailable: boolean;
+  };
+  sessionSummary?: {
+    branch: string;
+    findings: number;
+    approved: number;
+    pending: number;
+    updatedAt?: string;
+  };
 }
+
+

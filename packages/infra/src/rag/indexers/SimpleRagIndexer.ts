@@ -142,24 +142,54 @@ export class SimpleRagIndexer implements RagIndexerPort {
   private _getFiles(dir: string): string[] {
     const results: string[] = [];
     if (!fs.existsSync(dir)) return results;
-    
-    const ignored = this.config.ignoredFolders ?? ['node_modules', '.git', 'dist', '.turbo', 'coverage', 'out'];
-    const list = fs.readdirSync(dir);
+
+    const ignored = new Set(this.config.ignoredFolders ?? [
+      'node_modules', '.git', 'dist', '.turbo', 'coverage', 'out', 'build',
+      '.vscode-test', '.next', '.nuxt', '.output', 'vendor', 'storage'
+    ]);
+
+    let list: string[] = [];
+    try {
+      list = fs.readdirSync(dir);
+    } catch (e: any) {
+      console.warn(`[RAG] Skipping unreadable directory: ${dir} (${e?.message ?? e})`);
+      return results;
+    }
+
     for (const file of list) {
       const fullPath = path.join(dir, file);
-      const stat = fs.statSync(fullPath);
-      
-      if (stat && stat.isDirectory()) {
-        if (!ignored.includes(file)) {
+      let stat: fs.Stats;
+
+      try {
+        stat = fs.statSync(fullPath);
+      } catch (e: any) {
+        console.warn(`[RAG] Skipping missing or broken path: ${fullPath} (${e?.message ?? e})`);
+        continue;
+      }
+
+      if (stat.isDirectory()) {
+        if (!ignored.has(file)) {
           results.push(...this._getFiles(fullPath));
         }
-      } else {
-          const ext = path.extname(file).toLowerCase();
-          if (['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.md'].includes(ext)) {
-            results.push(fullPath);
-          }
+        continue;
+      }
+
+      if (!stat.isFile()) continue;
+      if (this._shouldIndexFile(file, fullPath)) {
+        results.push(fullPath);
       }
     }
+
     return results;
+  }
+
+  private _shouldIndexFile(file: string, fullPath: string): boolean {
+    const normalized = fullPath.replace(/\\/g, '/');
+    const ext = path.extname(file).toLowerCase();
+    if (!['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.php', '.vue', '.md'].includes(ext)) return false;
+    if (normalized.endsWith('.d.ts') || normalized.endsWith('.map') || normalized.endsWith('.min.js')) return false;
+    if (/\/(fixtures|fixture|__fixtures__|examples?|mocks?|__mocks__)\//i.test(`/${normalized}/`)) return false;
+    if (/\b(package-lock|pnpm-lock|yarn\.lock)\b/i.test(normalized)) return false;
+    return true;
   }
 }

@@ -1,4 +1,89 @@
+
+## 5.0.2 — Dependency Graph Workspace Sync
+
+- Central Dependency Graph now uses the same analysis data as the sidebar graph.
+- Added interactive central graph canvas with tooltip support.
+- Added node click behavior to open the related file or choose a file from a package node.
+- Synced package/file scope, imports and cycle filters between compact and central graph behavior.
+
+
+## 4.0.3 - Design Workspace
+
+- Added full editor-area Code Review Workspace aligned with the wireframe.
+- Start Review now opens the visual workspace instead of only a QuickPick menu.
+- Project Chat and Dependency Graph commands now open the full workspace tabs.
+- Sidebar remains as compact operational preview.
+
 # Changelog
+
+## 4.0.5 - Dashboard Navigation Restore
+
+- Restored the explicit Dashboard button in the Code Review view toolbar.
+- Added `Code Review: Open Dashboard` as a command palette entry.
+- Added a persistent Dashboard shortcut in the full Code Review Workspace navigation.
+- Added a Dashboard action to return from Findings, Chat, RAG and Graph without relying on Command Palette.
+
+
+## 2.3.1 — Marketplace Release
+
+### Changed
+
+- Polished Marketplace-facing branding for Git Code Review.
+- Renamed Activity Bar container to Code Review.
+- Renamed configuration title to Git Code Review.
+- Added safer auto-detection for Git base branches.
+- Changed default Git base branch to auto-detect mode.
+- Improved branch review fallback when no base branch exists.
+- Aligned dashboard readiness status with the quality score.
+- Improved findings summary wording for reviewers.
+
+### Added
+
+- Marketplace release report.
+- Marketplace publishing checklist.
+
+## 2.3.0 — Product Ready
+
+### Added
+
+- Product positioning for the official target audience: code reviewers.
+- `Code Review: Start Review` as the main product entrypoint.
+- Product-ready Dashboard with quality score, plan, provider, RAG, modules and readiness.
+- Product Diagnostics with audience, plan and runtime checks.
+- Marketplace icon and screenshots.
+- Pricing and Packaging documentation for Community, Pro, Team and Enterprise.
+- Product positioning, requirements, onboarding and marketplace listing documents.
+- `product:ready` and `product:release` gates.
+
+### Changed
+
+- Extension display name changed to `Git Code Review`.
+- Marketplace description, keywords and categories aligned with product positioning.
+- README rewritten as a product page for code reviewers.
+
+### Notes
+
+- Billing, Team cloud collaboration and Enterprise SSO/RBAC are defined as product packaging and roadmap items, not shipped as backend services in this VS Code-only package.
+
+
+## 2.2.0 — Production Ready
+
+- Removed beta branding from the packaged extension.
+- Registered missing production use cases for PR analysis, PR summary, quality report and publishing.
+- Added safe command execution wrapper to prevent unhandled command crashes.
+- Added `Code Review: Run Production Diagnostics` command.
+- Added production wiring tests for contributed command registration and runtime use-case availability.
+- Added VSIX validation script to block source/tests/scripts/maps/internal files from release packages.
+- Defaulted first-run provider to the offline mock fallback so the extension does not crash when Ollama is unavailable.
+
+
+## 2.1.7
+
+- Corrige falha de ativação em produção causada por dependências externas ausentes no VSIX.
+- Empacota `typescript`, `ts-morph` e dependências necessárias dentro de `dist/extension.js`.
+- Mantém apenas `vscode` como dependência externa do runtime.
+- Remove geração de sourcemap/metafile no build de produção.
+
 
 All notable changes to the project Code Review Extension will be documented in this file.
 
@@ -121,3 +206,7 @@ All notable changes to the project Code Review Extension will be documented in t
 ### Security
 
 * Shifted sensitive credentials from plain storage to encrypted OS storage via VS Code API.
+
+## 5.1.0 — AI Coding Guard
+
+- Added AI Coding Guard for validating LLM-generated code before applying it to the repository.

@@ -9,19 +9,27 @@ export interface BaseHtmlInput {
 
 export function baseHtml(input: BaseHtmlInput): string {
   const defaultScript = `
-    const vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
-    document.addEventListener('click', (event) => {
-      const target = event.target;
-      if (!target || !target.dataset || !target.dataset.command) {
-        return;
-      }
-      if (vscode) {
-        vscode.postMessage({
+    (function () {
+      const api = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
+      window.__codeReviewVsCodeApi = api;
+      window.postCodeReviewMessage = function (message) {
+        if (api) {
+          api.postMessage(message);
+        }
+      };
+
+      document.addEventListener('click', function (event) {
+        const target = event.target && event.target.closest ? event.target.closest('[data-command]') : null;
+        if (!target || !target.dataset || !target.dataset.command) {
+          return;
+        }
+
+        window.postCodeReviewMessage({
           command: target.dataset.command,
           ...target.dataset
         });
-      }
-    });
+      });
+    })();
   `;
 
   return `<!DOCTYPE html>

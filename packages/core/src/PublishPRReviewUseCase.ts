@@ -41,6 +41,6 @@ export class PublishPRReviewUseCase {
   }
 
   private _formatComment(finding: Finding): string {
-    return `**[AI Code Review]** ${finding.severity.toUpperCase()}: ${finding.message}${finding.suggestedFix ? `\n\n**Suggested Fix:**\n\`\`\`\n${finding.suggestedFix}\n\`\`\`` : ''}`;
+    return `**[Git Code Review]** ${finding.severity.toUpperCase()}: ${finding.message}${finding.suggestedFix ? `\n\n**Suggested Fix:**\n\`\`\`\n${finding.suggestedFix}\n\`\`\`` : ''}`;
   }
 }

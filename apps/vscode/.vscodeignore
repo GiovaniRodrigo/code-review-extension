@@ -1,13 +1,22 @@
-../**
-../../**
+# Source and test files are not shipped. The extension is bundled into dist/extension.js.
 src/**
 tests/**
+scripts/**
+docs/**
 out/**
 .turbo/**
 .vscode-test/**
 node_modules/**
-*.vsix
+
+# Build/debug artifacts
+meta.json
+stats.html
+.dependency-cruiser.js
 *.map
+**/*.map
+*.vsix
+
+# Local/test config files
 tsconfig.json
 tsconfig.test.json
 jest.config.ts

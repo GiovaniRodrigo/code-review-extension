@@ -1,222 +1,149 @@
-# AI Code Review (Beta)
+# Git Code Review
 
-AI-powered code review with Human-in-the-Loop validation,
-local-first execution, contextual RAG analysis, and enterprise-grade runtime hardening.
+**Code review for reviewers, inside your IDE.**
 
-Designed for developers who want AI assistance without losing control over the review process.
+Git Code Review is a code review governance workspace for VS Code. It helps **code reviewers** review changes with Git context, Human-in-the-Loop findings, local-first RAG, AI assistance, diagnostics, quality score and review sessions.
 
----
+The AI assists the review process, but the final decision always belongs to the reviewer.
 
-## 🚀 Key Features
+![Dashboard](media/screenshots/dashboard.png)
 
-- **HITL Workflow (Human-in-the-Loop)**  
-  Approve or reject AI findings before they become diagnostics in your editor.
+## Why Git Code Review?
 
-- **Context-Aware Analysis (RAG)**  
-  Uses Retrieval Augmented Generation to understand your repository structure, architecture, and code patterns.
+| Problem | How Git Code Review helps |
+|---|---|
+| Reviews are scattered across IDE, Git and chat | Centralizes findings, comments, diagnostics and Git context inside VS Code |
+| AI suggestions can be unsafe | Uses Human-in-the-Loop: reviewers approve, reject or reply |
+| Reviewers lose repository context | Uses RAG to index repository context locally or through configured providers |
+| Teams lack review consistency | Provides score, categories, reports and plan-based product packaging |
+| Production readiness is hard to verify | Includes Product Diagnostics and VSIX validation gates |
 
-- **Project AI Chat**  
-  Chat with your codebase using contextual repository knowledge.
+## Core workflow
 
-- **Local-First AI**  
-  Run fully offline using Ollama and local repository indexing.
+```text
+Start Review
+  ↓
+Run Product Diagnostics
+  ↓
+Configure provider or use Mock/Ollama
+  ↓
+Index Repository RAG
+  ↓
+Analyze Workspace / Branch / Current File
+  ↓
+Review Findings
+  ↓
+Approve / Reply / Refactor / Generate Report
+```
 
-- **Advanced Quality Metrics**  
-  Automatic detection of:
-  - SOLID violations;
-  - Cognitive Complexity;
-  - Testability issues;
-  - Architecture smells.
+## Main features
 
-- **Smart Fix (AI Refactoring)**  
-  Generate and apply AI-assisted code fixes directly from findings.
+| Feature | Description |
+|---|---|
+| Start Review | Product entrypoint for the reviewer workflow |
+| Dashboard | Review readiness, active plan, provider, RAG and quality score |
+| Product Diagnostics | Checks workspace, Git, AI provider, RAG and extension container |
+| Findings | Human-reviewed technical findings with severity and confidence |
+| Git Review | Analyze current file, workspace, branch commits and pull requests |
+| RAG | Index repository context for better AI-assisted review |
+| Project AI Chat | Ask questions about the codebase with contextual knowledge |
+| PR Summary | Generate review-ready pull request summaries |
+| Quality Report | Generate technical quality reports |
+| Local-first | Works with Mock and Ollama without requiring cloud |
 
-- **PR Summary Generator**  
-  Automatically generate detailed Pull Request summaries.
+## Product plans
 
-- **Multi-Provider Support**
-  - Ollama
-  - OpenAI
-  - Gemini
-  - Claude
+| Plan | Audience | Purpose |
+|---|---|---|
+| Community | Individual code reviewers | Free local-first adoption |
+| Pro | Professional code reviewers | Cloud AI, productivity, reports and advanced history |
+| Team | Squads and teams | Shared sessions, collaboration and review standards |
+| Enterprise | Organizations | SSO, audit logs, RBAC, AI governance and self-hosted options |
 
-- **Privacy & Security**
-  - Data masking for secrets and PII;
-  - Secure credential storage via VS Code SecretStorage;
-  - Runtime validation and hardened AI parsing.
-
-- **Cloud Sync (VPS)**
-  Synchronize review sessions and findings across machines.
-
-- **Multi-Language (Beta)**
-  Structural analysis support for:
-  - TypeScript
-  - Python
-  - Go
-
----
-
-## 🛡 Reliability
-
-Built with production-grade runtime hardening:
-
-- Runtime diagnostics validation
-- Automated E2E testing
-- Defensive AI response validation with Zod
-- Automatic retries and timeout handling
-- Dependency and architecture validation
-- Hardened Extension Host lifecycle
-- Runtime wiring validation
-- Circular dependency detection
-
----
-
-## 📸 Screenshots
-
-### AI Review Sidebar
-
-![AI Review Sidebar](./docs/media/sidebar.png)
-
-### Project AI Chat
-
-![Project AI Chat](./docs/media/chat.png)
-
-### Dependency Graph
-
-![Dependency Graph](./docs/media/dependency-graph.png)
-
-### RAG Status
-
-![RAG Status](./docs/media/rag-status.png)
-
----
-
-## ❓ Why AI Code Review?
-
-Unlike traditional AI review tools, AI Code Review was designed with:
-
-- Human-in-the-Loop validation;
-- local-first execution with Ollama;
-- contextual repository understanding (RAG);
-- runtime hardening and defensive validation;
-- privacy-first architecture;
-- persistent Git-based review sessions;
-- actionable findings instead of noisy suggestions.
-
-The reviewer always remains in control.
-
----
-
-## 🛠 Quick Start
+## Quickstart
 
 1. Install the extension.
-2. Run:
-   ```txt
-   Code Review: Set AI Provider
-   ````
-3. Configure:
+2. Open the **Code Review** activity bar.
+3. Run **Code Review: Start Review**.
+4. Run **Code Review: Run Product Diagnostics**.
+5. Use the default Mock provider, configure Ollama, or set a cloud provider.
+6. Run **Code Review: Index Repository RAG**.
+7. Run **Code Review: Analyze Workspace** or **Code Review: Analyze Branch Commits**.
+8. Review findings and decide what to approve, reply, copy or refactor.
 
-   * Ollama;
-   * OpenAI;
-   * Gemini;
-   * or Claude.
-4. Run:
+## Recommended commands
 
-   ```txt
-   Code Review: Setup RAG
-   ```
-5. Open the **AI Review Sidebar**.
-6. Analyze the current file:
+| Command | Purpose |
+|---|---|
+| Code Review: Start Review | Main entrypoint |
+| Code Review: Guided Setup | Configure provider and RAG |
+| Code Review: Run Product Diagnostics | Validate environment and runtime |
+| Code Review: Analyze Workspace | Analyze the current workspace |
+| Code Review: Analyze Branch Commits | Analyze branch changes |
+| Code Review: Index Repository RAG | Build repository context |
+| Code Review: Generate AI PR Summary | Generate pull request summary |
+| Code Review: Generate Technical Quality Report | Generate quality report |
 
-   * `Ctrl + Alt + R`
-   * `Cmd + Alt + R` on macOS.
-7. Review findings.
-8. Approve or reject diagnostics.
-9. Generate PR summaries before pushing changes.
+## Local-first providers
 
-> Tip: Check the QUICKSTART.md guide for a full 5-minute onboarding walkthrough.
+| Provider | Use case |
+|---|---|
+| Mock | Safe offline fallback and demos |
+| Ollama | Local AI without cloud dependency |
+| OpenAI / Gemini / Claude | Optional cloud AI for Pro/Team/Enterprise workflows |
 
----
+## Diagnostics
 
-## ⚙️ Configuration
+![Diagnostics](media/screenshots/diagnostics.png)
 
-Settings use the `codeReview` namespace.
+Run:
 
-| Setting                         | Default | Description                                    |
-| ------------------------------- | ------- | ---------------------------------------------- |
-| `codeReview.provider`           | `mock`  | `mock`, `ollama`, `openai`, `gemini`, `claude` |
-| `codeReview.rag.enabled`        | `true`  | Enable repository context enrichment           |
-| `codeReview.privacy.maskData`   | `true`  | Automatically mask PII and secrets             |
-| `codeReview.autoRevalidate`     | `false` | Re-run analysis automatically on save          |
-| `codeReview.autoRestoreSession` | `true`  | Restore review sessions on branch switch       |
+```text
+Code Review: Run Product Diagnostics
+```
 
----
+Diagnostics validates:
 
-## ✅ Compatibility
+- product audience and plan;
+- workspace;
+- Git branch;
+- AI provider;
+- RAG provider;
+- required use cases in the extension container.
 
-Supported environments:
+## Privacy and control
 
-* VS Code Stable
-* VS Code Insiders
-* Linux
-* macOS
-* Windows
+- The reviewer remains in control.
+- The extension defaults to a safe local/offline fallback.
+- Local-first usage is supported through Mock and Ollama.
+- Code sent to cloud providers depends on explicit provider configuration.
+- Human approval is required for review decisions.
 
----
+## Production gate
 
-## 📖 Documentation
+Before publishing or shipping a release, run:
 
-* `QUICKSTART.md` → 5-minute onboarding
-* `TROUBLESHOOTING.md` → Common issues and fixes
-* `CHANGELOG.md` → Release history
-* `docs/` → Architecture and technical documentation
+```bash
+npm run product:release
+```
 
----
+This validates typecheck, production tests, build, VSIX packaging, VSIX contents, product readiness and critical audit.
 
-## 🧪 Quality & Testing
+## Documentation
 
-The project includes:
+| Document | Purpose |
+|---|---|
+| `docs/PRICING_AND_PACKAGING.md` | Plans, limits and monetization |
+| `docs/product/PRODUCT_POSITIONING.md` | Product positioning and messaging |
+| `docs/product/PRODUCT_REQUIREMENTS.md` | Product requirements and DoD |
+| `docs/product/MARKETPLACE_LISTING.md` | Marketplace copy and release listing |
+| `docs/product/ONBOARDING_FLOW.md` | First-use journey |
 
-* Unit Tests
-* Integration Tests
-* E2E Tests
-* Runtime Diagnostics
-* RAG Pipeline Validation
-* LLM Contract Tests
-* Mutation Testing
-* Architecture Validation
-* Dependency Rules Enforcement
 
----
+## 4.0.3 Design Workspace
 
-## 🔒 Privacy First
+This release adds a full editor-area Code Review Workspace aligned with the product wireframe. Use `Code Review: Start Review` or `Code Review: Open Code Review Workspace` to operate the main flow outside the narrow sidebar.
 
-AI Code Review was designed to work safely in enterprise and local-first environments.
+## 5.0.2 Dependency Graph Fix
 
-Features include:
-
-* local Ollama execution;
-* local repository indexing;
-* data masking;
-* secure credential storage;
-* defensive runtime validation.
-
----
-
-## 📌 Status
-
-🟢 **Production-Ready Beta for VS Code**
-
-Core runtime, AI integration, RAG pipeline, diagnostics, and packaging are validated through automated quality gates and runtime diagnostics.
-
----
-
-## ❤️ Contributing
-
-Contributions, bug reports, feature requests, and discussions are welcome.
-
----
-
-## 📄 License
-
-MIT
+The Dependency Graph central workspace now uses the same dependency analysis data as the sidebar preview. It supports hover tooltips, package/file scope, import/cycle filters, and clicking nodes to open the related file. Package nodes open a file picker for files inside that package.

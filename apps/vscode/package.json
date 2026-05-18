@@ -1,26 +1,96 @@
 {
   "name": "git-code-review",
   "publisher": "CodeReviewExtension",
-  "displayName": "AI Code Review (Beta)",
-  "description": "Intelligent Code Review with Human-in-the-Loop, RAG support, and multi-provider IA (Ollama/OpenAI).",
-  "version": "2.1.4",
+  "displayName": "Git Code Review",
+  "description": "An Enterprise-ready code review governance workspace for code reviewers inside VS Code, with AI Coding Guard, Git context, Human-in-the-Loop findings, local-first RAG, cloud AI, Team collaboration foundations, SSO/RBAC, audit logs and AI governance.",
+  "version": "5.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/giovani/code-review-extension.git"
   },
   "activationEvents": [
-    "onStartupFinished",
-    "onView:code-review.dashboard",
+    "onCommand:code-review.startReview",
     "onCommand:code-review.analyze",
+    "onCommand:code-review.analyzeBranchCommits",
+    "onCommand:code-review.analyzePr",
+    "onCommand:code-review.analyzeWorkspace",
+    "onCommand:code-review.approveFinding",
+    "onCommand:code-review.clearRepositoryRag",
+    "onCommand:code-review.clearSession",
+    "onCommand:code-review.focus",
+    "onCommand:code-review.generatePRSummary",
+    "onCommand:code-review.generateQualityReport",
+    "onCommand:code-review.indexRepositoryRag",
+    "onCommand:code-review.publishPrReview",
+    "onCommand:code-review.restoreSession",
+    "onCommand:code-review.searchRepositoryContext",
+    "onCommand:code-review.setGeminiApiKey",
+    "onCommand:code-review.setGitHubToken",
+    "onCommand:code-review.setGitLabCredentials",
+    "onCommand:code-review.setGitLabToken",
+    "onCommand:code-review.setGitLabUrl",
+    "onCommand:code-review.setOpenAIApiKey",
+    "onCommand:code-review.setProvider",
     "onCommand:code-review.setup",
-    "onCommand:code-review.setProvider"
+    "onCommand:code-review.setupRag",
+    "onCommand:code-review.syncRemotePR",
+    "onCommand:code-review.syncWithVps",
+    "onCommand:code-review.runDiagnostics",
+    "onStartupFinished",
+    "onView:code-review.chatView",
+    "onView:code-review.dashboard",
+    "onView:code-review.dependencyGraph",
+    "onView:code-review.findingsView",
+    "onView:code-review.ragStatus",
+    "onCommand:code-review.exportMarkdown",
+    "onCommand:code-review.setupOllama",
+    "onCommand:code-review.revalidateSession",
+    "onCommand:code-review.configureCloudProvider",
+    "onCommand:code-review.testAIProvider",
+    "onCommand:code-review.exportPdf",
+    "onCommand:code-review.selectReviewTemplate",
+    "onCommand:code-review.showProUpgrade",
+    "onCommand:code-review.openReviewHistory",
+    "onCommand:code-review.openProviderSetup",
+    "onCommand:code-review.openRagManager",
+    "onCommand:code-review.openPRSummary",
+    "onCommand:code-review.openQualityReport",
+    "onCommand:code-review.openReviewIntelligence",
+    "onCommand:code-review.openProjectChat",
+    "onCommand:code-review.openDependencyGraph",
+    "onCommand:code-review.viewPlans",
+    "onCommand:code-review.configureLicense",
+    "onCommand:code-review.startProTrial",
+    "onCommand:code-review.openTeamDashboard",
+    "onCommand:code-review.shareReviewSession",
+    "onCommand:code-review.manageReviewPolicies",
+    "onCommand:code-review.openCollaborationCenter",
+    "onCommand:code-review.openEnterpriseGovernance",
+    "onCommand:code-review.configureSso",
+    "onCommand:code-review.configureRbac",
+    "onCommand:code-review.openAuditLogs",
+    "onCommand:code-review.exportAuditLogs",
+    "onCommand:code-review.configureAIPolicies",
+    "onCommand:code-review.prepareSelfHostedBundle",
+    "onCommand:code-review.openWorkspace",
+    "onCommand:code-review.openAiCodingGuard",
+    "onCommand:code-review.openDashboard",
+    "onCommand:code-review.runUiRegressionGate",
+    "onCommand:code-review.openRagContextExplorer",
+    "onCommand:code-review.openReviewSessionTimeline",
+    "onCommand:code-review.openProCommercialCenter",
+    "onCommand:code-review.openTeamSyncCenter",
+    "onCommand:code-review.openEnterpriseReadinessReport",
+    "onCommand:code-review.aiCodingGuard.scanActiveDraft",
+    "onCommand:code-review.aiCodingGuard.scanChangedFiles",
+    "onCommand:code-review.aiCodingGuard.toggleAutoWatch"
   ],
   "scripts": {
     "compile": "tsc -p .",
-    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --external:typescript --external:ts-morph --external:@ts-morph/common --external:axios --sourcemap=external --metafile=meta.json --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --alias:@code-review/ui=../../packages/ui/src/index.ts --outfile=dist/extension.js",
-    "test": "vitest run --config vitest.config.ts",
+    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --alias:@code-review/core=../../packages/core/src/index.ts --alias:@code-review/domain=../../packages/domain/src/index.ts --alias:@code-review/infra=../../packages/infra/src/index.ts --alias:@code-review/ui=../../packages/ui/src/index.ts --outfile=dist/extension.js",
+    "test": "vitest run --config vitest.config.ts --pool=threads",
     "test:watch": "vitest --config vitest.config.ts",
-    "test:smoke": "vitest run tests/smoke --config vitest.config.ts",
+    "test:smoke": "vitest run tests/integration/extension.smoke.test.ts tests/integration/adapters/*.smoke.test.ts --config vitest.config.ts --pool=threads",
     "test:integration": "vitest run tests/integration --config vitest.config.ts",
     "test:regression": "vitest run tests/regression --config vitest.config.ts",
     "test:architecture": "npx dependency-cruiser src",
@@ -30,123 +100,445 @@
     "validate:config": "npx tsx scripts/validate-config.ts",
     "quality": "npm run typecheck && npm run test:architecture && npm run validate:config && npm run test:smoke && npm run test:integration",
     "package": "npm run build && vsce package --allow-missing-repository --no-dependencies",
-    "publish": "vsce publish"
-  },
-  "dependencies": {
-    "@code-review/ui": "workspace:*"
+    "publish": "vsce publish",
+    "test:production": "vitest run tests/production/package-manifest.test.ts tests/production/ui-regression.test.ts --config vitest.config.ts --coverage.enabled=false --pool=threads",
+    "validate:vsix": "node scripts/validate-vsix.cjs",
+    "production:gate": "npm run typecheck && npm run test:production && npm run build && npm run package && npm run validate:vsix",
+    "marketplace:package": "npm run product:release",
+    "marketplace:publish": "vsce publish --packagePath git-code-review-5.1.0.vsix"
   },
   "engines": {
     "vscode": "^1.118.0"
   },
   "categories": [
+    "Testing",
+    "Visualization",
     "Other"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
+        "command": "code-review.startReview",
+        "title": "Start Review",
+        "category": "Code Review",
+        "icon": "$(play-circle)"
+      },
+      {
+        "command": "code-review.openDashboard",
+        "title": "Open Dashboard",
+        "category": "Code Review",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "code-review.openWorkspace",
+        "title": "Open Code Review Workspace",
+        "category": "Code Review",
+        "icon": "$(layout)"
+      },
+      {
+        "command": "code-review.openAiCodingGuard",
+        "title": "Open AI Coding Guard",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
         "command": "code-review.analyze",
-        "title": "Code Review: Analyze Code with IA"
+        "title": "Analyze Current File",
+        "category": "Code Review",
+        "icon": "$(search)"
       },
       {
         "command": "code-review.analyzeWorkspace",
-        "title": "Code Review: Analyze Entire Workspace"
+        "title": "Analyze Workspace",
+        "category": "Code Review",
+        "icon": "$(workspace-trusted)"
       },
       {
         "command": "code-review.generatePRSummary",
-        "title": "Code Review: Generate AI PR Summary"
+        "title": "Generate AI PR Summary",
+        "category": "Code Review",
+        "icon": "$(git-pull-request)"
       },
       {
         "command": "code-review.generateQualityReport",
-        "title": "Code Review: Generate Technical Quality Report"
+        "title": "Generate Technical Quality Report",
+        "category": "Code Review",
+        "icon": "$(graph)"
       },
       {
         "command": "code-review.analyzeBranchCommits",
-        "title": "Code Review: Analyze Branch Commits"
+        "title": "Analyze Branch Commits",
+        "category": "Code Review",
+        "icon": "$(git-commit)"
       },
       {
         "command": "code-review.analyzePr",
-        "title": "Code Review: Analyze Pull Request"
+        "title": "Analyze Pull Request",
+        "category": "Code Review",
+        "icon": "$(git-pull-request)"
       },
       {
         "command": "code-review.clearRepositoryRag",
-        "title": "Code Review: Clear Repository RAG"
+        "title": "Clear Repository RAG",
+        "category": "Code Review",
+        "icon": "$(trash)"
       },
       {
         "command": "code-review.clearSession",
-        "title": "Code Review: Clear Current Review Session"
+        "title": "Clear Current Review Session",
+        "category": "Code Review",
+        "icon": "$(clear-all)"
       },
       {
         "command": "code-review.focus",
-        "title": "Code Review: Focus on AI Review View"
+        "title": "Focus on Code Review View",
+        "category": "Code Review",
+        "icon": "$(eye)"
       },
       {
         "command": "code-review.indexRepositoryRag",
-        "title": "Code Review: Index Repository RAG"
+        "title": "Index Repository RAG",
+        "category": "Code Review",
+        "icon": "$(database)"
       },
       {
         "command": "code-review.publishPrReview",
-        "title": "Code Review: Publish Approved Findings to PR/MR"
+        "title": "Publish Approved Findings to PR/MR",
+        "category": "Code Review",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "code-review.restoreSession",
-        "title": "Code Review: Restore Session for Current Branch"
+        "title": "Restore Session for Current Branch",
+        "category": "Code Review",
+        "icon": "$(history)"
       },
       {
         "command": "code-review.searchRepositoryContext",
-        "title": "Code Review: Search Repository Context"
+        "title": "Search Repository Context",
+        "category": "Code Review",
+        "icon": "$(search)"
       },
       {
         "command": "code-review.setGitLabCredentials",
-        "title": "Code Review: Set GitLab Login/Password"
+        "title": "Set GitLab Login/Password",
+        "category": "Code Review",
+        "icon": "$(key)"
       },
       {
         "command": "code-review.setGitLabToken",
-        "title": "Code Review: Set GitLab Private Token"
+        "title": "Set GitLab Private Token",
+        "category": "Code Review",
+        "icon": "$(key)"
       },
       {
         "command": "code-review.setGitLabUrl",
-        "title": "Code Review: Set GitLab Base URL"
+        "title": "Set GitLab Base URL",
+        "category": "Code Review",
+        "icon": "$(link)"
       },
       {
         "command": "code-review.setOpenAIApiKey",
-        "title": "Code Review: Set OpenAI API Key"
+        "title": "Set OpenAI API Key",
+        "category": "Code Review",
+        "icon": "$(key)"
+      },
+      {
+        "command": "code-review.setGitHubToken",
+        "title": "Set GitHub Token",
+        "category": "Code Review",
+        "icon": "$(key)"
       },
       {
         "command": "code-review.setGeminiApiKey",
-        "title": "Code Review: Set Gemini API Key"
+        "title": "Set Gemini API Key",
+        "category": "Code Review",
+        "icon": "$(key)"
       },
       {
         "command": "code-review.setProvider",
-        "title": "Code Review: Set AI Provider"
+        "title": "Set AI Provider",
+        "category": "Code Review",
+        "icon": "$(settings-gear)"
       },
       {
         "command": "code-review.syncRemotePR",
-        "title": "Code Review: Sync with GitHub/GitLab PR/MR"
+        "title": "Sync with GitHub/GitLab PR/MR",
+        "category": "Code Review",
+        "icon": "$(sync)"
       },
       {
         "command": "code-review.setupRag",
-        "title": "Code Review: Setup RAG"
+        "title": "Setup RAG",
+        "category": "Code Review",
+        "icon": "$(database)"
       },
       {
         "command": "code-review.setup",
-        "title": "Code Review: Guided Setup"
+        "title": "Guided Setup",
+        "category": "Code Review",
+        "icon": "$(gear)"
       },
       {
         "command": "code-review.approveFinding",
-        "title": "Code Review: Approve Finding"
+        "title": "Approve Finding",
+        "category": "Code Review",
+        "icon": "$(check)"
       },
       {
         "command": "code-review.syncWithVps",
-        "title": "Code Review: Sync with VPS"
+        "title": "Sync with VPS",
+        "category": "Code Review",
+        "icon": "$(server-process)"
+      },
+      {
+        "command": "code-review.runDiagnostics",
+        "title": "Run Product Diagnostics",
+        "category": "Code Review",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "code-review.exportMarkdown",
+        "title": "Export Review as Markdown",
+        "category": "Code Review",
+        "icon": "$(markdown)"
+      },
+      {
+        "command": "code-review.setupOllama",
+        "title": "Setup Ollama Local AI",
+        "category": "Code Review",
+        "icon": "$(server-process)"
+      },
+      {
+        "command": "code-review.revalidateSession",
+        "title": "Revalidate Current Review Session",
+        "category": "Code Review",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "code-review.configureCloudProvider",
+        "title": "Configure Cloud AI Provider",
+        "category": "Code Review",
+        "icon": "$(cloud)"
+      },
+      {
+        "command": "code-review.testAIProvider",
+        "title": "Test AI Provider Connection",
+        "category": "Code Review",
+        "icon": "$(check)"
+      },
+      {
+        "command": "code-review.exportPdf",
+        "title": "Export Review as PDF",
+        "category": "Code Review",
+        "icon": "$(file-pdf)"
+      },
+      {
+        "command": "code-review.selectReviewTemplate",
+        "title": "Select Review Template",
+        "category": "Code Review",
+        "icon": "$(list-selection)"
+      },
+      {
+        "command": "code-review.showProUpgrade",
+        "title": "View Pro Features",
+        "category": "Code Review",
+        "icon": "$(star)"
+      },
+      {
+        "command": "code-review.openReviewHistory",
+        "title": "Open Review History",
+        "category": "Code Review",
+        "icon": "$(history)"
+      },
+      {
+        "command": "code-review.openProviderSetup",
+        "title": "Open Provider Setup",
+        "category": "Code Review",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "code-review.openRagManager",
+        "title": "Open RAG Manager",
+        "category": "Code Review",
+        "icon": "$(database)"
+      },
+      {
+        "command": "code-review.openPRSummary",
+        "title": "Open PR Summary Workspace",
+        "category": "Code Review",
+        "icon": "$(git-pull-request)"
+      },
+      {
+        "command": "code-review.openQualityReport",
+        "title": "Open Quality Report Workspace",
+        "category": "Code Review",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "code-review.openReviewIntelligence",
+        "title": "Open Review Intelligence",
+        "category": "Code Review",
+        "icon": "$(symbol-event)"
+      },
+      {
+        "command": "code-review.openProjectChat",
+        "title": "Open Project Chat",
+        "category": "Code Review",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "code-review.openDependencyGraph",
+        "title": "Open Dependency Graph",
+        "category": "Code Review",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "code-review.viewPlans",
+        "title": "View Plans and Packaging",
+        "category": "Code Review",
+        "icon": "$(credit-card)"
+      },
+      {
+        "command": "code-review.configureLicense",
+        "title": "Configure License Plan",
+        "category": "Code Review",
+        "icon": "$(key)"
+      },
+      {
+        "command": "code-review.startProTrial",
+        "title": "Start Pro Trial",
+        "category": "Code Review",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "code-review.openTeamDashboard",
+        "title": "Open Team Dashboard",
+        "category": "Code Review",
+        "icon": "$(organization)"
+      },
+      {
+        "command": "code-review.shareReviewSession",
+        "title": "Export Shared Review Session",
+        "category": "Code Review",
+        "icon": "$(export)"
+      },
+      {
+        "command": "code-review.manageReviewPolicies",
+        "title": "Manage Review Policies",
+        "category": "Code Review",
+        "icon": "$(law)"
+      },
+      {
+        "command": "code-review.openCollaborationCenter",
+        "title": "Open Collaboration Center",
+        "category": "Code Review",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "code-review.openEnterpriseGovernance",
+        "title": "Open Enterprise Governance",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "code-review.configureSso",
+        "title": "Configure SSO",
+        "category": "Code Review",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "code-review.configureRbac",
+        "title": "Configure RBAC",
+        "category": "Code Review",
+        "icon": "$(person)"
+      },
+      {
+        "command": "code-review.openAuditLogs",
+        "title": "Open Audit Logs",
+        "category": "Code Review",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "code-review.exportAuditLogs",
+        "title": "Export Audit Logs",
+        "category": "Code Review",
+        "icon": "$(save-as)"
+      },
+      {
+        "command": "code-review.configureAIPolicies",
+        "title": "Configure AI Policies",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "code-review.prepareSelfHostedBundle",
+        "title": "Prepare Self-hosted Bundle",
+        "category": "Code Review",
+        "icon": "$(package)"
+      },
+      {
+        "command": "code-review.runUiRegressionGate",
+        "title": "Run UI Regression Gate",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "code-review.openRagContextExplorer",
+        "title": "Open RAG Context Explorer",
+        "category": "Code Review",
+        "icon": "$(references)"
+      },
+      {
+        "command": "code-review.openReviewSessionTimeline",
+        "title": "Open Review Session Timeline",
+        "category": "Code Review",
+        "icon": "$(timeline-view-icon)"
+      },
+      {
+        "command": "code-review.openProCommercialCenter",
+        "title": "Open Pro Commercial Center",
+        "category": "Code Review",
+        "icon": "$(credit-card)"
+      },
+      {
+        "command": "code-review.openTeamSyncCenter",
+        "title": "Open Team Sync Center",
+        "category": "Code Review",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "code-review.openEnterpriseReadinessReport",
+        "title": "Open Enterprise Readiness Report",
+        "category": "Code Review",
+        "icon": "$(report)"
+      },
+      {
+        "command": "code-review.aiCodingGuard.scanActiveDraft",
+        "title": "Scan Active Draft with AI Coding Guard",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "code-review.aiCodingGuard.scanChangedFiles",
+        "title": "Scan Open Changed Files with AI Coding Guard",
+        "category": "Code Review",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "code-review.aiCodingGuard.toggleAutoWatch",
+        "title": "Toggle AI Coding Guard Auto Watch",
+        "category": "Code Review",
+        "icon": "$(eye)"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "code-review",
-          "title": "AI Review",
-          "icon": "$(search-stop)"
+          "title": "Code Review",
+          "icon": "media/activitybar.svg"
         }
       ]
     },
@@ -155,27 +547,32 @@
         {
           "type": "webview",
           "id": "code-review.dashboard",
-          "name": "Dashboard"
+          "name": "Dashboard",
+          "visibility": "visible"
         },
         {
           "type": "webview",
           "id": "code-review.findingsView",
-          "name": "Review Findings"
+          "name": "Findings",
+          "visibility": "visible"
         },
         {
           "type": "webview",
           "id": "code-review.chatView",
-          "name": "Project AI Chat"
+          "name": "Chat",
+          "visibility": "visible"
         },
         {
           "type": "webview",
           "id": "code-review.ragStatus",
-          "name": "RAG Status"
+          "name": "RAG",
+          "visibility": "collapsed"
         },
         {
           "type": "webview",
           "id": "code-review.dependencyGraph",
-          "name": "Dependency Graph"
+          "name": "Graph",
+          "visibility": "collapsed"
         }
       ]
     },
@@ -193,7 +590,7 @@
       }
     ],
     "configuration": {
-      "title": "AI Code Review",
+      "title": "Git Code Review",
       "properties": {
         "codeReview.provider": {
           "type": "string",
@@ -309,17 +706,597 @@
           "type": "string",
           "default": "",
           "description": "GitLab username (for basic auth)."
+        },
+        "codeReview.git.baseBranch": {
+          "type": "string",
+          "default": "",
+          "description": "Base branch used for branch diff, branch commit analysis, and PR summary generation. Leave empty to auto-detect origin/main, main, origin/master, master, origin/develop, develop, origin/dev, or dev."
+        },
+        "codeReview.workspace.maxFiles": {
+          "type": "number",
+          "default": 250,
+          "minimum": 1,
+          "maximum": 2000,
+          "description": "Maximum files analyzed by the workspace analyzer in a single run."
+        },
+        "codeReview.workspace.includeExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".php",
+            ".vue",
+            ".ts",
+            ".tsx",
+            ".js",
+            ".jsx",
+            ".json",
+            ".md",
+            ".py",
+            ".go",
+            ".java",
+            ".cs",
+            ".rb"
+          ],
+          "description": "File extensions considered by workspace analysis."
+        },
+        "codeReview.product.plan": {
+          "type": "string",
+          "default": "community",
+          "enum": [
+            "community",
+            "pro",
+            "team",
+            "enterprise"
+          ],
+          "description": "Current product plan used by the extension UI and diagnostics."
+        },
+        "codeReview.product.targetAudience": {
+          "type": "string",
+          "default": "code reviewers",
+          "description": "Primary product audience. Used to keep onboarding and UX aligned."
+        },
+        "codeReview.community.showOnboardingOnStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the first-run Community onboarding prompt once after installation."
+        },
+        "codeReview.community.autoIndexRagAfterSetup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Offer automatic local RAG indexing after guided setup."
+        },
+        "codeReview.session.persistLocal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Persist review sessions locally so findings survive VS Code reloads."
+        },
+        "codeReview.refactor.previewBeforeApply": {
+          "type": "boolean",
+          "default": true,
+          "description": "Always show a diff preview before applying AI-generated refactors."
+        },
+        "codeReview.review.template": {
+          "type": "string",
+          "default": "general",
+          "enum": [
+            "general",
+            "security",
+            "architecture",
+            "laravel",
+            "react",
+            "api",
+            "performance",
+            "testability"
+          ],
+          "description": "Review template used to focus the next analysis."
+        },
+        "codeReview.pro.cloudProviderConfigured": {
+          "type": "boolean",
+          "default": false,
+          "description": "Indicates whether a Pro cloud provider has been configured in this VS Code profile."
+        },
+        "codeReview.export.pdf.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable local PDF export for review reports."
+        },
+        "codeReview.pro.prSummary.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Pro Foundation PR summary workflow."
+        },
+        "codeReview.team.organization": {
+          "type": "string",
+          "default": "",
+          "description": "Team organization name for shared sessions and dashboards."
+        },
+        "codeReview.team.sharedSessions.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Team shared-session workflows when a backend is configured."
+        },
+        "codeReview.enterprise.sso.provider": {
+          "type": "string",
+          "default": "not configured",
+          "enum": [
+            "not configured",
+            "disabled",
+            "saml",
+            "oidc"
+          ],
+          "description": "Enterprise SSO provider mode."
+        },
+        "codeReview.enterprise.rbac.role": {
+          "type": "string",
+          "default": "reviewer",
+          "enum": [
+            "admin",
+            "reviewer",
+            "viewer"
+          ],
+          "description": "Local RBAC role used by Enterprise governance workflows."
+        },
+        "codeReview.enterprise.audit.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable local audit logs for governance actions."
+        },
+        "codeReview.enterprise.ai.localOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restrict AI usage to local providers only."
+        },
+        "codeReview.enterprise.selfHosted.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable self-hosted readiness workflows."
+        },
+        "codeReview.product.trial.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow local Pro trial activation for evaluation."
+        },
+        "codeReview.rag.incremental.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable incremental local RAG reindexing for changed files."
+        },
+        "codeReview.session.timeline.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show local review session timeline in the workspace."
+        },
+        "codeReview.team.sync.mode": {
+          "type": "string",
+          "default": "local-export",
+          "enum": [
+            "local-export",
+            "cloud-sync"
+          ],
+          "description": "Team sync mode. Cloud sync requires backend."
+        },
+        "codeReview.aiCodingGuard.autoWatch.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically scan changed/open documents for generated-code nonconformities."
+        },
+        "codeReview.aiCodingGuard.autoWatch.notify": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a warning notification when AI Coding Guard Auto Watch finds blocked or warning issues."
+        },
+        "codeReview.aiCodingGuard.autoWatch.scanUnsaved": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan unsaved active document changes while another AI agent is drafting code."
+        },
+        "codeReview.aiCodingGuard.autoWatch.scanActiveEditor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan the active editor when focus changes so generated draft previews are checked automatically."
+        },
+        "codeReview.aiCodingGuard.autoWatch.maxChars": {
+          "type": "number",
+          "default": 180000,
+          "minimum": 1000,
+          "maximum": 1000000,
+          "description": "Maximum document size scanned by AI Coding Guard Auto Watch."
         }
       }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "code-review.openDashboard"
+        },
+        {
+          "command": "code-review.startReview"
+        },
+        {
+          "command": "code-review.openWorkspace"
+        },
+        {
+          "command": "code-review.openAiCodingGuard"
+        },
+        {
+          "command": "code-review.analyze"
+        },
+        {
+          "command": "code-review.analyzeWorkspace"
+        },
+        {
+          "command": "code-review.generatePRSummary"
+        },
+        {
+          "command": "code-review.generateQualityReport"
+        },
+        {
+          "command": "code-review.analyzeBranchCommits"
+        },
+        {
+          "command": "code-review.analyzePr"
+        },
+        {
+          "command": "code-review.clearRepositoryRag"
+        },
+        {
+          "command": "code-review.clearSession"
+        },
+        {
+          "command": "code-review.focus"
+        },
+        {
+          "command": "code-review.indexRepositoryRag"
+        },
+        {
+          "command": "code-review.publishPrReview"
+        },
+        {
+          "command": "code-review.restoreSession"
+        },
+        {
+          "command": "code-review.searchRepositoryContext"
+        },
+        {
+          "command": "code-review.setGitLabCredentials"
+        },
+        {
+          "command": "code-review.setGitLabToken"
+        },
+        {
+          "command": "code-review.setGitLabUrl"
+        },
+        {
+          "command": "code-review.setOpenAIApiKey"
+        },
+        {
+          "command": "code-review.setGitHubToken"
+        },
+        {
+          "command": "code-review.setGeminiApiKey"
+        },
+        {
+          "command": "code-review.setProvider"
+        },
+        {
+          "command": "code-review.syncRemotePR"
+        },
+        {
+          "command": "code-review.setupRag"
+        },
+        {
+          "command": "code-review.setup"
+        },
+        {
+          "command": "code-review.approveFinding"
+        },
+        {
+          "command": "code-review.syncWithVps"
+        },
+        {
+          "command": "code-review.runDiagnostics"
+        },
+        {
+          "command": "code-review.exportMarkdown"
+        },
+        {
+          "command": "code-review.setupOllama"
+        },
+        {
+          "command": "code-review.revalidateSession"
+        },
+        {
+          "command": "code-review.configureCloudProvider"
+        },
+        {
+          "command": "code-review.testAIProvider"
+        },
+        {
+          "command": "code-review.exportPdf"
+        },
+        {
+          "command": "code-review.selectReviewTemplate"
+        },
+        {
+          "command": "code-review.showProUpgrade"
+        },
+        {
+          "command": "code-review.openReviewHistory"
+        },
+        {
+          "command": "code-review.openProviderSetup"
+        },
+        {
+          "command": "code-review.openRagManager"
+        },
+        {
+          "command": "code-review.openPRSummary"
+        },
+        {
+          "command": "code-review.openQualityReport"
+        },
+        {
+          "command": "code-review.openReviewIntelligence"
+        },
+        {
+          "command": "code-review.openProjectChat"
+        },
+        {
+          "command": "code-review.openDependencyGraph"
+        },
+        {
+          "command": "code-review.viewPlans"
+        },
+        {
+          "command": "code-review.configureLicense"
+        },
+        {
+          "command": "code-review.startProTrial"
+        },
+        {
+          "command": "code-review.openTeamDashboard"
+        },
+        {
+          "command": "code-review.shareReviewSession"
+        },
+        {
+          "command": "code-review.manageReviewPolicies"
+        },
+        {
+          "command": "code-review.openCollaborationCenter"
+        },
+        {
+          "command": "code-review.openEnterpriseGovernance"
+        },
+        {
+          "command": "code-review.configureSso"
+        },
+        {
+          "command": "code-review.configureRbac"
+        },
+        {
+          "command": "code-review.openAuditLogs"
+        },
+        {
+          "command": "code-review.exportAuditLogs"
+        },
+        {
+          "command": "code-review.configureAIPolicies"
+        },
+        {
+          "command": "code-review.prepareSelfHostedBundle"
+        },
+        {
+          "command": "code-review.runUiRegressionGate"
+        },
+        {
+          "command": "code-review.openRagContextExplorer"
+        },
+        {
+          "command": "code-review.openReviewSessionTimeline"
+        },
+        {
+          "command": "code-review.openProCommercialCenter"
+        },
+        {
+          "command": "code-review.openTeamSyncCenter"
+        },
+        {
+          "command": "code-review.openEnterpriseReadinessReport"
+        },
+        {
+          "command": "code-review.aiCodingGuard.scanActiveDraft"
+        },
+        {
+          "command": "code-review.aiCodingGuard.scanChangedFiles"
+        },
+        {
+          "command": "code-review.aiCodingGuard.toggleAutoWatch"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "code-review.openDashboard",
+          "when": "view == code-review.dependencyGraph",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "code-review.openDashboard",
+          "when": "view == code-review.ragStatus",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "code-review.openDashboard",
+          "when": "view == code-review.chatView",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "code-review.openDashboard",
+          "when": "view == code-review.findingsView",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "code-review.openDashboard",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "code-review.openWorkspace",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.startReview",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.setup",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@1"
+        },
+        {
+          "command": "code-review.analyzeWorkspace",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@2"
+        },
+        {
+          "command": "code-review.analyze",
+          "when": "view == code-review.findingsView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "code-review.indexRepositoryRag",
+          "when": "view == code-review.ragStatus",
+          "group": "navigation@1"
+        },
+        {
+          "command": "code-review.searchRepositoryContext",
+          "when": "view == code-review.ragStatus",
+          "group": "2_rag@1"
+        },
+        {
+          "command": "code-review.clearRepositoryRag",
+          "when": "view == code-review.ragStatus",
+          "group": "2_rag@2"
+        },
+        {
+          "command": "code-review.runDiagnostics",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@3"
+        },
+        {
+          "command": "code-review.exportMarkdown",
+          "when": "view == code-review.findingsView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "code-review.revalidateSession",
+          "when": "view == code-review.findingsView",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.setupOllama",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@4"
+        },
+        {
+          "command": "code-review.openProviderSetup",
+          "when": "view == code-review.dashboard",
+          "group": "2_setup@1"
+        },
+        {
+          "command": "code-review.openRagManager",
+          "when": "view == code-review.ragStatus",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.openProjectChat",
+          "when": "view == code-review.chatView",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.openDependencyGraph",
+          "when": "view == code-review.dependencyGraph",
+          "group": "navigation@0"
+        },
+        {
+          "command": "code-review.openTeamDashboard",
+          "when": "view == code-review.dashboard",
+          "group": "3_team@1"
+        },
+        {
+          "command": "code-review.openEnterpriseGovernance",
+          "when": "view == code-review.dashboard",
+          "group": "4_enterprise@1"
+        },
+        {
+          "command": "code-review.runUiRegressionGate",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@9",
+          "view": "code-review.dashboard"
+        },
+        {
+          "command": "code-review.openRagContextExplorer",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@9",
+          "view": "code-review.dashboard"
+        },
+        {
+          "command": "code-review.openReviewSessionTimeline",
+          "when": "view == code-review.dashboard",
+          "group": "navigation@9",
+          "view": "code-review.dashboard"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "code-review.analyze",
+          "when": "editorTextFocus",
+          "group": "navigation@1"
+        },
+        {
+          "command": "code-review.generatePRSummary",
+          "when": "editorTextFocus",
+          "group": "navigation@2"
+        }
+      ]
     }
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.7.0",
+    "@types/node": "^22.15.0",
     "@types/vscode": "^1.118.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.9.1",
     "mocha": "^11.7.5",
-    "typescript": "^5.9.3"
-  }
+    "typescript": "^5.9.3",
+    "esbuild": "^0.28.0",
+    "vitest": "^1.6.1",
+    "dependency-cruiser": "^17.4.0",
+    "tsx": "^4.21.1"
+  },
+  "icon": "media/icon-128.png",
+  "keywords": [
+    "code review",
+    "reviewer",
+    "git",
+    "pull request",
+    "ai",
+    "rag",
+    "ollama",
+    "quality",
+    "governance",
+    "technical debt",
+    "human in the loop"
+  ],
+  "galleryBanner": {
+    "color": "#0f172a",
+    "theme": "dark"
+  },
+  "qna": "marketplace",
+  "preview": false,
+  "marketplace:publish": "vsce publish --packagePath git-code-review-4.0.2.vsix"
 }

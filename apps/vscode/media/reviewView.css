@@ -1,0 +1,125 @@
+body {
+    padding: 10px;
+    color: var(--vscode-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+}
+
+.summary {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 12px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.finding {
+    border: 1px solid var(--vscode-panel-border);
+    border-left: 4px solid var(--vscode-focusBorder);
+    border-radius: 8px;
+    padding: 10px;
+    background: var(--vscode-sideBar-background);
+}
+
+.finding-warning {
+    border-left-color: #d7ba7d;
+}
+
+.finding-error {
+    border-left-color: #f48771;
+}
+
+.finding-info {
+    border-left-color: #75beff;
+}
+
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.finding-file {
+    font-size: 11px;
+    margin-bottom: 8px;
+    color: var(--vscode-textLink-foreground);
+    word-break: break-all;
+}
+
+.finding-message {
+    margin: 0 0 10px;
+    line-height: 1.4;
+}
+
+.suggested-fix {
+    padding: 8px;
+    overflow: auto;
+    border-radius: 6px;
+    background: var(--vscode-textCodeBlock-background);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+button {
+    cursor: pointer;
+    border: 1px solid var(--vscode-button-border, transparent);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: var(--vscode-button-foreground);
+    background: var(--vscode-button-background);
+}
+
+button:hover {
+    background: var(--vscode-button-hoverBackground);
+}
+
+.panel {
+    border: 1px solid var(--vscode-panel-border);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.loading-panel {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--vscode-descriptionForeground);
+    border-top-color: var(--vscode-focusBorder);
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+}
+
+.steps {
+    margin: 8px 0 0;
+    padding-left: 16px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.error-panel {
+    color: var(--vscode-errorForeground);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

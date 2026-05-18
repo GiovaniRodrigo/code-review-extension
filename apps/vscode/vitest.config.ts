@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    testTimeout: 30000,
     setupFiles: ['./tests/setup/setupTests.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/out/**', '**/tests/e2e/**', '**/.{idea,git,cache,output,temp}/**']
   },

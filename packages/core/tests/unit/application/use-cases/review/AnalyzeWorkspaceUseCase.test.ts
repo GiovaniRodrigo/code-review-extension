@@ -29,7 +29,7 @@ describe('AnalyzeWorkspaceUseCase', () => {
     const useCase = new AnalyzeWorkspaceUseCase(mockWorkspace, mockFS, mockAI, mockReviewService);
     const result = await useCase.execute({ branch: 'main' });
 
-    expect(mockWorkspace.findFiles).toHaveBeenCalledWith('**/*.{ts,tsx,js,jsx}');
+    expect(mockWorkspace.findFiles).toHaveBeenCalledWith('**/*.{php,ts,tsx,js,jsx,vue}');
     expect(mockFS.readFile).toHaveBeenCalledTimes(2);
     expect(mockAI.analyze).toHaveBeenCalledTimes(2);
     expect(mockReviewService.update).toHaveBeenCalled();
@@ -106,5 +106,22 @@ describe('AnalyzeWorkspaceUseCase', () => {
 
     expect(result.findings).toHaveLength(2);
   });
+
+  it('should prioritize Laravel/PHP source files and skip Cypress example files', async () => {
+    mockWorkspace.findFiles.mockResolvedValue([
+      '/repo/cypress/e2e/2-advanced-examples/actions.cy.js',
+      '/repo/resources/js/app.tsx',
+      '/repo/app/Providers/AppServiceProvider.php',
+      '/repo/tests/Feature/LoginTest.php'
+    ]);
+
+    const useCase = new AnalyzeWorkspaceUseCase(mockWorkspace, mockFS, mockAI, mockReviewService);
+    await useCase.execute({ branch: 'main' });
+
+    expect(mockFS.readFile).toHaveBeenCalledTimes(3);
+    expect(mockFS.readFile).toHaveBeenNthCalledWith(1, '/repo/app/Providers/AppServiceProvider.php');
+    expect(mockFS.readFile).not.toHaveBeenCalledWith('/repo/cypress/e2e/2-advanced-examples/actions.cy.js');
+  });
+
 });
 

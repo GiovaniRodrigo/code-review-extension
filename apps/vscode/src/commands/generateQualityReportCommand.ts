@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as os from 'os';
 import { VSCodeContainer } from '../dependencies/buildContainer';
 import { GenerateQualityReportUseCase } from '@code-review/core';
 
@@ -25,8 +26,12 @@ export const generateQualityReportCommand = {
         await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
 
         // Offer to save to a file
+        const defaultName = `quality-report-${branch.replace(/\//g, '-')}.md`;
+        const defaultUri = vscode.workspace.workspaceFolders?.[0]
+            ? vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, defaultName)
+            : vscode.Uri.file(`${os.tmpdir()}/${defaultName}`);
         const saveUri = await vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(`quality-report-${branch.replace(/\//g, '-')}.md`),
+            defaultUri,
             filters: { 'Markdown': ['md'], 'JSON': ['json'] }
         });
 

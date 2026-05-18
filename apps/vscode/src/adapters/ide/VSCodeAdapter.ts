@@ -172,7 +172,7 @@ export class VSCodeAdapter implements IdeAdapterPort {
     const severity = this._toDiagnosticSeverity(finding.severity);
     const diagnostic = new vscode.Diagnostic(range, finding.message, severity);
 
-    diagnostic.source = 'AI Code Review';
+    diagnostic.source = 'Git Code Review';
     diagnostic.code = finding.id;
 
     const currentDiagnostics = Array.from(this.diagnosticCollection?.get(uri) || []);
@@ -310,7 +310,7 @@ export class VSCodeAdapter implements IdeAdapterPort {
             const range = new vscode.Range(line, column, line, column);
             const severity = this._toDiagnosticSeverity(f.severity);
             const diagnostic = new vscode.Diagnostic(range, f.message, severity);
-            diagnostic.source = 'AI Code Review';
+            diagnostic.source = 'Git Code Review';
             diagnostic.code = f.id;
             return diagnostic;
         });
@@ -500,19 +500,51 @@ export class VSCodeAdapter implements IdeAdapterPort {
 
   async getBranchDiff(baseBranch: string): Promise<string> {
     const cwd = this._getWorkspacePath();
+    const normalizedBase = baseBranch?.trim() || '';
+    const configuredCandidates = normalizedBase ? [normalizedBase] : [];
+    const candidates = Array.from(new Set([
+      ...configuredCandidates.flatMap(candidate => candidate.startsWith('origin/')
+        ? [candidate, candidate.replace(/^origin\//, '')]
+        : [candidate, `origin/${candidate}`]
+      ),
+      'origin/main',
+      'main',
+      'origin/master',
+      'master',
+      'origin/develop',
+      'develop',
+      'origin/dev',
+      'dev',
+      'origin/staging',
+      'staging'
+    ].filter(Boolean)));
 
-    const { stdout } = await execFileAsync(
-      'git',
-      [
-        'diff',
-        `${baseBranch}...HEAD`
-      ],
-      {
-        cwd,
-        maxBuffer: 1024 * 1024 * 20
+    let lastError: unknown;
+
+    for (const candidate of candidates) {
+      try {
+        await execFileAsync('git', ['rev-parse', '--verify', candidate], { cwd });
+        const { stdout } = await execFileAsync(
+          'git',
+          [
+            'diff',
+            `${candidate}...HEAD`
+          ],
+          {
+            cwd,
+            maxBuffer: 1024 * 1024 * 20
+          }
+        );
+
+        return stdout;
+      } catch (error) {
+        lastError = error;
       }
-    );
+    }
 
-    return stdout;
+    console.debug('[VSCodeAdapter] Failed to resolve branch diff:', lastError);
+    throw new Error(
+      'Could not resolve a base branch automatically. Configure Git Code Review: Git Base Branch or fetch the remote branch first.'
+    );
   }
 }
